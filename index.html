@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bored! — Life Never Gets Boring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #1A6BFF;
+      --blue-d:  #1250CC;
+      --purple:  #8B5CF6;
+      --pink:    #EC4899;
+      --red:     #FF3B30;
+      --orange:  #FF6B1A;
+      --orange-d:#E05510;
+      --yellow:  #FFD500;
+      --green:   #00D084;
+      --cyan:    #00D9FF;
+      --bg:      #F7F8FC;
+      --white:   #FFFFFF;
+      --dark:    #0E1117;
+      --dark2:   #1C2030;
+      --grey:    #6B7280;
+      --grey-l:  #E5E7EB;
+      --radius:  16px;
+      --radius-lg: 24px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(247,248,252,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      padding: 0 5vw;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--orange); }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--grey);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta {
+      background: var(--orange);
+      color: var(--white) !important;
+      padding: .45rem 1.1rem;
+      border-radius: 50px;
+      font-weight: 700 !important;
+      transition: background .2s, transform .15s !important;
+    }
+    .nav-cta:hover { background: var(--orange-d) !important; transform: scale(1.03); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      padding: 120px 5vw 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 900px;
+      height: 900px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+      border-radius: 50%;
+      z-index: -1;
+    }
+    #hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 700px;
+      height: 700px;
+      background: linear-gradient(135deg, rgba(26, 107, 255, 0.12) 0%, rgba(0, 217, 255, 0.08) 100%);
+      border-radius: 50%;
+      z-index: -1;
+    }
+    .hero-text h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      color: var(--dark);
+      background: linear-gradient(135deg, var(--dark) 0%, var(--blue) 50%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-text h1 .accent-blue { color: var(--blue); -webkit-text-fill-color: var(--blue); }
+    .hero-text h1 .accent-orange { color: var(--orange); -webkit-text-fill-color: var(--orange); }
+    .hero-sub {
+      margin-top: 1.4rem;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--grey);
+      max-width: 480px;
+    }
+    .hero-badges {
+      display: flex;
+      gap: .75rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: var(--white);
+      border: 1.5px solid var(--grey-l);
+      border-radius: 50px;
+      padding: .35rem .9rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--grey);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .badge .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+    .badge .dot.orange { background: var(--orange); }
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: inline-block;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-d) 100%);
+      color: var(--white);
+      text-decoration: none;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 1rem 2.2rem;
+      border-radius: 50px;
+      box-shadow: 0 8px 28px rgba(26,107,255,.35);
+      transition: transform .2s, box-shadow .2s;
+      letter-spacing: -.2px;
+    }
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(26,107,255,.45);
+    }
+    .hero-cta span { color: var(--orange); }
+    .hero-sub-note {
+      margin-top: .75rem;
+      font-size: .8rem;
+      color: var(--grey);
+    }
+
+    /* ── PHONE MOCKUP ── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(139,92,246,0.1);stop-opacity:1" /><stop offset="100%" style="stop-color:rgba(236,72,153,0.1);stop-opacity:1" /></linearGradient></defs><circle cx="100" cy="100" r="80" fill="url(%23grad1)" opacity="0.3"/><circle cx="350" cy="500" r="100" fill="url(%23grad1)" opacity="0.2"/></svg>') no-repeat center;
+      background-size: 600px 600px;
+    }
+    .phone-wrap {
+      position: relative;
+      width: 280px;
+    }
+    .phone-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse at center, rgba(26,107,255,.18) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .phone-shell {
+      position: relative;
+      z-index: 1;
+      width: 280px;
+      background: var(--dark);
+      border-radius: 44px;
+      padding: 14px;
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.35),
+        0 0 0 1px rgba(255,255,255,.08) inset;
+    }
+    .phone-screen {
+      background: var(--white);
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Notch */
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 90px; height: 28px;
+      background: var(--dark);
+      border-radius: 0 0 18px 18px;
+      z-index: 2;
+    }
+    /* App UI inside phone */
+    .app-ui {
+      padding: 40px 0 0;
+      min-height: 520px;
+      background: #F0F4FF;
+    }
+    .app-header {
+      background: var(--blue);
+      padding: 14px 16px 20px;
+      color: white;
+    }
+    .app-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .app-title {
+      font-size: .75rem;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      opacity: .8;
+    }
+    .app-greeting {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .app-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+    .app-search {
+      background: rgba(255,255,255,.2);
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: .7rem;
+      color: rgba(255,255,255,.7);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-icon { font-size: .8rem; }
+    .app-body { padding: 12px 14px; }
+    .app-section-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--grey);
+      margin-bottom: 10px;
+    }
+    .activity-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    .activity-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .activity-card:nth-child(1) .activity-icon {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+    }
+    .activity-card:nth-child(2) .activity-icon {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+    }
+    .activity-card:nth-child(3) .activity-icon {
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+    }
+    .activity-info { flex: 1; }
+    .activity-name {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+    .activity-meta {
+      font-size: .62rem;
+      color: var(--grey);
+      margin-top: 2px;
+    }
+    .activity-badge {
+      background: #EEF3FF;
+      color: var(--blue);
+      font-size: .58rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .activity-badge.orange {
+      background: #FFF3ED;
+      color: var(--orange);
+    }
+    .app-bottom-nav {
+      background: var(--white);
+      border-top: 1px solid var(--grey-l);
+      padding: 10px 20px 14px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .nav-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: .6rem;
+      color: var(--grey);
+    }
+    .nav-icon.active { color: var(--blue); }
+    .nav-icon svg { width: 18px; height: 18px; }
+
+    /* Floating chips */
+    .float-chip {
+      position: absolute;
+      background: var(--white);
+      border-radius: 14px;
+      padding: .55rem .9rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      font-size: .78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      z-index: 3;
+      white-space: nowrap;
+      animation: floatUp 3s ease-in-out infinite;
+    }
+    .float-chip:nth-child(2) { animation-delay: 1s; }
+    .float-chip:nth-child(3) { animation-delay: 2s; }
+    .float-chip-left  { right: calc(100% + 20px); }
+    .float-chip-right { left: calc(100% + 20px); }
+
+    @keyframes floatUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* ── SECTION SHARED ── */
+    section {
+      padding: 100px 5vw;
+    }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      display: inline-block;
+      background: #EEF3FF;
+      color: var(--blue);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: .35rem .85rem;
+      border-radius: 50px;
+      margin-bottom: 1.2rem;
+    }
+    .section-tag.orange {
+      background: #FFF3ED;
+      color: var(--orange);
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: var(--dark);
+      max-width: 600px;
+    }
+    .section-sub {
+      margin-top: 1rem;
+      font-size: 1.05rem;
+      color: var(--grey);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* ── HOW IT WORKS ── */
+    #how {
+      background: linear-gradient(135deg, var(--white) 0%, rgba(139, 92, 246, 0.05) 50%, rgba(26, 107, 255, 0.05) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #how::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    #how > .section-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 42px;
+      left: calc(12.5% + 24px);
+      right: calc(12.5% + 24px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--orange));
+      opacity: .3;
+    }
+    .step-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      position: relative;
+      border: 1.5px solid transparent;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      overflow: hidden;
+    }
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -40%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      opacity: 0.1;
+      z-index: 0;
+    }
+    .step-card:nth-child(1)::before {
+      background: var(--blue);
+    }
+    .step-card:nth-child(2)::before {
+      background: var(--purple);
+    }
+    .step-card:nth-child(3)::before {
+      background: var(--pink);
+    }
+    .step-card:nth-child(4)::before {
+      background: var(--orange);
+    }
+    .step-card > * {
+      position: relative;
+      z-index: 1;
+    }
+    .step-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(26,107,255,.1);
+    }
+    .step-number {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-d));
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+      box-shadow: 0 6px 18px rgba(26,107,255,.3);
+    }
+    .step-card:nth-child(2) .step-number,
+    .step-card:nth-child(4) .step-number {
+      background: linear-gradient(135deg, var(--orange), var(--orange-d));
+      box-shadow: 0 6px 18px rgba(255,107,26,.3);
+    }
+    .step-emoji {
+      font-size: 2rem;
+      margin-bottom: .6rem;
+      display: block;
+    }
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: .5rem;
+    }
+    .step-desc {
+      font-size: .88rem;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    /* ── ADVANTAGES / WHY ── */
+    #why {
+      background: linear-gradient(135deg, var(--bg) 0%, rgba(26, 107, 255, 0.05) 50%, rgba(255, 107, 26, 0.03) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #why::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: -15%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.08), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    #why > .section-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .advantages-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-bottom: 3.5rem;
+    }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    .benefit-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      border: 1.5px solid var(--grey-l);
+      transition: border-color .25s, transform .25s, box-shadow .25s, background .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .benefit-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      opacity: 0.05;
+      z-index: 0;
+    }
+    .benefit-card:nth-child(1) {
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+    .benefit-card:nth-child(1)::before {
+      background: var(--purple);
+    }
+    .benefit-card:nth-child(2) {
+      border-color: rgba(26, 107, 255, 0.3);
+    }
+    .benefit-card:nth-child(2)::before {
+      background: var(--blue);
+    }
+    .benefit-card:nth-child(3) {
+      border-color: rgba(236, 72, 153, 0.3);
+    }
+    .benefit-card:nth-child(3)::before {
+      background: var(--pink);
+    }
+    .benefit-card:nth-child(4) {
+      border-color: rgba(255, 107, 26, 0.3);
+    }
+    .benefit-card:nth-child(4)::before {
+      background: var(--orange);
+    }
+    .benefit-card > * {
+      position: relative;
+      z-index: 1;
+    }
+    .benefit-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(26,107,255,.08);
+    }
+    .benefit-icon-wrap {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.1rem;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+    }
+    .benefit-card:nth-child(2) .benefit-icon-wrap {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+    }
+    .benefit-card:nth-child(3) .benefit-icon-wrap {
+      background: linear-gradient(135deg, var(--pink), var(--red));
+    }
+    .benefit-card:nth-child(4) .benefit-icon-wrap {
+      background: linear-gradient(135deg, var(--orange), var(--yellow));
+    }
+    .benefit-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: .45rem;
+      line-height: 1.3;
+    }
+    .benefit-desc {
+      font-size: .86rem;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-d) 100%);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      color: var(--white);
+    }
+    .stat-item { text-align: center; }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: var(--white);
+    }
+    .stat-number .stat-accent { color: var(--orange); }
+    .stat-label {
+      font-size: .82rem;
+      color: rgba(255,255,255,.7);
+      margin-top: .3rem;
+    }
+
+    /* ── PRICING ── */
+    #pricing {
+      background: linear-gradient(135deg, var(--white) 0%, rgba(139, 92, 246, 0.04) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #pricing::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 107, 26, 0.08), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    #pricing > .section-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+      align-items: start;
+    }
+    .plan-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem 1.8rem;
+      border: 2px solid var(--grey-l);
+      position: relative;
+      transition: transform .25s, box-shadow .25s, background .25s, border-color .25s;
+    }
+    .plan-card:nth-child(1) {
+      border-color: rgba(139, 92, 246, 0.4);
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.03) 100%);
+    }
+    .plan-card:nth-child(2) {
+      border-color: rgba(26, 107, 255, 0.4);
+    }
+    .plan-card:nth-child(3) {
+      border-color: rgba(255, 107, 26, 0.4);
+      background: linear-gradient(135deg, rgba(255, 107, 26, 0.05) 0%, rgba(255, 213, 0, 0.03) 100%);
+    }
+    .plan-card.featured {
+      background: linear-gradient(160deg, var(--blue) 0%, var(--purple) 100%);
+      border-color: var(--blue);
+      color: var(--white);
+      transform: scale(1.04);
+      box-shadow: 0 20px 60px rgba(26,107,255,.35);
+    }
+    .plan-card:hover:not(.featured) {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.09);
+      border-color: var(--blue);
+    }
+    .plan-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--orange);
+      color: var(--white);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      padding: .3rem .85rem;
+      border-radius: 50px;
+      white-space: nowrap;
+    }
+    .plan-name {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--grey);
+      margin-bottom: .6rem;
+    }
+    .plan-card.featured .plan-name { color: rgba(255,255,255,.7); }
+    .plan-price {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: var(--dark);
+      line-height: 1;
+    }
+    .plan-card.featured .plan-price { color: var(--white); }
+    .plan-price sup {
+      font-size: 1.2rem;
+      font-weight: 700;
+      vertical-align: super;
+      letter-spacing: 0;
+    }
+    .plan-period {
+      font-size: .85rem;
+      color: var(--grey);
+      margin-top: .3rem;
+      margin-bottom: 1.6rem;
+    }
+    .plan-card.featured .plan-period { color: rgba(255,255,255,.65); }
+    .plan-divider {
+      height: 1px;
+      background: var(--grey-l);
+      margin-bottom: 1.5rem;
+    }
+    .plan-card.featured .plan-divider { background: rgba(255,255,255,.2); }
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+      margin-bottom: 2rem;
+    }
+    .plan-features li {
+      font-size: .88rem;
+      color: var(--grey);
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+    }
+    .plan-card.featured .plan-features li { color: rgba(255,255,255,.85); }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--blue);
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .plan-card.featured .plan-features li::before { color: var(--orange); }
+    .plan-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 50px;
+      padding: .85rem 1.5rem;
+      font-weight: 800;
+      font-size: .9rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .plan-btn:hover { transform: translateY(-2px); }
+    .plan-btn-outline {
+      border: 2px solid var(--blue);
+      color: var(--blue);
+    }
+    .plan-btn-outline:hover {
+      background: #EEF3FF;
+    }
+    .plan-btn-primary {
+      background: var(--orange);
+      color: var(--white);
+      box-shadow: 0 6px 20px rgba(255,107,26,.35);
+    }
+    .plan-btn-primary:hover { box-shadow: 0 10px 28px rgba(255,107,26,.45); }
+
+    /* ── BUSINESS ── */
+    #business {
+      background: linear-gradient(135deg, var(--bg) 0%, rgba(26, 107, 255, 0.06) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    #business::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -10%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    #business > .section-inner {
+      position: relative;
+      z-index: 1;
+    }
+    .business-inner {
+      background: linear-gradient(135deg, var(--white) 0%, rgba(139, 92, 246, 0.03) 100%);
+      border-radius: 28px;
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      border: 1.5px solid var(--grey-l);
+    }
+    .biz-perks {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .biz-perk {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .biz-perk-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #EEF3FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .biz-perk-text strong {
+      display: block;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: .2rem;
+    }
+    .biz-perk-text span {
+      font-size: .83rem;
+      color: var(--grey);
+      line-height: 1.5;
+    }
+    .biz-visual {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 50%, rgba(26, 107, 255, 0.15) 100%);
+      border-radius: 20px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .biz-stat-row {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+    .biz-stat-label {
+      font-size: .8rem;
+      color: var(--grey);
+      font-weight: 500;
+    }
+    .biz-stat-val {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--blue);
+    }
+    .biz-stat-val.orange { color: var(--orange); }
+    .biz-cta {
+      display: inline-block;
+      margin-top: 2rem;
+      background: var(--dark);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: .9rem;
+      padding: .85rem 1.8rem;
+      border-radius: 50px;
+      transition: background .2s, transform .2s;
+    }
+    .biz-cta:hover {
+      background: var(--dark2);
+      transform: translateY(-2px);
+    }
+
+    /* ── FINAL CTA BANNER ── */
+    #final-cta {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+      padding: 120px 5vw;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #final-cta::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #final-cta::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; right: -100px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 107, 26, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .final-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .final-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.7);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: .35rem .85rem;
+      border-radius: 50px;
+      margin-bottom: 1.5rem;
+    }
+    .final-title {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      color: var(--white);
+    }
+    .final-title .accent-blue { color: #5A9BFF; }
+    .final-title .accent-orange { color: var(--orange); }
+    .final-sub {
+      margin-top: 1.2rem;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.7;
+    }
+    .final-cta-btn {
+      display: inline-block;
+      margin-top: 2.5rem;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-d) 100%);
+      color: var(--white);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 1.1rem 2.6rem;
+      border-radius: 50px;
+      box-shadow: 0 10px 36px rgba(255,107,26,.4);
+      transition: transform .2s, box-shadow .2s;
+      letter-spacing: -.2px;
+    }
+    .final-cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 44px rgba(255,107,26,.55);
+    }
+    .final-note {
+      margin-top: 1rem;
+      font-size: .8rem;
+      color: rgba(255,255,255,.35);
+    }
+    .social-proof-row {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+    .proof-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .2rem;
+    }
+    .proof-num {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -1px;
+    }
+    .proof-label {
+      font-size: .75rem;
+      color: rgba(255,255,255,.4);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark2);
+      padding: 2.5rem 5vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -.5px;
+    }
+    .footer-logo span { color: var(--orange); }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .footer-links a {
+      text-decoration: none;
+      font-size: .8rem;
+      color: rgba(255,255,255,.4);
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,.8); }
+    .footer-copy {
+      font-size: .78rem;
+      color: rgba(255,255,255,.3);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid::before { display: none; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .plan-card.featured { transform: none; }
+    }
+    @media (max-width: 768px) {
+      nav .nav-links { display: none; }
+      #hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding-top: 100px;
+      }
+      .hero-visual { order: -1; }
+      .hero-sub { margin-left: auto; margin-right: auto; }
+      .hero-badges { justify-content: center; }
+      .phone-wrap { width: 230px; }
+      .phone-shell { width: 230px; }
+      .float-chip { display: none; }
+      .advantages-header { grid-template-columns: 1fr; gap: 2rem; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .business-inner {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .stat-strip { grid-template-columns: 1fr; gap: 1.5rem; }
+      .social-proof-row { gap: 1.5rem; }
+      footer { flex-direction: column; gap: 1.2rem; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .steps-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">Bored<span>!</span></div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#why">Why Bored!</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#business">For Business</a></li>
+    <li><a href="#final-cta" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero" style="padding-top: 120px; padding-bottom: 80px;">
+  <div class="hero-text">
+    <div class="badge" style="margin-bottom: 1.4rem;">
+      <span class="dot orange"></span>
+      Now Live in Beta — Join the Waitlist
+    </div>
+    <h1>
+      Life never gets<br/>
+      <span class="accent-blue">boring</span> with
+      <span class="accent-orange">Bored!</span>
+    </h1>
+    <p class="hero-sub">
+      Tired of staying home? We automate your social life. Pay a monthly fee,
+      pick an activity, and we'll map you to a group of new people doing the
+      same fun thing.
+    </p>
+    <div class="hero-badges">
+      <span class="badge"><span class="dot"></span> No awkward intros</span>
+      <span class="badge"><span class="dot orange"></span> New group every time</span>
+      <span class="badge"><span class="dot"></span> Cancel anytime</span>
+    </div>
+    <a href="#pricing" class="hero-cta">
+      Gooooo! <span>&mdash;</span> Sign Up &amp; Select Your First Activity
+    </a>
+    <p class="hero-sub-note">From $9.99/month &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Cancel anytime</p>
+  </div>
+
+  <div class="hero-visual">
+    <!-- Floating chips -->
+    <div class="float-chip" style="top: 15%; right: calc(100% + 16px); color: var(--blue);">
+      🎯 &nbsp;Activity matched!
+    </div>
+    <div class="float-chip" style="bottom: 30%; left: calc(100% + 16px); color: var(--orange);">
+      👥 &nbsp;6 people joined
+    </div>
+    <div class="float-chip" style="bottom: 10%; right: calc(100% + 16px); font-size: .72rem;">
+      📍 &nbsp;Meeting spot found
+    </div>
+
+    <div style="position: absolute; top: -20%; left: -10%; width: 300px; height: 300px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1)); border-radius: 50%; filter: blur(40px);"></div>
+    <div style="position: absolute; bottom: -30%; right: -5%; width: 250px; height: 250px; background: linear-gradient(135deg, rgba(26, 107, 255, 0.12), rgba(0, 217, 255, 0.08)); border-radius: 50%; filter: blur(40px);"></div>
+
+    <div class="phone-wrap">
+      <div class="phone-glow"></div>
+      <div class="phone-shell">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="app-ui">
+            <div class="app-header">
+              <div class="app-header-top">
+                <div>
+                  <div class="app-title">Bored!</div>
+                  <div class="app-greeting">Pick your vibe ✨</div>
+                </div>
+                <div class="app-avatar">JS</div>
+              </div>
+              <div class="app-search">
+                <span class="search-icon">🔍</span>
+                Search activities…
+              </div>
+            </div>
+            <div class="app-body">
+              <div class="app-section-label">This Weekend</div>
+
+              <div class="activity-card">
+                <div class="activity-icon" style="background: linear-gradient(135deg, var(--purple), var(--pink));">🧗</div>
+                <div class="activity-info">
+                  <div class="activity-name">Indoor Climbing</div>
+                  <div class="activity-meta">Sat 10am · 5 spots left</div>
+                </div>
+                <div class="activity-badge orange">Popular</div>
+              </div>
+
+              <div class="activity-card">
+                <div class="activity-icon" style="background: linear-gradient(135deg, var(--blue), var(--cyan));">🎨</div>
+                <div class="activity-info">
+                  <div class="activity-name">Art &amp; Paint Night</div>
+                  <div class="activity-meta">Sat 7pm · 3 spots left</div>
+                </div>
+                <div class="activity-badge">New</div>
+              </div>
+
+              <div class="activity-card">
+                <div class="activity-icon" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🏄</div>
+                <div class="activity-info">
+                  <div class="activity-name">Surf Lesson</div>
+                  <div class="activity-meta">Sun 8am · 6 spots left</div>
+                </div>
+                <div class="activity-badge">2 hrs</div>
+              </div>
+            </div>
+            <div class="app-bottom-nav">
+              <div class="nav-icon active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span>Home</span>
+              </div>
+              <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span>Explore</span>
+              </div>
+              <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Groups</span>
+              </div>
+              <div class="nav-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Profile</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+  <div class="section-inner">
+    <div style="text-align: center;">
+      <span class="section-tag">Simple Process</span>
+      <h2 class="section-title" style="margin: 0 auto;">Four steps to your next adventure</h2>
+      <p class="section-sub" style="margin: 1rem auto 0;">
+        From sign-up to showing up — we handle all the logistics so you can focus on having fun.
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div style="width: 100%; height: 4px; margin: -2rem -1.5rem 1.4rem; background: linear-gradient(90deg, var(--blue), var(--cyan)); border-radius: 16px 16px 0 0;"></div>
+        <div class="step-number">1</div>
+        <span class="step-emoji">💳</span>
+        <div class="step-title">Pay &amp; Unlock</div>
+        <div class="step-desc">Subscribe for a small monthly fee and unlock a full calendar of curated activities in your city.</div>
+      </div>
+      <div class="step-card">
+        <div style="width: 100%; height: 4px; margin: -2rem -1.5rem 1.4rem; background: linear-gradient(90deg, var(--purple), var(--pink)); border-radius: 16px 16px 0 0;"></div>
+        <div class="step-number">2</div>
+        <span class="step-emoji">🎯</span>
+        <div class="step-title">Pick Your Vibe</div>
+        <div class="step-desc">Browse and select an activity you've always wanted to try — from rock climbing to pottery nights.</div>
+      </div>
+      <div class="step-card">
+        <div style="width: 100%; height: 4px; margin: -2rem -1.5rem 1.4rem; background: linear-gradient(90deg, var(--pink), var(--red)); border-radius: 16px 16px 0 0;"></div>
+        <div class="step-number">3</div>
+        <span class="step-emoji">👥</span>
+        <div class="step-title">Meet &amp; Network</div>
+        <div class="step-desc">Get automatically grouped with others who chose the same thing. Your group chat opens instantly.</div>
+      </div>
+      <div class="step-card">
+        <div style="width: 100%; height: 4px; margin: -2rem -1.5rem 1.4rem; background: linear-gradient(90deg, var(--orange), var(--yellow)); border-radius: 16px 16px 0 0;"></div>
+        <div class="step-number">4</div>
+        <span class="step-emoji">📍</span>
+        <div class="step-title">Show Up &amp; Connect</div>
+        <div class="step-desc">Enter your location, find your central meeting spot, show up, and make friends you'll actually keep.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY BORED! ── -->
+<section id="why">
+  <div class="section-inner">
+    <div class="advantages-header">
+      <div>
+        <span class="section-tag orange">Why Bored!</span>
+        <h2 class="section-title">Life's too short for the same old routine</h2>
+        <p class="section-sub">
+          We built Bored! because meeting people as an adult is hard. We fix that
+          — every month, a fresh group, a fresh adventure.
+        </p>
+      </div>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div style="width: 100%; height: 120px; margin: -2rem -1.75rem 1rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--purple), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🔄</div>
+          <div class="benefit-icon-wrap">🔄</div>
+          <div class="benefit-title">A brand-new crew every time</div>
+          <div class="benefit-desc">Never the same group twice. Expand your social circle without the awkwardness.</div>
+        </div>
+        <div class="benefit-card">
+          <div style="width: 100%; height: 120px; margin: -2rem -1.75rem 1rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--blue), var(--cyan)); display: flex; align-items: center; justify-content: center; font-size: 3rem;">💸</div>
+          <div class="benefit-icon-wrap">💸</div>
+          <div class="benefit-title">Low-budget, curated fun</div>
+          <div class="benefit-desc">Not just any outing — activities chosen for value, novelty, and great vibes.</div>
+        </div>
+        <div class="benefit-card">
+          <div style="width: 100%; height: 120px; margin: -2rem -1.75rem 1rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--pink), var(--red)); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🔓</div>
+          <div class="benefit-icon-wrap">🔓</div>
+          <div class="benefit-title">Cancel if tired, always something ahead</div>
+          <div class="benefit-desc">No lock-in. Pause or cancel anytime, but you'll always have something to look forward to.</div>
+        </div>
+        <div class="benefit-card">
+          <div style="width: 100%; height: 120px; margin: -2rem -1.75rem 1rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--orange), var(--yellow)); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🤝</div>
+          <div class="benefit-icon-wrap">🤝</div>
+          <div class="benefit-title">Build a real community</div>
+          <div class="benefit-desc">Make friends you can keep for life. Some of the best relationships start at a random climbing wall.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-item">
+        <div class="stat-number">10<span class="stat-accent">k+</span></div>
+        <div class="stat-label">Active Members</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">250<span class="stat-accent">+</span></div>
+        <div class="stat-label">Unique Activities</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">94<span class="stat-accent">%</span></div>
+        <div class="stat-label">Members Return Each Month</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing">
+  <div class="section-inner">
+    <div style="text-align: center;">
+      <span class="section-tag">Transparent Pricing</span>
+      <h2 class="section-title" style="margin: 0 auto;">Simple, honest plans</h2>
+      <p class="section-sub" style="margin: 1rem auto 0;">
+        No hidden fees. No surprise charges. Just great experiences at a fair monthly rate.
+      </p>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="plan-card">
+        <div style="width: 100%; height: 100px; margin: -2.2rem -1.8rem 1.5rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--purple), var(--pink)); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; font-size: 2.5rem;">🚀</div>
+        <div class="plan-name">Explorer</div>
+        <div class="plan-price"><sup>$</sup>9<sup>.99</sup></div>
+        <div class="plan-period">per month</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>1 activity per month</li>
+          <li>Automatic group matching</li>
+          <li>Group chat access</li>
+          <li>Central meetup point</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="#final-cta" class="plan-btn plan-btn-outline">Start Exploring</a>
+      </div>
+
+      <div class="plan-card featured">
+        <div style="width: 100%; height: 100px; margin: -2.2rem -1.8rem 1.5rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--blue), var(--cyan)); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; font-size: 2.5rem;">⭐</div>
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Social</div>
+        <div class="plan-price"><sup>$</sup>19<sup>.99</sup></div>
+        <div class="plan-period">per month</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>3 activities per month</li>
+          <li>Priority group matching</li>
+          <li>Group &amp; direct chat</li>
+          <li>Curated activity picks</li>
+          <li>Early access to new events</li>
+          <li>Member discount on partners</li>
+        </ul>
+        <a href="#final-cta" class="plan-btn plan-btn-primary">Go Social — Gooooo!</a>
+      </div>
+
+      <div class="plan-card">
+        <div style="width: 100%; height: 100px; margin: -2.2rem -1.8rem 1.5rem; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--orange), var(--yellow)); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1rem; font-size: 2.5rem;">👑</div>
+        <div class="plan-name">Unlimited</div>
+        <div class="plan-price"><sup>$</sup>34<sup>.99</sup></div>
+        <div class="plan-period">per month</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>Unlimited activities</li>
+          <li>VIP group matching</li>
+          <li>Dedicated activity planner</li>
+          <li>Exclusive members-only events</li>
+          <li>Bring a guest (once/month)</li>
+          <li>Partner perks &amp; discounts</li>
+        </ul>
+        <a href="#final-cta" class="plan-btn plan-btn-outline">Go Unlimited</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── BUSINESS ── -->
+<section id="business">
+  <div class="section-inner">
+    <div class="business-inner">
+      <div>
+        <span class="section-tag">For Businesses</span>
+        <h2 class="section-title">Reach customers who are ready to show up</h2>
+        <p class="section-sub" style="max-width: 420px;">
+          Bring local businesses multiple, consistent bulk bookings. Partner with Bored! to fill
+          your venue with enthusiastic, pre-grouped customers — predictably, every week.
+        </p>
+        <div class="biz-perks">
+          <div class="biz-perk">
+            <div class="biz-perk-icon">📦</div>
+            <div class="biz-perk-text">
+              <strong>Guaranteed Bulk Bookings</strong>
+              <span>Groups of 4–12 people booked in advance, so you can plan staffing with confidence.</span>
+            </div>
+          </div>
+          <div class="biz-perk">
+            <div class="biz-perk-icon">🔁</div>
+            <div class="biz-perk-text">
+              <strong>Recurring Revenue Stream</strong>
+              <span>Bored! members are monthly subscribers — they come back, and so do the bookings.</span>
+            </div>
+          </div>
+          <div class="biz-perk">
+            <div class="biz-perk-icon">📣</div>
+            <div class="biz-perk-text">
+              <strong>Zero Marketing Cost</strong>
+              <span>We bring the customers. You focus on delivering a great experience. Simple partnership.</span>
+            </div>
+          </div>
+        </div>
+        <a href="#" class="biz-cta">Become a Partner Business</a>
+      </div>
+
+      <div class="biz-visual">
+        <div style="font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--grey); margin-bottom: .5rem;">Partner Dashboard</div>
+        <div class="biz-stat-row">
+          <span class="biz-stat-label">Avg. monthly bookings</span>
+          <span class="biz-stat-val">48</span>
+        </div>
+        <div class="biz-stat-row">
+          <span class="biz-stat-label">Group size</span>
+          <span class="biz-stat-val">4 – 12 ppl</span>
+        </div>
+        <div class="biz-stat-row">
+          <span class="biz-stat-label">Booking cancellation rate</span>
+          <span class="biz-stat-val orange">3.2%</span>
+        </div>
+        <div class="biz-stat-row">
+          <span class="biz-stat-label">Avg. partner revenue uplift</span>
+          <span class="biz-stat-val">+34%</span>
+        </div>
+        <div style="background: var(--blue); border-radius: 12px; padding: 1rem 1.25rem; color: white; margin-top: .25rem;">
+          <div style="font-size: .72rem; opacity: .7; margin-bottom: .3rem;">Next group booking</div>
+          <div style="font-weight: 800; font-size: .95rem;">Sat Mar 14 · 7 people · 7:30 PM</div>
+          <div style="font-size: .75rem; opacity: .65; margin-top: .2rem;">Confirmed · Indoor Climbing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section id="final-cta">
+  <div class="final-inner">
+    <div class="final-tag">Ready to Stop Being Bored?</div>
+    <h2 class="final-title">
+      Gooooo! — Subscribe<br/>
+      to <span class="accent-orange">Bored!</span>
+    </h2>
+    <p class="final-sub">
+      Join thousands of people who stopped waiting for plans to happen and
+      started living. Your next group, your next adventure, your next best friend.
+    </p>
+    <a href="#pricing" class="final-cta-btn">Gooooo! — Subscribe to Bored!</a>
+    <p class="final-note">From $9.99/month &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Cancel anytime</p>
+    <div class="social-proof-row">
+      <div class="proof-item">
+        <div class="proof-num">10k+</div>
+        <div class="proof-label">Members</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">250+</div>
+        <div class="proof-label">Activities</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">50+</div>
+        <div class="proof-label">Cities</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">4.9★</div>
+        <div class="proof-label">App Rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">Bored<span>!</span></div>
+  <ul class="footer-links">
+    <li><a href="#">About</a></li>
+    <li><a href="#">Activities</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">For Business</a></li>
+    <li><a href="#">Blog</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+  </ul>
+  <div class="footer-copy">&copy; 2026 Bored! Inc. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
