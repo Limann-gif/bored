@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router';
 import { Button } from './ui/button';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Calendar } from 'lucide-react';
+import { LogOut, User, Calendar, Sparkles } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,8 +25,11 @@ export function Header() {
   return (
     <header className="border-b bg-white sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/activities" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Bored!
+        <Link to="/activities" className="flex items-center gap-2">
+          <Sparkles className="size-8 text-purple-600" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Bored!
+          </span>
         </Link>
         
         <nav className="flex items-center gap-4">

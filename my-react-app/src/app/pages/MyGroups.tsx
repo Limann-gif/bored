@@ -151,7 +151,7 @@ export default function MyGroups() {
                               <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                                 <div>
                                   <p className="text-sm font-semibold text-red-700">Cancel Event</p>
-                                  <p className="text-xs text-red-400 mt-0.5">Can't make it? Let your group know.</p>
+                                  <p className="text-xs text-red-400 mt-0.5">Can't make it? Let your group know. Remember to cancel, two weeks before the event</p>
                                 </div>
                                 <Button
                                   variant="outline"

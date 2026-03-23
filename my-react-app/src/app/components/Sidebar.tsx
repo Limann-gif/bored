@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { Zap, Home, Users, Compass, User, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
+import { Sparkles, Home, Users, Compass, User, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
@@ -24,16 +24,11 @@ export function Sidebar() {
     <aside className="w-64 shrink-0 min-h-screen bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen overflow-y-auto">
       {/* Logo */}
       <div className="px-6 pt-7 pb-8">
-        <Link to="/activities" className="flex items-center gap-3">
-          <div className="size-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-            <Zap className="size-5 text-white fill-white" />
-          </div>
-          <div>
-            <div className="font-extrabold text-gray-900 text-lg leading-none">Bored!</div>
-            <div className="text-[10px] text-gray-400 font-semibold tracking-widest uppercase mt-0.5">
-              Stop Planning.
-            </div>
-          </div>
+        <Link to="/activities" className="flex items-center gap-2">
+          <Sparkles className="size-8 text-purple-600" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Bored!
+          </span>
         </Link>
       </div>
 
