@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
-import { Calendar, MapPin, Users, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function MyGroups() {
@@ -104,7 +104,7 @@ export default function MyGroups() {
                                     </p>
                                   </div>
                                 </div>
-                                
+
                                 <div className="flex items-start gap-3">
                                   <MapPin className="size-5 text-gray-600 mt-0.5" />
                                   <div>
@@ -143,6 +143,25 @@ export default function MyGroups() {
                                     </div>
                                   ))}
                                 </div>
+                              </div>
+
+                              <Separator />
+
+                              {/* Cancel event card */}
+                              <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                                <div>
+                                  <p className="text-sm font-semibold text-red-700">Cancel Event</p>
+                                  <p className="text-xs text-red-400 mt-0.5">Can't make it? Let your group know.</p>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => navigate(`/cancel-event/${group.id}`)}
+                                  className="border-red-300 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-400"
+                                >
+                                  <XCircle className="size-4 mr-1.5" />
+                                  Cancel
+                                </Button>
                               </div>
                             </CardContent>
                           </div>

@@ -1,7 +1,5 @@
 import { Activity } from '../types';
-import { Card, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
-import { Calendar, MapPin, Users, DollarSign } from 'lucide-react';
+import { MapPin, Users, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 
@@ -13,49 +11,48 @@ export function ActivityCard({ activity }: ActivityCardProps) {
   const navigate = useNavigate();
 
   return (
-    <Card 
-      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+    <div
+      className="rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all duration-200 group"
       onClick={() => navigate(`/activity/${activity.id}`)}
     >
-      <div className="aspect-video relative overflow-hidden">
+      {/* Image */}
+      <div className="relative h-44 overflow-hidden">
         <img
           src={activity.image}
           alt={activity.name}
-          className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <Badge className="absolute top-3 right-3 bg-white/90 text-gray-900">
-          ${activity.price}
-        </Badge>
+        <span className="absolute top-3 left-3 bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+          {activity.category}
+        </span>
       </div>
-      <CardContent className="p-4">
-        <div className="mb-2">
-          <h3 className="font-semibold mb-1">{activity.name}</h3>
-          <p className="text-sm text-gray-600 line-clamp-2">{activity.description}</p>
+
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="font-bold text-gray-900 text-base mb-1 leading-snug">{activity.name}</h3>
+
+        <div className="flex items-center gap-1 text-gray-400 text-sm mb-4">
+          <MapPin className="size-3.5 shrink-0" />
+          <span>{activity.location}</span>
         </div>
-        
-        <div className="flex flex-wrap gap-1 mb-3">
-          {activity.vibes.map((vibe) => (
-            <Badge key={vibe} variant="secondary" className="text-xs">
-              {vibe}
-            </Badge>
-          ))}
-        </div>
-        
-        <div className="space-y-1 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <Calendar className="size-4" />
-            <span>{format(activity.date, 'MMM d, yyyy')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="size-4" />
-            <span>{activity.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="size-4" />
-            <span>{activity.groupSize.min}-{activity.groupSize.max} people per group</span>
+
+        <div className="flex items-center justify-between">
+          <span className="text-pink-500 font-bold text-sm">
+            {activity.price === 0 ? 'Free Entry' : `$${activity.price}/pp`}
+          </span>
+          <div className="flex items-center gap-1 bg-pink-50 text-pink-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+            <Users className="size-3" />
+            <span>{activity.capacity} spots</span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5 text-gray-400 text-xs">
+          <Calendar className="size-3.5" />
+          <span>{format(activity.date, 'EEE, MMM d')}</span>
+          <span className="mx-1">·</span>
+          <span>{activity.groupSize.min}–{activity.groupSize.max} per group</span>
+        </div>
+      </div>
+    </div>
   );
 }
