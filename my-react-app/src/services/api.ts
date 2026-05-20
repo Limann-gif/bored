@@ -1,6 +1,6 @@
 import type { Activity } from '../app/types';
 
-const AUTH_PATH = 'http://localhost:5000/api/user';
+const AUTH_PATH = 'http://localhost:5000/api';
 
 // Shape returned by the C# backend for Activity
 interface BackendActivity {
@@ -26,6 +26,7 @@ function authHeaders(extra: Record<string, string> = {}): Record<string, string>
 }
 
 function mapActivity(data: BackendActivity): Activity {
+  const parsed = new Date(data.date);
   return {
     id: data.id,
     name: data.name,
@@ -36,7 +37,7 @@ function mapActivity(data: BackendActivity): Activity {
     groupSize: { min: data.groupSizeMin, max: data.groupSizeMax },
     location: data.location,
     image: data.imageUrl ?? '',
-    date: new Date(data.date),
+    date: isNaN(parsed.getTime()) ? new Date() : parsed,
     vibes: [],
   };
 }
@@ -45,7 +46,7 @@ export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
   async signup(username: string, email: string, password: string): Promise<void> {
-    const response = await fetch(`${AUTH_PATH}/signup`, {
+    const response = await fetch(`${AUTH_PATH}/user/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),
@@ -57,7 +58,7 @@ export const apiService = {
   },
 
   async login(email: string, password: string): Promise<string> {
-    const response = await fetch(`${AUTH_PATH}/login`, {
+    const response = await fetch(`${AUTH_PATH}/user/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -73,25 +74,25 @@ export const apiService = {
   // ── Activities ───────────────────────────────────────────────────────────
 
   async getActivities(): Promise<Activity[]> {
-    const response = await fetch(`${AUTH_PATH}/activityList`, {
+    const response = await fetch(`${AUTH_PATH}/activities/activityList`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch activities');
-    const data: BackendActivity[] = await response.json();
-    return data.map(mapActivity);
+    const json: { data: BackendActivity[] } = await response.json();
+    return json.data.map(mapActivity);
   },
 
   async getActivity(id: string): Promise<Activity> {
-    const response = await fetch(`${AUTH_PATH}/activity/${id}`, {
+    const response = await fetch(`${AUTH_PATH}/activities/activity/${id}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Activity not found');
-    const data: BackendActivity = await response.json();
-    return mapActivity(data);
+    const json: { data: BackendActivity } = await response.json();
+    return mapActivity(json.data);
   },
 
   async addActivity(activity: Activity): Promise<Activity> {
-    const response = await fetch(`${AUTH_PATH}/addActivity`, {
+    const response = await fetch(`${AUTH_PATH}/activities/addActivity`, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
@@ -111,7 +112,7 @@ export const apiService = {
       const message = await response.text();
       throw new Error(message || 'Failed to add activity');
     }
-    const data: BackendActivity = await response.json();
-    return mapActivity(data);
+    const json: { data: BackendActivity } = await response.json();
+    return mapActivity(json.data);
   },
 };

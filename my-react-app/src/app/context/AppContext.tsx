@@ -34,13 +34,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return stored ? JSON.parse(stored) : [];
   });
 
-  // Fetch activities from the backend on mount
+  // Fetch activities once the user is authenticated
   useEffect(() => {
+    if (!user) return;
+    setActivitiesLoading(true);
+    setActivitiesError('');
     apiService.getActivities()
       .then(setActivities)
       .catch((err: Error) => setActivitiesError(err.message))
       .finally(() => setActivitiesLoading(false));
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     localStorage.setItem('boredGroups', JSON.stringify(groups));

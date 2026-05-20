@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Navigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { ActivityCard } from '../components/ActivityCard';
@@ -131,11 +131,6 @@ export default function Activities() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
 
-  if (user?.subscriptionStatus !== 'active') {
-    navigate('/');
-    return null;
-  }
-
   const categories = useMemo(() => Array.from(new Set(activities.map(a => a.category))), [activities]);
   const allVibes = useMemo(() => Array.from(new Set(activities.flatMap(a => a.vibes))), [activities]);
 
@@ -165,6 +160,10 @@ export default function Activities() {
   const toggleVibe = (vibe: string) => {
     setSelectedVibes(prev => prev.includes(vibe) ? prev.filter(v => v !== vibe) : [...prev, vibe]);
   };
+
+  if (user?.subscriptionStatus !== 'active') {
+    return <Navigate to="/" replace />;
+  }
 
   if (activitiesLoading || activitiesError || activities.length === 0) {
     const message = activitiesLoading

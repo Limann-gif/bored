@@ -25,7 +25,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/activities');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
