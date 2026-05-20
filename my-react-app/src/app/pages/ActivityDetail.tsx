@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
@@ -8,26 +8,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Calendar, MapPin, Users, DollarSign, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Users, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import type { Activity } from '../types';
+import { apiService } from '../../services/api';
 
 export default function ActivityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { activities, selectActivity } = useApp();
+  const { selectActivity } = useApp();
   const [location, setLocation] = useState(user?.location?.address || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [loadingActivity, setLoadingActivity] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
-  const activity = activities.find(a => a.id === id);
+  useEffect(() => {
+    if (!id) return;
+    apiService.getActivity(id)
+      .then(setActivity)
+      .catch(() => setFetchError('Activity not found'))
+      .finally(() => setLoadingActivity(false));
+  }, [id]);
 
-  if (!activity) {
+  if (loadingActivity) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center text-gray-500">
+          Loading activity...
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError || !activity) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Activity not found</h1>
+          <h1 className="text-2xl font-bold mb-4">{fetchError || 'Activity not found'}</h1>
           <Button onClick={() => navigate('/activities')}>
             Back to Activities
           </Button>

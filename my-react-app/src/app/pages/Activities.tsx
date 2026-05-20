@@ -122,7 +122,7 @@ function GroupActivityCard({
 // ─── Main page ─────────────────────────────────────────────────────────────
 export default function Activities() {
   const { user } = useAuth();
-  const { activities, groups, userSelections } = useApp();
+  const { activities, activitiesLoading, activitiesError, groups, userSelections } = useApp();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<'individual' | 'group'>('individual');
@@ -132,7 +132,7 @@ export default function Activities() {
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
 
   if (user?.subscriptionStatus !== 'active') {
-    navigate('/subscription');
+    navigate('/');
     return null;
   }
 
@@ -165,6 +165,22 @@ export default function Activities() {
   const toggleVibe = (vibe: string) => {
     setSelectedVibes(prev => prev.includes(vibe) ? prev.filter(v => v !== vibe) : [...prev, vibe]);
   };
+
+  if (activitiesLoading || activitiesError || activities.length === 0) {
+    const message = activitiesLoading
+      ? 'Loading activities...'
+      : activitiesError
+        ? `Could not load activities: ${activitiesError}`
+        : 'No activities available yet.';
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <main className="flex-1 flex items-center justify-center text-gray-400 text-sm">
+          {message}
+        </main>
+      </div>
+    );
+  }
 
   const featuredActivity = activities[0];
   const firstName = user.name.split(' ')[0];

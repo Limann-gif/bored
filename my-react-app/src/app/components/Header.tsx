@@ -39,7 +39,7 @@ export function Header() {
           <Link to="/my-groups">
             <Button variant="ghost">
               <Calendar className="size-4 mr-2" />
-              My Groups
+              My Lists
             </Button>
           </Link>
           

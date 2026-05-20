@@ -1,16 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Activity, Group, UserActivitySelection } from '../types';
-import { mockActivities, mockGroups, mockUsers } from '../data/mockData';
+import { mockGroups, mockUsers } from '../data/mockData';
 import { useAuth } from './AuthContext';
+import { apiService } from '../../services/api';
 
 interface AppContextType {
   activities: Activity[];
+  activitiesLoading: boolean;
+  activitiesError: string;
   groups: Group[];
   userSelections: UserActivitySelection[];
   selectActivity: (activityId: string, location: { lat: number; lng: number; address: string }) => void;
   getUserGroups: () => Group[];
   updateGroupStatus: (groupId: string, status: Group['status']) => void;
-  addActivity: (activity: Activity) => void;
+  addActivity: (activity: Activity) => Promise<void>;
   removeActivity: (activityId: string) => void;
   removeSelection: (userId: string, activityId: string) => void;
 }
@@ -19,33 +22,25 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [activities, setActivities] = useState<Activity[]>(() => {
-    const stored = localStorage.getItem('boredActivities');
-    return stored ? JSON.parse(stored) : mockActivities;
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [activitiesError, setActivitiesError] = useState('');
+  const [groups, setGroups] = useState<Group[]>(() => {
+    const stored = localStorage.getItem('boredGroups');
+    return stored ? JSON.parse(stored) : mockGroups;
   });
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [userSelections, setUserSelections] = useState<UserActivitySelection[]>([]);
+  const [userSelections, setUserSelections] = useState<UserActivitySelection[]>(() => {
+    const stored = localStorage.getItem('boredSelections');
+    return stored ? JSON.parse(stored) : [];
+  });
 
-  // Load data from localStorage
+  // Fetch activities from the backend on mount
   useEffect(() => {
-    const storedGroups = localStorage.getItem('boredGroups');
-    const storedSelections = localStorage.getItem('boredSelections');
-    
-    if (storedGroups) {
-      setGroups(JSON.parse(storedGroups));
-    } else {
-      setGroups(mockGroups);
-    }
-    
-    if (storedSelections) {
-      setUserSelections(JSON.parse(storedSelections));
-    }
+    apiService.getActivities()
+      .then(setActivities)
+      .catch((err: Error) => setActivitiesError(err.message))
+      .finally(() => setActivitiesLoading(false));
   }, []);
-
-  // Save to localStorage when data changes
-  useEffect(() => {
-    localStorage.setItem('boredActivities', JSON.stringify(activities));
-  }, [activities]);
 
   useEffect(() => {
     localStorage.setItem('boredGroups', JSON.stringify(groups));
@@ -170,8 +165,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setGroups(prev => prev.map(g => g.id === groupId ? { ...g, status } : g));
   };
 
-  const addActivity = (activity: Activity) => {
-    setActivities(prev => [...prev, activity]);
+  const addActivity = async (activity: Activity) => {
+    const created = await apiService.addActivity(activity);
+    setActivities(prev => [...prev, created]);
   };
 
   const removeActivity = (activityId: string) => {
@@ -186,6 +182,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider
       value={{
         activities,
+        activitiesLoading,
+        activitiesError,
         groups,
         userSelections,
         selectActivity,

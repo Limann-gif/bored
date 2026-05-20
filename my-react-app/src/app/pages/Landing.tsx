@@ -14,25 +14,44 @@ import { AnimatedBackground } from '../components/AnimatedBackground';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, signup, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [signupName, setSignupName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/subscription');
+      navigate('/activities');
     }
   }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
       await login(email, password);
-      navigate('/subscription');
-    } catch (error) {
-      console.error('Login failed:', error);
+      navigate('/activities');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    try {
+      await signup(signupName, signupEmail, signupPassword);
+      navigate('/activities');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign up failed');
     } finally {
       setIsLoading(false);
     }
@@ -443,13 +462,15 @@ export default function Landing() {
                   </TabsContent>
                   
                   <TabsContent value="signup">
-                    <form onSubmit={handleLogin} className="space-y-4">
+                    <form onSubmit={handleSignup} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="signup-name">Full Name</Label>
                         <Input
                           id="signup-name"
                           type="text"
                           placeholder="Alex Chen"
+                          value={signupName}
+                          onChange={(e) => setSignupName(e.target.value)}
                           required
                         />
                       </div>
@@ -459,8 +480,8 @@ export default function Landing() {
                           id="signup-email"
                           type="email"
                           placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          value={signupEmail}
+                          onChange={(e) => setSignupEmail(e.target.value)}
                           required
                         />
                       </div>
@@ -470,8 +491,8 @@ export default function Landing() {
                           id="signup-password"
                           type="password"
                           placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
+                          value={signupPassword}
+                          onChange={(e) => setSignupPassword(e.target.value)}
                           required
                         />
                       </div>
@@ -482,11 +503,9 @@ export default function Landing() {
                   </TabsContent>
                 </Tabs>
 
-                <div className="mt-6 pt-6 border-t">
-                  <p className="text-center text-sm text-gray-500">
-                    ✨ Demo app - any email/password works for login
-                  </p>
-                </div>
+                {error && (
+                  <p className="mt-4 text-center text-sm text-red-500">{error}</p>
+                )}
               </CardContent>
             </Card>
           </motion.div>

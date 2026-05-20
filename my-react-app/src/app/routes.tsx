@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import Landing from './pages/Landing';
-import Subscription from './pages/Subscription';
 import Activities from './pages/Activities';
 import ActivityDetail from './pages/ActivityDetail';
 import MyGroups from './pages/MyGroups';
@@ -21,10 +20,6 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <Landing />,
-  },
-  {
-    path: '/subscription',
-    element: <Subscription />,
   },
   {
     path: '/activities',

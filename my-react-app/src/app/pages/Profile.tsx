@@ -86,7 +86,7 @@ export default function Profile() {
             </div>
             {!isPro && (
               <Button
-                onClick={() => navigate('/subscription')}
+                onClick={() => navigate('/')}
                 className="mb-2 shrink-0 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0"
               >
                 <Zap className="size-4 mr-1.5 fill-white" />

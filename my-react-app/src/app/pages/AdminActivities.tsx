@@ -30,6 +30,8 @@ export default function AdminActivities() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const filtered = activities.filter(
     a => !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.category.toLowerCase().includes(search.toLowerCase())
@@ -47,10 +49,10 @@ export default function AdminActivities() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
     const newActivity: Activity = {
-      id: `act-${Date.now()}`,
+      id: '',
       name: form.name.trim(),
       description: form.description.trim(),
       category: form.category,
@@ -60,12 +62,20 @@ export default function AdminActivities() {
       date: new Date(form.date),
       groupSize: { min: Number(form.groupMin), max: Number(form.groupMax) },
       vibes: form.vibes.split(',').map(v => v.trim()).filter(Boolean),
-      image: form.image.trim() || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=640',
+      image: form.image.trim() || null!,
     };
-    addActivity(newActivity);
-    setForm(EMPTY_FORM);
-    setErrors({});
-    setShowModal(false);
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      await addActivity(newActivity);
+      setForm(EMPTY_FORM);
+      setErrors({});
+      setShowModal(false);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to add activity');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const set = (key: keyof typeof EMPTY_FORM) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -155,18 +165,23 @@ export default function AdminActivities() {
                 <Input value={form.image} onChange={set('image')} placeholder="https://..." className="mt-1" />
               </div>
             </div>
+            {submitError && (
+              <p className="px-6 pb-2 text-sm text-red-500">{submitError}</p>
+            )}
             <div className="px-6 pb-6 flex gap-3">
               <button
-                onClick={() => { setShowModal(false); setErrors({}); setForm(EMPTY_FORM); }}
+                onClick={() => { setShowModal(false); setErrors({}); setSubmitError(''); setForm(EMPTY_FORM); }}
                 className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+                disabled={submitting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                disabled={submitting}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                Add Activity
+                {submitting ? 'Adding...' : 'Add Activity'}
               </button>
             </div>
           </div>

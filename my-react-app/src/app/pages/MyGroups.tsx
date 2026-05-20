@@ -9,6 +9,52 @@ import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { Calendar, MapPin, Users, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import type { Activity, Group } from '../types';
+
+function PastEventRow({
+  activity,
+  group,
+  userId,
+}: {
+  activity: Activity;
+  group: Omit<Group, 'activity'>;
+  userId: string;
+}) {
+  return (
+    <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
+      <img
+        src={activity.image}
+        alt={activity.name}
+        className="size-16 rounded-lg object-cover shrink-0 opacity-80"
+      />
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-gray-800 truncate">{activity.name}</p>
+        <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+          <span className="flex items-center gap-1">
+            <Calendar className="size-3" />
+            {format(new Date(group.activityDate), 'MMM d, yyyy')}
+          </span>
+          <span className="flex items-center gap-1">
+            <MapPin className="size-3" />
+            {group.meetingPoint.address}
+          </span>
+        </div>
+      </div>
+      <div className="flex -space-x-2 shrink-0">
+        {group.members.slice(0, 4).map(member => (
+          <div
+            key={member.userId}
+            title={member.name + (member.userId === userId ? ' (you)' : '')}
+            className="size-8 rounded-full border-2 border-white bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-xs font-semibold"
+          >
+            {member.name.charAt(0)}
+          </div>
+        ))}
+      </div>
+      <CheckCircle2 className="size-5 text-gray-300 shrink-0" />
+    </div>
+  );
+}
 
 export default function MyGroups() {
   const { user } = useAuth();
@@ -38,7 +84,7 @@ export default function MyGroups() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">My Groups</h1>
+          <h1 className="text-4xl font-bold mb-2">My List</h1>
           <p className="text-lg text-gray-600">
             Your upcoming activities and past adventures
           </p>
@@ -48,7 +94,7 @@ export default function MyGroups() {
           <Card className="text-center py-16">
             <CardContent>
               <Users className="size-16 mx-auto text-gray-400 mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">No groups yet</h2>
+              <h2 className="text-2xl font-semibold mb-2">No selected activities yet</h2>
               <p className="text-gray-600 mb-6">
                 Join an activity to get matched with awesome people nearby
               </p>
@@ -177,29 +223,12 @@ export default function MyGroups() {
             {pastGroups.length > 0 && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Past Activities</h2>
-                <div className="grid gap-4">
-                  {pastGroups.map(({ activity, ...group }) => (
-                    activity && (
-                      <Card key={group.id} className="opacity-75">
-                        <CardHeader>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <CardTitle>{activity.name}</CardTitle>
-                              <CardDescription>
-                                {format(group.activityDate, 'MMMM d, yyyy')}
-                              </CardDescription>
-                            </div>
-                            <Badge variant="secondary">Completed</Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600">
-                            You met with {group.members.length} people at {group.meetingPoint.address}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    )
-                  ))}
+                <div className="grid gap-3">
+                  {pastGroups.map(({ activity, ...group }) =>
+                    activity ? (
+                      <PastEventRow key={group.id} activity={activity} group={group} userId={user?.id ?? ''} />
+                    ) : null
+                  )}
                 </div>
               </div>
             )}
