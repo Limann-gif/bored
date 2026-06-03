@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { apiService } from '../../services/api';
 import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/input';
 import {
@@ -54,18 +55,36 @@ export default function GroupBooking() {
   const { state } = useLocation() as { state?: { groupSize?: number } };
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { activities } = useApp();
+  const { activities, addGroupBooking } = useApp();
 
   const activity = activities.find(a => a.id === activityId);
 
-  const [step, setStep] = useState(1);
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const progressKey = activityId ? `boredGroupBookingProgress-${activityId}` : null;
+
+  const savedProgress = progressKey ? (() => {
+    try { return JSON.parse(localStorage.getItem(progressKey) ?? 'null'); } catch { return null; }
+  })() : null;
+
+  const [step, setStep] = useState<number>(savedProgress?.step ?? 1);
+  const [friends, setFriends] = useState<Friend[]>(savedProgress?.friends ?? []);
   const [friendName, setFriendName] = useState('');
   const [friendEmail, setFriendEmail] = useState('');
   const [friendError, setFriendError] = useState('');
-  const [bookingType, setBookingType] = useState<'invite' | 'surprise' | null>(null);
+  const [bookingType, setBookingType] = useState<'invite' | 'surprise' | null>(savedProgress?.bookingType ?? null);
   const [card, setCard] = useState({ holder: '', number: '', expiry: '', cvv: '' });
   const [processing, setProcessing] = useState(false);
+
+  const saveProgress = (updates: { step?: number; friends?: Friend[]; bookingType?: 'invite' | 'surprise' | null }) => {
+    if (!progressKey) return;
+    const current = (() => {
+      try { return JSON.parse(localStorage.getItem(progressKey) ?? 'null') ?? {}; } catch { return {}; }
+    })();
+    localStorage.setItem(progressKey, JSON.stringify({ ...current, ...updates }));
+  };
+
+  const clearProgress = () => {
+    if (progressKey) localStorage.removeItem(progressKey);
+  };
 
   const totalPeople = friends.length + 1;
   const pricePerPerson = activity?.price ?? 0;
@@ -92,10 +111,39 @@ export default function GroupBooking() {
     return d.length >= 3 ? d.slice(0, 2) + '/' + d.slice(2) : d;
   };
 
-  const handlePay = () => {
-    if (!card.holder || !card.number || !card.expiry || !card.cvv) return;
+  const handleAddFriendsContinue = async () => {
+    if (friends.length === 0 || !activityId) return;
     setProcessing(true);
-    setTimeout(() => { setProcessing(false); setStep(4); }, 1800);
+    try {
+      await apiService.bookActivity(activityId, {
+        participantsName: friends.map(f => f.name),
+        participantsEmail: friends.map(f => f.email),
+      });
+      saveProgress({ friends, step: 2, bookingType: null });
+      setStep(2);
+    } catch (err) {
+      console.error('Booking failed:', err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handlePay = () => {
+    if (!card.holder || !card.number || !card.expiry || !card.cvv || !activityId || !bookingType) return;
+    setProcessing(true);
+    setTimeout(() => {
+      addGroupBooking({
+        id: `gb-${Date.now()}`,
+        activityId,
+        bookingType,
+        friends: friends.map(f => ({ name: f.name, email: f.email })),
+        totalPrice,
+        bookedAt: new Date().toISOString(),
+      });
+      clearProgress();
+      setProcessing(false);
+      setStep(4);
+    }, 1800);
   };
 
   if (!activity) {
@@ -122,7 +170,15 @@ export default function GroupBooking() {
         {/* Header */}
         <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button
-            onClick={() => step > 1 && step < 4 ? setStep(s => s - 1) : navigate('/activities')}
+            onClick={() => {
+              if (step > 1 && step < 4) {
+                const prev = step - 1;
+                saveProgress({ step: prev });
+                setStep(prev);
+              } else {
+                navigate('/activities');
+              }
+            }}
             className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft className="size-4" />
@@ -229,11 +285,21 @@ export default function GroupBooking() {
               </div>
 
               <button
-                onClick={() => setStep(2)}
-                disabled={friends.length === 0}
+                onClick={handleAddFriendsContinue}
+                disabled={friends.length === 0 || processing}
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
-                Continue with {totalPeople} people <ArrowRight className="size-4" />
+                {processing ? (
+                  <>
+                    <svg className="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Booking…
+                  </>
+                ) : (
+                  <>Continue with {totalPeople} people <ArrowRight className="size-4" /></>
+                )}
               </button>
             </div>
           )}
@@ -303,7 +369,7 @@ export default function GroupBooking() {
               </div>
 
               <button
-                onClick={() => setStep(3)}
+                onClick={() => { saveProgress({ bookingType, step: 3 }); setStep(3); }}
                 disabled={!bookingType}
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
@@ -315,6 +381,10 @@ export default function GroupBooking() {
           {/* ── Step 3: Payment ───────────────────────────────────────── */}
           {step === 3 && (
             <div className="space-y-5">
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-xs text-amber-700 font-semibold">
+                <CheckCircle className="size-4 shrink-0 text-amber-500" />
+                Your booking is saved. You can leave this page and come back to complete payment at any time.
+              </div>
               <div>
                 <h2 className="text-xl font-extrabold text-gray-900">Review & Pay</h2>
                 <p className="text-sm text-gray-400 mt-1">

@@ -7,9 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
-import { Calendar, MapPin, Users, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckCircle2, Clock, XCircle, Mail, Gift } from 'lucide-react';
 import { format } from 'date-fns';
-import type { Activity, Group } from '../types';
+import type { Activity, Group, GroupBookingRecord } from '../types';
 
 function PastEventRow({
   activity,
@@ -58,7 +58,7 @@ function PastEventRow({
 
 export default function MyGroups() {
   const { user } = useAuth();
-  const { getUserGroups, activities } = useApp();
+  const { getUserGroups, activities, groupBookings } = useApp();
   const navigate = useNavigate();
 
   const myGroups = getUserGroups();
@@ -89,6 +89,88 @@ export default function MyGroups() {
             Your upcoming activities and past adventures
           </p>
         </div>
+
+        {/* My Group Booking List */}
+        {groupBookings.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <Users className="size-6" />
+              My Group Booking List
+            </h2>
+            <div className="grid gap-4">
+              {groupBookings.map(booking => {
+                const activity = activities.find(a => a.id === booking.activityId);
+                if (!activity) return null;
+                const totalPeople = booking.friends.length + 1;
+                return (
+                  <Card key={booking.id} className="overflow-hidden">
+                    <div className="flex items-start gap-4 p-5">
+                      <img
+                        src={activity.image}
+                        alt={activity.name}
+                        className="size-16 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="flex-1 min-w-0 space-y-3">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div>
+                            <p className="font-extrabold text-gray-900">{activity.name}</p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="size-3" />
+                                {format(new Date(activity.date), 'EEE, MMM d, yyyy')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="size-3" />
+                                {activity.location}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {booking.bookingType === 'invite' ? (
+                              <span className="flex items-center gap-1 text-[11px] font-bold bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full">
+                                <Mail className="size-3" /> Invite
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-[11px] font-bold bg-pink-100 text-pink-500 px-2.5 py-1 rounded-full">
+                                <Gift className="size-3" /> Surprise
+                              </span>
+                            )}
+                            <span className="text-[11px] font-bold bg-green-100 text-green-600 px-2.5 py-1 rounded-full">
+                              ${booking.totalPrice} paid
+                            </span>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        <div>
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            Group ({totalPeople} people)
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {/* Current user */}
+                            <div className="flex items-center gap-1.5 bg-gray-50 rounded-full px-3 py-1.5">
+                              <div className="size-4 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 shrink-0" />
+                              <span className="text-xs font-semibold text-gray-700">{user?.name} (you)</span>
+                            </div>
+                            {/* Friends */}
+                            {booking.friends.map((f, i) => (
+                              <div key={i} className="flex items-center gap-1.5 bg-gray-50 rounded-full px-3 py-1.5">
+                                <div className="size-4 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 shrink-0" />
+                                <span className="text-xs font-semibold text-gray-700">{f.name}</span>
+                                <span className="text-[10px] text-gray-400">{f.email}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {myGroups.length === 0 ? (
           <Card className="text-center py-16">

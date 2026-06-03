@@ -64,3 +64,12 @@ export interface UserActivitySelection {
   };
   timestamp: Date;
 }
+
+export interface GroupBookingRecord {
+  id: string;
+  activityId: string;
+  bookingType: 'invite' | 'surprise';
+  friends: { name: string; email: string }[];
+  totalPrice: number;
+  bookedAt: string; // ISO string
+}

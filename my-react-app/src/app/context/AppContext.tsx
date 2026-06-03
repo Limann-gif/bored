@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Activity, Group, UserActivitySelection } from '../types';
+import { Activity, Group, GroupBookingRecord, UserActivitySelection } from '../types';
 import { mockGroups, mockUsers } from '../data/mockData';
 import { useAuth } from './AuthContext';
 import { apiService } from '../../services/api';
@@ -16,6 +16,8 @@ interface AppContextType {
   addActivity: (activity: Activity) => Promise<void>;
   removeActivity: (activityId: string) => void;
   removeSelection: (userId: string, activityId: string) => void;
+  groupBookings: GroupBookingRecord[];
+  addGroupBooking: (booking: GroupBookingRecord) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -31,6 +33,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
   const [userSelections, setUserSelections] = useState<UserActivitySelection[]>(() => {
     const stored = localStorage.getItem('boredSelections');
+    return stored ? JSON.parse(stored) : [];
+  });
+  const [groupBookings, setGroupBookings] = useState<GroupBookingRecord[]>(() => {
+    const stored = localStorage.getItem('boredGroupBookings');
     return stored ? JSON.parse(stored) : [];
   });
 
@@ -52,6 +58,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('boredSelections', JSON.stringify(userSelections));
   }, [userSelections]);
+
+  useEffect(() => {
+    localStorage.setItem('boredGroupBookings', JSON.stringify(groupBookings));
+  }, [groupBookings]);
 
   const calculateCentroid = (locations: Array<{ lat: number; lng: number }>) => {
     const lat = locations.reduce((sum, loc) => sum + loc.lat, 0) / locations.length;
@@ -181,6 +191,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUserSelections(prev => prev.filter(s => !(s.userId === userId && s.activityId === activityId)));
   };
 
+  const addGroupBooking = (booking: GroupBookingRecord) => {
+    setGroupBookings(prev => [...prev, booking]);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -195,6 +209,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addActivity,
         removeActivity,
         removeSelection,
+        groupBookings,
+        addGroupBooking,
       }}
     >
       {children}

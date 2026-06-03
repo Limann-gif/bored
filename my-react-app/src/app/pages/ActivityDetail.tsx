@@ -59,33 +59,27 @@ export default function ActivityDetail() {
   }
 
   const handleJoinActivity = async () => {
-    if (!location.trim()) {
-      toast.error('Please enter your location');
-      return;
-    }
+    if (!user) return;
 
     setIsSubmitting(true);
 
-    // Simulate geocoding - in real app, use Google Maps API
-    const mockLat = 37.7749 + (Math.random() - 0.5) * 0.1;
-    const mockLng = -122.4194 + (Math.random() - 0.5) * 0.1;
+    try {
+      await apiService.bookActivity(activity.id);
 
-    // Small delay to simulate processing
-    await new Promise(resolve => setTimeout(resolve, 1000));
+      const mockLat = 37.7749 + (Math.random() - 0.5) * 0.1;
+      const mockLng = -122.4194 + (Math.random() - 0.5) * 0.1;
+      selectActivity(activity.id, { lat: mockLat, lng: mockLng, address: location });
 
-    selectActivity(activity.id, {
-      lat: mockLat,
-      lng: mockLng,
-      address: location,
-    });
+      toast.success('You\'ve been matched with a group!', {
+        description: 'Check "My Groups" to see your new crew',
+      });
 
-    setIsSubmitting(false);
-    
-    toast.success('You\'ve been matched with a group!', {
-      description: 'Check "My Groups" to see your new crew',
-    });
-
-    navigate('/my-groups');
+      navigate('/my-groups');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to book activity');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
