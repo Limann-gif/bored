@@ -15,6 +15,7 @@ import GroupBooking from './pages/GroupBooking';
 import CancelEvent from './pages/CancelEvent';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import { AdminRoute } from './components/AdminRoute';
 
 export const router = createBrowserRouter([
   {
@@ -38,36 +39,41 @@ export const router = createBrowserRouter([
     element: <Profile />,
   },
   {
-    path: '/admin',
-    element: <Admin />,
-  },
-  {
-    path: '/admin/groups',
-    element: <AdminGroups />,
-  },
-  {
-    path: '/admin/requests',
-    element: <AdminRequests />,
-  },
-  {
-    path: '/admin/activities',
-    element: <AdminActivities />,
-  },
-  {
-    path: '/admin/users',
-    element: <AdminUsers />,
-  },
-  {
-    path: '/admin/complaints',
-    element: <AdminComplaints />,
-  },
-  {
-    path: '/admin/billing',
-    element: <AdminBilling />,
-  },
-  {
-    path: '/admin/users/:userId',
-    element: <AdminUserProfile />,
+    element: <AdminRoute />,
+    children: [
+      {
+        path: '/admin',
+        element: <Admin />,
+      },
+      {
+        path: '/admin/groups',
+        element: <AdminGroups />,
+      },
+      {
+        path: '/admin/requests',
+        element: <AdminRequests />,
+      },
+      {
+        path: '/admin/activities',
+        element: <AdminActivities />,
+      },
+      {
+        path: '/admin/users',
+        element: <AdminUsers />,
+      },
+      {
+        path: '/admin/complaints',
+        element: <AdminComplaints />,
+      },
+      {
+        path: '/admin/billing',
+        element: <AdminBilling />,
+      },
+      {
+        path: '/admin/users/:userId',
+        element: <AdminUserProfile />,
+      },
+    ],
   },
   {
     path: '/cancel-event/:groupId',

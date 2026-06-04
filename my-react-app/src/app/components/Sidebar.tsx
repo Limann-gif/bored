@@ -3,13 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { Sparkles, Home, Users, Compass, User, MessageSquare, Settings, ShieldCheck, LogOut } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-const navItems = [
+const baseNavItems = [
   // { icon: Home, label: 'Home', path: '/' },
   { icon: Users, label: 'My Matches', path: '/my-groups' },
   { icon: Compass, label: 'Explore Activities', path: '/activities' },
   { icon: User, label: 'Profile', path: '/profile' },
   // { icon: MessageSquare, label: 'Messages', path: '/messages' },
-  { icon: ShieldCheck, label: 'Admin', path: '/admin' },
 ];
 
 export function Sidebar() {
@@ -32,6 +31,9 @@ export function Sidebar() {
   if (!user) return null;
 
   const firstName = user.name.split(' ')[0];
+  const navItems = user.role === 'ADMIN'
+    ? [...baseNavItems, { icon: ShieldCheck, label: 'Admin', path: '/admin' }]
+    : baseNavItems;
 
   return (
     <aside className="w-64 shrink-0 min-h-screen bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen overflow-y-auto">

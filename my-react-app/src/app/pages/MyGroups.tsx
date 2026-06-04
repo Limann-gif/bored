@@ -63,6 +63,11 @@ export default function MyGroups() {
 
   const myGroups = getUserGroups();
 
+  const myGroupBookings = groupBookings.filter(b =>
+    b.userId === user?.id ||
+    b.friends.some(f => f.email.toLowerCase() === user?.email.toLowerCase())
+  );
+
   const groupsWithActivity = useMemo(() => {
     return myGroups.map(group => ({
       ...group,
@@ -91,14 +96,14 @@ export default function MyGroups() {
         </div>
 
         {/* My Group Booking List */}
-        {groupBookings.length > 0 && (
+        {myGroupBookings.length > 0 && (
           <div className="mb-10">
             <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
               <Users className="size-6" />
               My Group Booking List
             </h2>
             <div className="grid gap-4">
-              {groupBookings.map(booking => {
+              {myGroupBookings.map(booking => {
                 const activity = activities.find(a => a.id === booking.activityId);
                 if (!activity) return null;
                 const totalPeople = booking.friends.length + 1;

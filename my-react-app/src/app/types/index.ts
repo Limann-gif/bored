@@ -4,6 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  role?: 'ADMIN' | 'USER';
   subscriptionStatus: 'active' | 'inactive' | 'trial';
   subscriptionExpiry?: Date;
   location?: {
@@ -67,6 +68,8 @@ export interface UserActivitySelection {
 
 export interface GroupBookingRecord {
   id: string;
+  userId: string;
+  creatorEmail: string;
   activityId: string;
   bookingType: 'invite' | 'surprise';
   friends: { name: string; email: string }[];

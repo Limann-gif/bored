@@ -134,6 +134,8 @@ export default function GroupBooking() {
     setTimeout(() => {
       addGroupBooking({
         id: `gb-${Date.now()}`,
+        userId: user?.id ?? '',
+        creatorEmail: user?.email ?? '',
         activityId,
         bookingType,
         friends: friends.map(f => ({ name: f.name, email: f.email })),

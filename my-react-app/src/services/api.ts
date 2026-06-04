@@ -43,6 +43,43 @@ function mapActivity(data: BackendActivity): Activity {
   };
 }
 
+export interface AdminUserRecord {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  bookingCount: number;
+}
+
+export interface AdminUserDetail {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  bio: string | null;
+  occupation: string | null;
+  locationAddress: string | null;
+  role: string;
+  joinedAt: string;
+  bookingOrders: unknown[];
+  transactions: unknown[];
+  complaints: unknown[];
+}
+
+export interface AdminGroupMember {
+  name: string;
+  isPaymentCompleted: boolean;
+}
+
+export interface AdminGroupRecord {
+  nameOfActivity: string;
+  numberOfParticipants: number;
+  activityStatus: string;
+  createdAt: string;
+  members: AdminGroupMember[];
+  reviews: unknown[];
+}
+
 export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -62,7 +99,7 @@ export const apiService = {
     const response = await fetch(`${AUTH_PATH}/user/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, role: 'USER' }),
     });
     if (!response.ok) {
       const message = await response.text();
@@ -111,6 +148,33 @@ export const apiService = {
     const json: { data: BackendActivity } = await response.json();
     // Backend omits id from the response body — inject it from the URL param
     return { ...mapActivity(json.data), id };
+  },
+
+  async getUserById(id: string): Promise<AdminUserDetail> {
+    const response = await fetch(`${AUTH_PATH}/user/getUser/${id}`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error('User not found');
+    const json: { data: AdminUserDetail } = await response.json();
+    return json.data;
+  },
+
+  async getUsers(): Promise<AdminUserRecord[]> {
+    const response = await fetch(`${AUTH_PATH}/user/getUsers`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to fetch users');
+    const json: { data: AdminUserRecord[] } = await response.json();
+    return json.data;
+  },
+
+  async getAdminGroups(): Promise<AdminGroupRecord[]> {
+    const response = await fetch(`${AUTH_PATH}/groups/getAllGroupsActivityHistory`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to fetch group history');
+    const json: { data: AdminGroupRecord[] } = await response.json();
+    return json.data;
   },
 
   async addActivity(activity: Activity): Promise<Activity> {

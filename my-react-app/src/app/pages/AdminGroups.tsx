@@ -1,91 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../context/AppContext';
 import { Sidebar } from '../components/Sidebar';
-import { ArrowLeft, Search, CheckCircle, XCircle, Users, Calendar } from 'lucide-react';
+import {
+  ArrowLeft, Search, Users, Calendar, MapPin, X, CheckCircle, XCircle,
+} from 'lucide-react';
 import { Input } from '../components/ui/input';
-import type { Group } from '../types';
+import { format } from 'date-fns';
+import { apiService } from '../../services/api';
+import type { AdminGroupRecord } from '../../services/api';
 
 const STATUS_FILTERS = ['all', 'forming', 'confirmed', 'completed', 'cancelled'] as const;
 
 const statusStyle: Record<string, string> = {
-  forming: 'bg-amber-50 text-amber-600',
+  forming:   'bg-amber-50 text-amber-600',
   confirmed: 'bg-green-50 text-green-600',
   completed: 'bg-blue-50 text-blue-600',
   cancelled: 'bg-red-50 text-red-500',
 };
 
 export default function AdminGroups() {
-  const { groups, activities, updateGroupStatus } = useApp();
+  const { activities } = useApp();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<string>('all');
-  const [search, setSearch] = useState('');
-  const [confirmAction, setConfirmAction] = useState<{ groupId: string; action: 'confirmed' | 'cancelled' } | null>(null);
 
-  const getActivity = (activityId: string) => activities.find(a => a.id === activityId);
+  const [groups, setGroups]               = useState<AdminGroupRecord[]>([]);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState('');
+  const [filter, setFilter]               = useState<string>('all');
+  const [search, setSearch]               = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<AdminGroupRecord | null>(null);
+
+  useEffect(() => {
+    apiService.getAdminGroups()
+      .then(setGroups)
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = groups.filter(g => {
-    const matchesFilter = filter === 'all' || g.status === filter;
-    const activity = getActivity(g.activityId);
-    const matchesSearch = !search || activity?.name.toLowerCase().includes(search.toLowerCase()) || g.id.includes(search);
+    const matchesFilter = filter === 'all' || g.activityStatus === filter;
+    const matchesSearch = !search || g.nameOfActivity.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const counts: Record<string, number> = {
-    all: groups.length,
-    forming: groups.filter(g => g.status === 'forming').length,
-    confirmed: groups.filter(g => g.status === 'confirmed').length,
-    completed: groups.filter(g => g.status === 'completed').length,
-    cancelled: groups.filter(g => g.status === 'cancelled').length,
+    all:       groups.length,
+    forming:   groups.filter(g => g.activityStatus === 'forming').length,
+    confirmed: groups.filter(g => g.activityStatus === 'confirmed').length,
+    completed: groups.filter(g => g.activityStatus === 'completed').length,
+    cancelled: groups.filter(g => g.activityStatus === 'cancelled').length,
   };
 
-  const handleAction = (groupId: string, action: 'confirmed' | 'cancelled') => {
-    setConfirmAction({ groupId, action });
-  };
-
-  const executeAction = () => {
-    if (!confirmAction) return;
-    updateGroupStatus(confirmAction.groupId, confirmAction.action);
-    setConfirmAction(null);
-  };
+  // Try to enrich with activity data (date / location) matched by name
+  const getActivityMeta = (name: string) =>
+    activities.find(a => a.name.toLowerCase() === name.toLowerCase());
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-
-      {/* Confirm modal */}
-      {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80">
-            <h3 className="font-extrabold text-gray-900 mb-2">
-              {confirmAction.action === 'confirmed' ? 'Approve Group?' : 'Dissolve Group?'}
-            </h3>
-            <p className="text-sm text-gray-500 mb-5">
-              {confirmAction.action === 'confirmed'
-                ? 'This will mark the group as confirmed and notify members.'
-                : 'This will cancel the group. Members will be notified.'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmAction(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeAction}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-colors ${
-                  confirmAction.action === 'confirmed'
-                    ? 'bg-green-500 hover:bg-green-600'
-                    : 'bg-red-500 hover:bg-red-600'
-                }`}
-              >
-                {confirmAction.action === 'confirmed' ? 'Approve' : 'Dissolve'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
@@ -98,7 +70,7 @@ export default function AdminGroups() {
           </button>
           <div>
             <h1 className="text-xl font-extrabold text-gray-900">Manage Groups</h1>
-            <p className="text-sm text-gray-400 mt-0.5">View, approve, or dissolve all groups.</p>
+            <p className="text-sm text-gray-400 mt-0.5">View all booked activity groups.</p>
           </div>
           <div className="ml-auto">
             <span className="text-xs font-semibold text-gray-400">{groups.length} total groups</span>
@@ -106,17 +78,15 @@ export default function AdminGroups() {
         </div>
 
         <div className="px-8 py-6 space-y-5">
-          {/* Search + Filter */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-              <Input
-                placeholder="Search by activity name or group ID..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="pl-10 bg-white border-gray-200 rounded-xl"
-              />
-            </div>
+          {/* Search */}
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+            <Input
+              placeholder="Search by activity name…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-10 bg-white border-gray-200 rounded-xl"
+            />
           </div>
 
           {/* Filter tabs */}
@@ -138,101 +108,155 @@ export default function AdminGroups() {
 
           {/* Table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            {filtered.length === 0 ? (
-              <div className="py-20 text-center text-gray-400 text-sm">
-                No groups match this filter.
-              </div>
+            {loading ? (
+              <div className="py-20 text-center text-gray-400 text-sm">Loading groups…</div>
+            ) : error ? (
+              <div className="py-20 text-center text-red-400 text-sm">{error}</div>
+            ) : filtered.length === 0 ? (
+              <div className="py-20 text-center text-gray-400 text-sm">No groups match this filter.</div>
             ) : (
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/60">
-                    <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Group</th>
                     <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Activity</th>
                     <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Members</th>
                     <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Created</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {filtered.map(group => {
-                    const activity = getActivity(group.activityId);
-                    return (
-                      <tr key={group.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <span className="text-xs font-mono text-gray-400">{group.id.slice(0, 12)}…</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm font-semibold text-gray-800">{activity?.name ?? 'Unknown'}</p>
-                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                              <Calendar className="size-3" />
-                              {activity ? new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
-                            </p>
+                  {filtered.map((group, idx) => (
+                    <tr
+                      key={idx}
+                      onClick={() => setSelectedGroup(group)}
+                      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    >
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-semibold text-gray-800">{group.nameOfActivity}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {group.members.slice(0, 3).map((m, i) => (
+                              <div
+                                key={i}
+                                title={m.name}
+                                className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
+                              >
+                                {m.name.charAt(0)}
+                              </div>
+                            ))}
+                            {group.members.length > 3 && (
+                              <div className="size-7 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                                +{group.members.length - 3}
+                              </div>
+                            )}
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="flex -space-x-2">
-                              {group.members.slice(0, 3).map((m, i) => (
-                                <div
-                                  key={i}
-                                  className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
-                                >
-                                  {m.name.charAt(0)}
-                                </div>
-                              ))}
-                              {group.members.length > 3 && (
-                                <div className="size-7 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-500">
-                                  +{group.members.length - 3}
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-xs text-gray-400 flex items-center gap-1">
-                              <Users className="size-3" /> {group.members.length}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyle[group.status]}`}>
-                            {group.status}
+                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Users className="size-3" /> {group.numberOfParticipants}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-400">
-                          {new Date(group.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            {group.status === 'forming' && (
-                              <button
-                                onClick={() => handleAction(group.id, 'confirmed')}
-                                className="flex items-center gap-1.5 text-xs font-semibold text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
-                              >
-                                <CheckCircle className="size-3.5" /> Approve
-                              </button>
-                            )}
-                            {(group.status === 'forming' || group.status === 'confirmed') && (
-                              <button
-                                onClick={() => handleAction(group.id, 'cancelled')}
-                                className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
-                              >
-                                <XCircle className="size-3.5" /> Dissolve
-                              </button>
-                            )}
-                            {(group.status === 'completed' || group.status === 'cancelled') && (
-                              <span className="text-xs text-gray-300">—</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyle[group.activityStatus] ?? 'bg-gray-100 text-gray-500'}`}>
+                          {group.activityStatus}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-400">
+                        {format(new Date(group.createdAt), 'MMM d, yyyy')}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             )}
           </div>
         </div>
       </main>
+
+      {/* Group detail panel */}
+      {selectedGroup && (() => {
+        const meta = getActivityMeta(selectedGroup.nameOfActivity);
+        return (
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-black/30"
+              onClick={() => setSelectedGroup(null)}
+            />
+            <aside className="fixed right-0 top-0 z-50 h-full w-96 bg-white shadow-2xl flex flex-col">
+              {/* Panel header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+                <h2 className="text-base font-extrabold text-gray-900">Group Details</h2>
+                <button
+                  onClick={() => setSelectedGroup(null)}
+                  className="size-8 rounded-xl border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                {/* Activity info */}
+                <div className="space-y-3">
+                  {meta?.image && (
+                    <img
+                      src={meta.image}
+                      alt={meta.name}
+                      className="w-full h-40 object-cover rounded-2xl"
+                    />
+                  )}
+                  <h3 className="text-lg font-extrabold text-gray-900 leading-snug">
+                    {selectedGroup.nameOfActivity}
+                  </h3>
+                  <div className="space-y-1.5">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Calendar className="size-4 text-gray-400 shrink-0" />
+                      {meta
+                        ? format(new Date(meta.date), 'EEEE, MMMM d, yyyy')
+                        : format(new Date(selectedGroup.createdAt), 'EEEE, MMMM d, yyyy')}
+                    </p>
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <MapPin className="size-4 text-gray-400 shrink-0" />
+                      {meta?.location ?? '—'}
+                    </p>
+                  </div>
+                  <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyle[selectedGroup.activityStatus] ?? 'bg-gray-100 text-gray-500'}`}>
+                    {selectedGroup.activityStatus}
+                  </span>
+                </div>
+
+                {/* Members */}
+                <div>
+                  <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">
+                    Booked Members ({selectedGroup.members.length})
+                  </p>
+                  <div className="space-y-2">
+                    {selectedGroup.members.map((member, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="size-9 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                          {member.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 truncate">{member.name}</p>
+                        </div>
+                        {member.isPaymentCompleted ? (
+                          <span className="flex items-center gap-1 text-[10px] font-bold bg-green-100 text-green-600 px-2 py-0.5 rounded-full shrink-0">
+                            <CheckCircle className="size-3" /> Paid
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full shrink-0">
+                            <XCircle className="size-3" /> Unpaid
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </>
+        );
+      })()}
     </div>
   );
 }
