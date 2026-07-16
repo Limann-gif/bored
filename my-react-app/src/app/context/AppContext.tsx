@@ -10,7 +10,9 @@ interface AppContextType {
   activitiesError: string;
   groups: Group[];
   userSelections: UserActivitySelection[];
-  selectActivity: (activityId: string, location: { lat: number; lng: number; address: string }) => void;
+  selectActivity: (activity: Activity, location: { lat: number; lng: number; address: string }) => void;
+  removeGroup: (groupId: string) => void;
+  addGroup: (group: Group) => void;
   getUserGroups: () => Group[];
   updateGroupStatus: (groupId: string, status: Group['status']) => void;
   addActivity: (activity: Activity) => Promise<void>;
@@ -70,13 +72,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const selectActivity = (
-    activityId: string,
+    activity: Activity,
     location: { lat: number; lng: number; address: string }
   ) => {
     if (!user) return;
 
-    const activity = activities.find(a => a.id === activityId);
-    if (!activity) return;
+    const activityId = activity.id;
 
     // Create user selection
     const selection: UserActivitySelection = {
@@ -155,9 +156,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           ...centroid,
           address: `Meeting Point near ${location.address}`,
         },
-        status: 'confirmed',
+        status: 'booked',
         createdAt: new Date(),
-        activityDate: activity.date,
+        activityDate: activity.activityDate,
+        snapshot: {
+          name: activity.name,
+          image: activity.image,
+          description: activity.description,
+          location: activity.location,
+          price: activity.price,
+        },
       };
 
       setGroups(prev => [...prev, newGroup]);
@@ -176,6 +184,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updateGroupStatus = (groupId: string, status: Group['status']) => {
     setGroups(prev => prev.map(g => g.id === groupId ? { ...g, status } : g));
+  };
+
+  const removeGroup = (groupId: string) => {
+    setGroups(prev => prev.filter(g => g.id !== groupId));
+  };
+
+  const addGroup = (group: Group) => {
+    setGroups(prev => [...prev, group]);
   };
 
   const addActivity = async (activity: Activity) => {
@@ -206,6 +222,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         selectActivity,
         getUserGroups,
         updateGroupStatus,
+        removeGroup,
+        addGroup,
         addActivity,
         removeActivity,
         removeSelection,

@@ -45,7 +45,7 @@ const subStyle: Record<string, { badge: string; icon: React.ElementType; label: 
 
 export default function Profile() {
   const { user } = useAuth();
-  const { getUserGroups, activities } = useApp();
+  const { getUserGroups, activities: allActivities } = useApp();
   const navigate = useNavigate();
 
   if (!user) {
@@ -59,6 +59,7 @@ export default function Profile() {
   const extra = EXTRA[user.id] ?? DEFAULT_EXTRA;
   const myGroups = getUserGroups();
   const completedGroups = myGroups.filter(g => g.status === 'completed');
+  const uniqueActivityCount = new Set(myGroups.map(g => g.activityId)).size;
   const { badge, icon: StatusIcon, label: statusLabel } = subStyle[user.subscriptionStatus] ?? subStyle.inactive;
   const isPro = user.subscriptionStatus === 'active';
 
@@ -206,15 +207,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
-                  <Users className="size-4 text-indigo-500" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">User ID</p>
-                  <p className="text-xs font-mono text-gray-500 mt-0.5 break-all">{user.id}</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -223,7 +215,7 @@ export default function Profile() {
             {[
               { label: 'Groups Joined', value: myGroups.length,       icon: Users,     bg: 'bg-purple-50', color: 'text-purple-500' },
               { label: 'Completed',     value: completedGroups.length, icon: Star,      bg: 'bg-amber-50',  color: 'text-amber-500' },
-              { label: 'Activities',    value: activities.length,      icon: Activity,  bg: 'bg-pink-50',   color: 'text-pink-500' },
+              { label: 'Activities',    value: uniqueActivityCount,    icon: Activity,  bg: 'bg-pink-50',   color: 'text-pink-500' },
             ].map(({ label, value, icon: Icon, bg, color }) => (
               <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center">
                 <div className={`size-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-3`}>
@@ -243,7 +235,8 @@ export default function Profile() {
               </div>
               <div className="divide-y divide-gray-50">
                 {myGroups.map(group => {
-                  const activity = activities.find(a => a.id === group.activityId);
+                  const activityName = allActivities.find(a => a.id === group.activityId)?.name ?? group.snapshot?.name ?? 'Unknown Activity';
+                  const activityImage = allActivities.find(a => a.id === group.activityId)?.image ?? group.snapshot?.image;
                   const statusColors: Record<string, string> = {
                     confirmed: 'bg-green-50 text-green-600',
                     forming:   'bg-amber-50 text-amber-600',
@@ -252,15 +245,15 @@ export default function Profile() {
                   };
                   return (
                     <div key={group.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors">
-                      {activity?.image && (
+                      {activityImage && (
                         <img
-                          src={activity.image}
-                          alt={activity.name}
+                          src={activityImage}
+                          alt={activityName}
                           className="size-10 rounded-xl object-cover shrink-0"
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-800 truncate">{activity?.name ?? 'Unknown Activity'}</p>
+                        <p className="text-sm font-semibold text-gray-800 truncate">{activityName}</p>
                         <p className="text-xs text-gray-400 mt-0.5">
                           {new Date(group.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {' · '}{group.members.length} members

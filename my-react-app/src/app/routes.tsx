@@ -13,6 +13,7 @@ import AdminBilling from './pages/AdminBilling';
 import AdminUserProfile from './pages/AdminUserProfile';
 import GroupBooking from './pages/GroupBooking';
 import CancelEvent from './pages/CancelEvent';
+import Payment from './pages/Payment';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { AdminRoute } from './components/AdminRoute';
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
   {
     path: '/cancel-event/:groupId',
     element: <CancelEvent />,
+  },
+  {
+    path: '/payment/:groupId',
+    element: <Payment />,
   },
   {
     path: '/group-booking/:activityId',

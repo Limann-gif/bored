@@ -18,7 +18,7 @@ const PRESET_REASONS = [
 
 export default function CancelEvent() {
   const { groupId } = useParams<{ groupId: string }>();
-  const { groups, activities, updateGroupStatus } = useApp();
+  const { groups, activities, removeGroup } = useApp();
   const navigate = useNavigate();
 
   const [selectedReason, setSelectedReason] = useState('');
@@ -46,7 +46,7 @@ export default function CancelEvent() {
   const canSubmit = !!effectiveReason;
 
   const handleCancel = () => {
-    updateGroupStatus(group.id, 'cancelled');
+    removeGroup(group.id);
     navigate('/my-groups');
   };
 

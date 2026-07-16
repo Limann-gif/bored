@@ -255,10 +255,12 @@ export default function Activities() {
             <button className="size-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
               <Bell className="size-4" />
             </button>
-            <button className="flex items-center gap-2 bg-pink-500 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:bg-pink-600 transition-colors shadow-sm">
-              <Plus className="size-4" />
-              New Post
-            </button>
+            {user?.role === 'ADMIN' && (
+              <button className="flex items-center gap-2 bg-pink-500 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:bg-pink-600 transition-colors shadow-sm">
+                <Plus className="size-4" />
+                New Post
+              </button>
+            )}
           </div>
         </div>
 

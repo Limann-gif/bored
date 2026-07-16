@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router';
 import { Button } from './ui/button';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Calendar, Sparkles } from 'lucide-react';
+import { LogOut, User, Sparkles } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,13 +36,6 @@ export function Header() {
           <Link to="/activities">
             <Button variant="ghost">Activities</Button>
           </Link>
-          <Link to="/my-groups">
-            <Button variant="ghost">
-              <Calendar className="size-4 mr-2" />
-              My Lists
-            </Button>
-          </Link>
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">

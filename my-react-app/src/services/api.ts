@@ -15,7 +15,7 @@ interface BackendActivity {
   groupSizeMax: number;
   location: string;
   imageUrl?: string | null;
-  date?: string;
+  activityDate?: string;
 }
 
 function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
@@ -27,7 +27,12 @@ function authHeaders(extra: Record<string, string> = {}): Record<string, string>
 }
 
 function mapActivity(data: BackendActivity): Activity {
-  const parsed = data.date ? new Date(data.date) : null;
+  // Normalise Postgres-style timestamps (space separator, +00 offset) to
+  // strict ISO 8601 so all JS engines parse them correctly.
+  const normalised = data.activityDate
+    ? data.activityDate.replace(' ', 'T').replace(/\+00$/, 'Z')
+    : null;
+  const parsed = normalised ? new Date(normalised) : new Date(0);
   return {
     id: data.id ?? data.activityId ?? '',
     name: data.name,
@@ -38,7 +43,8 @@ function mapActivity(data: BackendActivity): Activity {
     groupSize: { min: data.groupSizeMin, max: data.groupSizeMax },
     location: data.location,
     image: data.imageUrl ?? '',
-    date: parsed && !isNaN(parsed.getTime()) ? parsed : new Date(),
+    date: parsed,
+    activityDate: parsed,
     vibes: [],
   };
 }

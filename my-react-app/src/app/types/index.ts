@@ -25,6 +25,7 @@ export interface Activity {
   category: string;
   image: string;
   date: Date;
+  activityDate : Date;
   capacity: number;
   groupSize: { min: number; max: number };
   location: string;
@@ -39,9 +40,18 @@ export interface Group {
     lng: number;
     address: string;
   };
-  status: 'forming' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'forming' | 'booked' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: Date;
   activityDate: Date;
+  bookingType?: 'invite' | 'surprise';
+  totalPrice?: number;
+  snapshot?: {
+    name: string;
+    image: string;
+    description: string;
+    location: string;
+    price: number;
+  };
 }
 
 export interface GroupMember {

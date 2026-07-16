@@ -68,7 +68,7 @@ export default function ActivityDetail() {
 
       const mockLat = 37.7749 + (Math.random() - 0.5) * 0.1;
       const mockLng = -122.4194 + (Math.random() - 0.5) * 0.1;
-      selectActivity(activity.id, { lat: mockLat, lng: mockLng, address: location });
+      selectActivity(activity, { lat: mockLat, lng: mockLng, address: location });
 
       toast.success('You\'ve been matched with a group!', {
         description: 'Check "My Groups" to see your new crew',
@@ -184,10 +184,13 @@ export default function ActivityDetail() {
                       <div className="space-y-2 text-sm">
                         <p className="font-medium">What happens next:</p>
                         <ol className="list-decimal list-inside space-y-1 text-gray-700">
-                          <li>We match you with {activity.groupSize.min}-{activity.groupSize.max} people nearby</li>
-                          <li>You'll meet a fresh group (never the same people twice!)</li>
-                          <li>We calculate the most central meeting point</li>
-                          <li>Show up and have fun!</li>
+                     
+                          We match you with {activity.groupSize.min}-{activity.groupSize.max} people nearby.
+                          Please note that clicking the button below secures your request but does not guarantee a slot. 
+                          To confirm your booking, complete your payment on the next page. 
+                               <br></br>
+                          Show up and have fun!
+                         
                         </ol>
                       </div>
                     </div>
@@ -200,7 +203,7 @@ export default function ActivityDetail() {
                   onClick={handleJoinActivity}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Finding your group...' : 'Join Activity'}
+                  {isSubmitting ? 'Finding your group...' : 'I am Interested'}
                 </Button>
 
                 <p className="text-xs text-center text-gray-500">

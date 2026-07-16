@@ -55,7 +55,7 @@ export default function GroupBooking() {
   const { state } = useLocation() as { state?: { groupSize?: number } };
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { activities, addGroupBooking } = useApp();
+  const { activities, addGroupBooking, addGroup } = useApp();
 
   const activity = activities.find(a => a.id === activityId);
 
@@ -371,11 +371,51 @@ export default function GroupBooking() {
               </div>
 
               <button
-                onClick={() => { saveProgress({ bookingType, step: 3 }); setStep(3); }}
+                onClick={() => {
+                  if (!bookingType || !activityId || !user || !activity) return;
+                  const newGroupId = `group-gb-${Date.now()}`;
+                  const totalPeopleCount = friends.length + 1;
+                  const price = bookingType === 'surprise'
+                    ? activity.price * totalPeopleCount
+                    : activity.price;
+                  addGroup({
+                    id: newGroupId,
+                    activityId,
+                    members: [
+                      {
+                        userId: user.id,
+                        name: user.name,
+                        location: user.location ?? { lat: 0, lng: 0, address: activity.location },
+                        joinedAt: new Date(),
+                      },
+                      ...friends.map(f => ({
+                        userId: `friend-${f.email.replace(/[^a-z0-9]/gi, '')}`,
+                        name: f.name,
+                        location: { lat: 0, lng: 0, address: '' },
+                        joinedAt: new Date(),
+                      })),
+                    ],
+                    meetingPoint: { lat: 0, lng: 0, address: activity.location },
+                    status: 'booked' as const,
+                    createdAt: new Date(),
+                    activityDate: activity.activityDate,
+                    bookingType,
+                    totalPrice: price,
+                    snapshot: {
+                      name: activity.name,
+                      image: activity.image,
+                      description: activity.description,
+                      location: activity.location,
+                      price: activity.price,
+                    },
+                  });
+                  clearProgress();
+                  navigate('/my-groups');
+                }}
                 disabled={!bookingType}
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
-                Continue to Payment <ArrowRight className="size-4" />
+                Confirm Booking <ArrowRight className="size-4" />
               </button>
             </div>
           )}
