@@ -86,6 +86,13 @@ export interface AdminGroupRecord {
   reviews: unknown[];
 }
 
+export interface PaymentCallbackPayload {
+  transactionId: string;
+  amount: number;
+  createdAt: string;
+  status: 'success';
+}
+
 export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -113,6 +120,21 @@ export const apiService = {
     }
     const data = await response.json();
     return data.token as string;
+  },
+
+  // ── Payments ────────────────────────────────────────────────────────────
+
+  async sendPaymentCallback(payload: PaymentCallbackPayload): Promise<void> {
+    const response = await fetch(`${AUTH_PATH}/payment/callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || 'Payment could not be confirmed. Please try again.');
+    }
   },
 
   // ── Activities ───────────────────────────────────────────────────────────

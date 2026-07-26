@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router';
 
 interface ActivityCardProps {
   activity: Activity;
+  signups?: number;
 }
 
-export function ActivityCard({ activity }: ActivityCardProps) {
+export function ActivityCard({ activity, signups = 0 }: ActivityCardProps) {
   const navigate = useNavigate();
+  const remainingSlots = Math.max(0, activity.capacity - signups);
 
   return (
     <div
@@ -40,10 +42,16 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           <span className="text-pink-500 font-bold text-sm">
             {activity.price === 0 ? 'Free Entry' : `$${activity.price}/pp`}
           </span>
-          <div className="flex items-center gap-1 bg-pink-50 text-pink-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+          <button
+            type="button"
+            aria-label={`${remainingSlots} of ${activity.capacity} slots remaining`}
+            className="flex items-center gap-1.5 bg-pink-50 text-pink-600 text-xs font-semibold px-2.5 py-1 rounded-full"
+          >
             <Users className="size-3" />
-            <span>{activity.capacity} spots</span>
-          </div>
+            <span>{remainingSlots} slots left</span>
+            <span className="text-pink-300">/</span>
+            <span>{activity.capacity}</span>
+          </button>
         </div>
 
         <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5 text-gray-400 text-xs">

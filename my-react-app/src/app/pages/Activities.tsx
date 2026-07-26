@@ -31,7 +31,7 @@ function GroupActivityCard({
   groupSize: number;
   onBook: () => void;
 }) {
-  const remaining = activity.capacity - signups;
+  const remaining = Math.max(0, activity.capacity - signups);
   const fillPct = Math.min(100, Math.round((signups / activity.capacity) * 100));
   const canFit = remaining >= groupSize;
   const totalCost = activity.price * groupSize;
@@ -55,13 +55,14 @@ function GroupActivityCard({
         <span className="absolute top-3 left-3 bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
           {activity.category}
         </span>
-        <span
+        <button
+          type="button"
           className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full ${
             canFit ? 'bg-white/90 text-gray-700' : 'bg-black/60 text-white'
           }`}
         >
-          {canFit ? `${remaining} spots left` : 'Not enough spots'}
-        </span>
+          {canFit ? `${remaining} slots left / ${activity.capacity}` : 'Not enough slots'}
+        </button>
       </div>
 
       {/* Content */}
@@ -357,7 +358,13 @@ export default function Activities() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  {filteredActivities.map(activity => <ActivityCard key={activity.id} activity={activity} />)}
+                  {filteredActivities.map(activity => (
+                    <ActivityCard
+                      key={activity.id}
+                      activity={activity}
+                      signups={getActivitySignups(activity.id)}
+                    />
+                  ))}
                 </div>
               )}
             </>

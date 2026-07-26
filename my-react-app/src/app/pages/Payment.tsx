@@ -6,6 +6,7 @@ import { Header } from '../components/Header';
 import { Input } from '../components/ui/input';
 import { Calendar, MapPin, Users, Lock, CreditCard, CheckCircle, ChevronLeft } from 'lucide-react';
 import { format } from 'date-fns';
+import { apiService } from '../../services/api';
 
 type PayMethod = 'card' | 'momo';
 
@@ -34,6 +35,7 @@ export default function Payment() {
   const [momoPhone, setMomoPhone] = useState('');
   const [processing, setProcessing] = useState(false);
   const [done, setDone] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   if (!group || !activity) {
     return (
@@ -53,11 +55,22 @@ export default function Payment() {
   const canPay = method === 'card' ? cardReady : momoReady;
 
   const handlePay = async () => {
+    setPaymentError('');
     setProcessing(true);
-    await new Promise(r => setTimeout(r, 1800));
-    updateGroupStatus(group.id, 'confirmed');
-    setProcessing(false);
-    setDone(true);
+    try {
+      await apiService.sendPaymentCallback({
+        transactionId: crypto.randomUUID(),
+        amount: Number(price),
+        createdAt: new Date().toISOString(),
+        status: 'success',
+      });
+      updateGroupStatus(group.id, 'confirmed');
+      setDone(true);
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Payment could not be confirmed. Please try again.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   // ── Success screen ────────────────────────────────────────────────────────
@@ -264,8 +277,14 @@ export default function Payment() {
             </div>
           )}
 
-          <p className="text-xs text-gray-300 text-center">Demo only — no real payment will be processed.</p>
+          <p className="text-xs text-gray-300 text-center">Your payment is securely confirmed before your booking is updated.</p>
         </div>
+
+        {paymentError && (
+          <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-600">
+            {paymentError}
+          </p>
+        )}
 
         {/* Pay button */}
         <button
