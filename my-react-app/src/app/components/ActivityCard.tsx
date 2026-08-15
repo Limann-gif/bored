@@ -40,7 +40,7 @@ export function ActivityCard({ activity, signups = 0 }: ActivityCardProps) {
 
         <div className="flex items-center justify-between">
           <span className="text-pink-500 font-bold text-sm">
-            {activity.price === 0 ? 'Free Entry' : `$${activity.price}/pp`}
+            {activity.price === 0 ? 'Free Entry' : `GH₵${activity.price}/pp`}
           </span>
           <button
             type="button"
@@ -49,8 +49,7 @@ export function ActivityCard({ activity, signups = 0 }: ActivityCardProps) {
           >
             <Users className="size-3" />
             <span>{remainingSlots} slots left</span>
-            <span className="text-pink-300">/</span>
-            <span>{activity.capacity}</span>
+            <span className="text-pink-400">out of {activity.capacity}</span>
           </button>
         </div>
 

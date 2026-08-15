@@ -32,7 +32,7 @@ export function Sidebar() {
 
   const firstName = user.name.split(' ')[0];
   const navItems = user.role === 'ADMIN'
-    ? [...baseNavItems, { icon: ShieldCheck, label: 'Admin', path: '/admin' }]
+    ? [...baseNavItems, { icon: ShieldCheck, label: 'Dashboard', path: '/admin' }]
     : baseNavItems;
 
   return (

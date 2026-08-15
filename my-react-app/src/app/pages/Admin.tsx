@@ -1,23 +1,17 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../context/AppContext';
 import { Sidebar } from '../components/Sidebar';
+import { apiService, type AdminGroupRecord, type AdminUserRecord } from '../../services/api';
 import {
   Users,
   Layers,
-  Star,
-  MessageSquareWarning,
   Clock,
   Activity,
   ChevronRight,
   Flag,
   BarChart3,
-  UserCheck,
 } from 'lucide-react';
-import { mockUsers } from '../data/mockData';
-
-// Derived from real app data + plausible mock values for demo
-const MOCK_AVG_RATING = 4.7;
-const MOCK_OPEN_COMPLAINTS = 3;
 
 type StatCardProps = {
   label: string;
@@ -93,13 +87,33 @@ function ActionCard({ title, description, icon: Icon, gradient, badge, badgeColo
 }
 
 export default function Admin() {
-  const { groups, activities } = useApp();
+  const { activities } = useApp();
   const navigate = useNavigate();
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState('');
+  const [groups, setGroups] = useState<AdminGroupRecord[]>([]);
+  const [groupsError, setGroupsError] = useState('');
+
+  useEffect(() => {
+    apiService.getUsers()
+      .then(setUsers)
+      .catch((error: Error) => setUsersError(error.message))
+      .finally(() => setUsersLoading(false));
+  }, []);
+
+  useEffect(() => {
+    apiService.getAdminGroups()
+      .then(setGroups)
+      .catch((error: Error) => setGroupsError(error.message));
+  }, []);
 
   const totalGroups = groups.length;
-  const pendingRequests = groups.filter(g => g.status === 'forming').length;
-  const confirmedGroups = groups.filter(g => g.status === 'confirmed').length;
-  const totalUsers = mockUsers.length + 1; // +1 for current user
+  const pendingRequests = groups.filter(group => group.activityStatus.toLowerCase() === 'forming').length;
+  const totalUsers = users.length;
+  const totalBookings = users.reduce((total, user) => total + user.bookingCount, 0);
+  const adminUsers = users.filter(user => user.role.toUpperCase() === 'ADMIN').length;
+  const memberUsers = totalUsers - adminUsers;
   const totalActivities = activities.length;
 
   const recentGroups = [...groups]
@@ -133,61 +147,55 @@ export default function Admin() {
         </div>
 
         <div className="px-8 py-6 space-y-8">
+          {(usersError || groupsError) && (
+            <div role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+              Could not load dashboard data: {usersError || groupsError}
+            </div>
+          )}
+
           {/* Stats grid */}
           <section>
             <h2 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Key Metrics</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
               <StatCard
-                label="Total Groups"
-                value={totalGroups}
-                sub="all time"
+                label="Total Bookings"
+                value={usersLoading ? '—' : totalBookings}
+                sub="across all users"
                 icon={Layers}
                 iconBg="bg-purple-50"
                 iconColor="text-purple-500"
-                trend={{ value: '12%', positive: true }}
-              />
-              <StatCard
-                label="Pending Requests"
-                value={pendingRequests}
-                sub="currently forming"
-                icon={Clock}
-                iconBg="bg-amber-50"
-                iconColor="text-amber-500"
-              />
-              <StatCard
-                label="Confirmed Groups"
-                value={confirmedGroups}
-                sub="active this week"
-                icon={UserCheck}
-                iconBg="bg-green-50"
-                iconColor="text-green-500"
-                trend={{ value: '8%', positive: true }}
               />
               <StatCard
                 label="Registered Users"
-                value={totalUsers}
-                sub="across all plans"
+                value={usersLoading ? '—' : totalUsers}
+                sub="from the database"
                 icon={Users}
                 iconBg="bg-blue-50"
                 iconColor="text-blue-500"
-                trend={{ value: '5%', positive: true }}
               />
               <StatCard
-                label="Avg Rating"
-                value={`${MOCK_AVG_RATING}★`}
-                sub="from all groups"
-                icon={Star}
+                label="Member Accounts"
+                value={usersLoading ? '—' : memberUsers}
+                sub="registered members"
+                icon={Users}
+                iconBg="bg-green-50"
+                iconColor="text-green-500"
+              />
+              <StatCard
+                label="Admin Accounts"
+                value={usersLoading ? '—' : adminUsers}
+                sub="registered administrators"
+                icon={Users}
                 iconBg="bg-pink-50"
                 iconColor="text-pink-500"
-                trend={{ value: '0.2', positive: true }}
               />
               <StatCard
-                label="Open Complaints"
-                value={MOCK_OPEN_COMPLAINTS}
-                sub="needs attention"
-                icon={MessageSquareWarning}
-                iconBg="bg-red-50"
-                iconColor="text-red-400"
+                label="Activities"
+                value={totalActivities}
+                sub="currently listed"
+                icon={Activity}
+                iconBg="bg-amber-50"
+                iconColor="text-amber-500"
               />
             </div>
           </section>
@@ -225,8 +233,6 @@ export default function Admin() {
                 description="Review and resolve user-submitted complaints and reports against groups or members."
                 icon={Flag}
                 gradient="bg-gradient-to-br from-red-500 to-red-700"
-                badge={MOCK_OPEN_COMPLAINTS}
-                badgeColor="bg-red-400"
                 onClick={() => navigate('/admin/complaints')}
               />
               <ActionCard
@@ -268,7 +274,6 @@ export default function Admin() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
-                      <th className="px-6 py-3.5 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Group ID</th>
                       <th className="px-6 py-3.5 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Activity</th>
                       <th className="px-6 py-3.5 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Members</th>
                       <th className="px-6 py-3.5 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Status</th>
@@ -278,35 +283,33 @@ export default function Admin() {
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {recentGroups.map(group => {
-                      const activity = activities.find(a => a.id === group.activityId);
                       return (
-                        <tr key={group.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 text-xs font-mono text-gray-400">{group.id.slice(0, 10)}…</td>
+                        <tr key={`${group.nameOfActivity}-${group.createdAt}`} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">
                             <span className="text-sm font-semibold text-gray-800">
-                              {activity?.name ?? 'Unknown Activity'}
+                              {group.nameOfActivity}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex -space-x-2">
-                              {group.members.slice(0, 4).map((m, i) => (
+                              {group.members.slice(0, 4).map((member, i) => (
                                 <div
                                   key={i}
                                   className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
                                 >
-                                  {m.name.charAt(0)}
+                                  {member.name.charAt(0)}
                                 </div>
                               ))}
-                              {group.members.length > 4 && (
+                              {group.numberOfParticipants > 4 && (
                                 <div className="size-7 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-gray-500 text-[9px] font-bold">
-                                  +{group.members.length - 4}
+                                  +{group.numberOfParticipants - 4}
                                 </div>
                               )}
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyles[group.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                              {group.status}
+                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyles[group.activityStatus.toLowerCase()] ?? 'bg-gray-100 text-gray-500'}`}>
+                              {group.activityStatus}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-400">

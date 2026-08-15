@@ -262,7 +262,7 @@ export default function AdminActivities() {
                   <h3 className="text-sm font-extrabold text-gray-900 leading-tight mb-1">{activity.name}</h3>
                   <p className="text-xs text-gray-400 line-clamp-2 mb-3">{activity.description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-pink-500">${activity.price}</span>
+                    <span className="text-sm font-bold text-pink-500">GH₵{activity.price}</span>
                     <span className="text-xs text-gray-400">
                       {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>

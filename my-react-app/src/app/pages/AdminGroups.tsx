@@ -14,10 +14,21 @@ const STATUS_FILTERS = ['all', 'forming', 'confirmed', 'completed', 'cancelled']
 
 const statusStyle: Record<string, string> = {
   forming:   'bg-amber-50 text-amber-600',
+  booked:    'bg-amber-50 text-amber-600',
   confirmed: 'bg-green-50 text-green-600',
   completed: 'bg-blue-50 text-blue-600',
   cancelled: 'bg-red-50 text-red-500',
 };
+
+function normaliseStatus(status?: string) {
+  const value = status?.trim().toLowerCase() || 'booked';
+  return value === 'pending' || value === 'forming' ? 'booked' : value;
+}
+
+function statusLabel(status?: string) {
+  const value = normaliseStatus(status);
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
 export default function AdminGroups() {
   const { activities } = useApp();
@@ -32,28 +43,36 @@ export default function AdminGroups() {
 
   useEffect(() => {
     apiService.getAdminGroups()
-      .then(setGroups)
+      .then(records => setGroups(records.map(record => ({
+        ...record,
+        nameOfActivity: record.nameOfActivity || 'Activity booking',
+        activityStatus: normaliseStatus(record.activityStatus),
+        createdAt: record.createdAt || new Date(0).toISOString(),
+        members: Array.isArray(record.members) ? record.members : [],
+        numberOfParticipants: record.numberOfParticipants ?? record.members?.length ?? 0,
+        reviews: Array.isArray(record.reviews) ? record.reviews : [],
+      }))))
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
   const filtered = groups.filter(g => {
-    const matchesFilter = filter === 'all' || g.activityStatus === filter;
-    const matchesSearch = !search || g.nameOfActivity.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === 'all' || normaliseStatus(g.activityStatus) === normaliseStatus(filter);
+    const matchesSearch = !search || (g.nameOfActivity || '').toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const counts: Record<string, number> = {
     all:       groups.length,
-    forming:   groups.filter(g => g.activityStatus === 'forming').length,
-    confirmed: groups.filter(g => g.activityStatus === 'confirmed').length,
-    completed: groups.filter(g => g.activityStatus === 'completed').length,
-    cancelled: groups.filter(g => g.activityStatus === 'cancelled').length,
+    forming:   groups.filter(g => normaliseStatus(g.activityStatus) === 'booked').length,
+    confirmed: groups.filter(g => normaliseStatus(g.activityStatus) === 'confirmed').length,
+    completed: groups.filter(g => normaliseStatus(g.activityStatus) === 'completed').length,
+    cancelled: groups.filter(g => normaliseStatus(g.activityStatus) === 'cancelled').length,
   };
 
   // Try to enrich with activity data (date / location) matched by name
-  const getActivityMeta = (name: string) =>
-    activities.find(a => a.name.toLowerCase() === name.toLowerCase());
+  const getActivityMeta = (name?: string) =>
+    activities.find(a => a.name.toLowerCase() === (name || '').toLowerCase());
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -101,7 +120,7 @@ export default function AdminGroups() {
                     : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                {s} <span className={`ml-1 text-xs ${filter === s ? 'text-white/70' : 'text-gray-400'}`}>({counts[s]})</span>
+                {statusLabel(s)} <span className={`ml-1 text-xs ${filter === s ? 'text-white/70' : 'text-gray-400'}`}>({counts[s]})</span>
               </button>
             ))}
           </div>
@@ -159,7 +178,7 @@ export default function AdminGroups() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyle[group.activityStatus] ?? 'bg-gray-100 text-gray-500'}`}>
-                          {group.activityStatus}
+                          {statusLabel(group.activityStatus)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-400">
@@ -221,7 +240,7 @@ export default function AdminGroups() {
                     </p>
                   </div>
                   <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusStyle[selectedGroup.activityStatus] ?? 'bg-gray-100 text-gray-500'}`}>
-                    {selectedGroup.activityStatus}
+                    {statusLabel(selectedGroup.activityStatus)}
                   </span>
                 </div>
 

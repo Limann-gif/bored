@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Sidebar } from '../components/Sidebar';
+import { apiService, type PaymentHistoryRecord } from '../../services/api';
 import { ArrowLeft, CreditCard, TrendingUp, Users, DollarSign, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 
 type TxnStatus = 'paid' | 'refunded' | 'failed';
@@ -41,9 +42,36 @@ const failedCount = TRANSACTIONS.filter(t => t.status === 'failed').length;
 
 export default function AdminBilling() {
   const navigate = useNavigate();
-  const [statusFilter, setStatusFilter] = useState<'all' | TxnStatus>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const filtered = TRANSACTIONS.filter(t => statusFilter === 'all' || t.status === statusFilter);
+  useEffect(() => {
+    apiService.getPaymentHistory()
+      .then(setPaymentHistory)
+      .catch((requestError: Error) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const availableStatuses = useMemo(
+    () => Array.from(new Set(paymentHistory.map(transaction => transaction.status.toLowerCase()))),
+    [paymentHistory],
+  );
+
+  const filtered = paymentHistory.filter(transaction =>
+    statusFilter === 'all' || transaction.status.toLowerCase() === statusFilter,
+  );
+
+  const getStatusStyle = (status: string) => {
+    const normalised = status.toLowerCase();
+    if (normalised === 'success' || normalised === 'paid' || normalised === 'completed') {
+      return txnStyle.paid;
+    }
+    if (normalised === 'refunded') return txnStyle.refunded;
+    if (normalised === 'failed' || normalised === 'failure') return txnStyle.failed;
+    return { badge: 'bg-gray-100 text-gray-500', icon: CreditCard };
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -115,7 +143,7 @@ export default function AdminBilling() {
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <h2 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Recent Transactions</h2>
               <div className="flex gap-2 ml-auto">
-                {(['all', 'paid', 'refunded', 'failed'] as const).map(s => (
+                {(['all', ...availableStatuses]).map(s => (
                   <button
                     key={s}
                     onClick={() => setStatusFilter(s)}
@@ -145,23 +173,34 @@ export default function AdminBilling() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {filtered.map(txn => {
-                    const { badge, icon: StatusIcon } = txnStyle[txn.status];
+                  {loading ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-16 text-center text-sm text-gray-400">Loading transactions…</td>
+                    </tr>
+                  ) : error ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-16 text-center text-sm text-red-500">{error}</td>
+                    </tr>
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-16 text-center text-sm text-gray-400">No transactions found.</td>
+                    </tr>
+                  ) : filtered.map(txn => {
+                    const { badge, icon: StatusIcon } = getStatusStyle(txn.status);
                     return (
-                      <tr key={txn.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-xs font-mono text-gray-400">{txn.id}</td>
+                      <tr key={txn.transactionId} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-mono text-gray-400">{txn.transactionId}</td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-semibold text-gray-800">{txn.user}</p>
-                          <p className="text-xs text-gray-400">{txn.email}</p>
+                          <p className="text-sm font-semibold text-gray-800">{txn.userName}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${txn.plan === 'Annual' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-500'}`}>
-                            {txn.plan}
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-500">
+                            Activity
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-bold text-gray-800">${txn.amount}</td>
+                        <td className="px-6 py-4 text-sm font-bold text-gray-800">GH₵{txn.amount}</td>
                         <td className="px-6 py-4 text-sm text-gray-400">
-                          {new Date(txn.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {new Date(txn.transactionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`flex items-center gap-1.5 w-fit text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${badge}`}>

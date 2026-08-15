@@ -215,7 +215,7 @@ export default function GroupBooking() {
                     {activity.location}
                   </p>
                 </div>
-                <span className="text-sm font-bold text-pink-500 shrink-0">${activity.price}/pp</span>
+                <span className="text-sm font-bold text-pink-500 shrink-0">GH₵{activity.price}/pp</span>
               </div>
 
               {/* Current group */}
@@ -332,7 +332,7 @@ export default function GroupBooking() {
                     We'll send each friend a personalized link. They confirm their spot and pay their own share.
                   </p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-extrabold text-purple-600">${pricePerPerson}</span>
+                    <span className="text-xl font-extrabold text-purple-600">GH₵{pricePerPerson}</span>
                     <span className="text-xs text-gray-400">you pay (your share only)</span>
                   </div>
                   {bookingType === 'invite' && (
@@ -359,8 +359,8 @@ export default function GroupBooking() {
                     You cover everyone's spot. Friends just show up — perfect for birthdays or special occasions.
                   </p>
                   <div className="flex items-baseline gap-1 flex-wrap">
-                    <span className="text-xl font-extrabold text-pink-500">${pricePerPerson * totalPeople}</span>
-                    <span className="text-xs text-gray-400">${pricePerPerson} × {totalPeople} people</span>
+                    <span className="text-xl font-extrabold text-pink-500">GH₵{pricePerPerson * totalPeople}</span>
+                    <span className="text-xs text-gray-400">GH₵{pricePerPerson} × {totalPeople} people</span>
                   </div>
                   {bookingType === 'surprise' && (
                     <div className="mt-3 flex items-center gap-1.5 text-xs text-pink-500 font-bold">
@@ -459,7 +459,7 @@ export default function GroupBooking() {
                       {bookingType === 'invite' ? 'Your spot' : `${totalPeople} spots`}
                     </span>
                     <span className="font-semibold text-gray-800">
-                      {bookingType === 'invite' ? `$${pricePerPerson}` : `$${pricePerPerson} × ${totalPeople}`}
+                      {bookingType === 'invite' ? `GH₵${pricePerPerson}` : `GH₵${pricePerPerson} × ${totalPeople}`}
                     </span>
                   </div>
                   {bookingType === 'invite' && (
@@ -470,7 +470,7 @@ export default function GroupBooking() {
                   )}
                   <div className="border-t border-gray-100 pt-3 flex justify-between font-extrabold text-base">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-pink-500">${totalPrice}</span>
+                    <span className="text-pink-500">GH₵{totalPrice}</span>
                   </div>
                 </div>
 
@@ -559,7 +559,7 @@ export default function GroupBooking() {
                     Processing…
                   </>
                 ) : (
-                  <><Lock className="size-4" /> Pay ${totalPrice}</>
+                  <><Lock className="size-4" /> Pay GH₵{totalPrice}</>
                 )}
               </button>
             </div>
@@ -605,7 +605,7 @@ export default function GroupBooking() {
                         </span>
                       )}
                       <span className="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
-                        ${totalPrice} paid
+                        GH₵{totalPrice} paid
                       </span>
                     </div>
                   </div>

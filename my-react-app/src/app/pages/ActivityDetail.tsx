@@ -125,7 +125,7 @@ export default function ActivityDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Join This Activity</span>
-                  <span className="text-2xl text-purple-600">${activity.price}</span>
+                  <span className="text-2xl text-purple-600">GH₵{activity.price}</span>
                 </CardTitle>
                 <CardDescription>
                   Select this activity and we'll match you with a group

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Activity, Group, GroupBookingRecord, UserActivitySelection } from '../types';
-import { mockGroups, mockUsers } from '../data/mockData';
+import { mockUsers } from '../data/mockData';
 import { useAuth } from './AuthContext';
 import { apiService } from '../../services/api';
 
@@ -29,18 +29,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [activitiesError, setActivitiesError] = useState('');
-  const [groups, setGroups] = useState<Group[]>(() => {
-    const stored = localStorage.getItem('boredGroups');
-    return stored ? JSON.parse(stored) : mockGroups;
-  });
-  const [userSelections, setUserSelections] = useState<UserActivitySelection[]>(() => {
-    const stored = localStorage.getItem('boredSelections');
-    return stored ? JSON.parse(stored) : [];
-  });
-  const [groupBookings, setGroupBookings] = useState<GroupBookingRecord[]>(() => {
-    const stored = localStorage.getItem('boredGroupBookings');
-    return stored ? JSON.parse(stored) : [];
-  });
+  // Previous booking data has been cleared, so all activities begin with no
+  // local reservations. The effects below replace any stale browser storage.
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [userSelections, setUserSelections] = useState<UserActivitySelection[]>([]);
+  const [groupBookings, setGroupBookings] = useState<GroupBookingRecord[]>([]);
 
   // Fetch activities once the user is authenticated
   useEffect(() => {

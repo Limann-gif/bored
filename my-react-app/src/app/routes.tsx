@@ -14,6 +14,7 @@ import AdminUserProfile from './pages/AdminUserProfile';
 import GroupBooking from './pages/GroupBooking';
 import CancelEvent from './pages/CancelEvent';
 import Payment from './pages/Payment';
+import PaymentCallback from './pages/PaymentCallback';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { AdminRoute } from './components/AdminRoute';
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
   {
     path: '/cancel-event/:groupId',
     element: <CancelEvent />,
+  },
+  {
+    path: '/payment/callback',
+    element: <PaymentCallback />,
   },
   {
     path: '/payment/:groupId',

@@ -12,13 +12,6 @@ import {
 import { format } from 'date-fns';
 import type { Activity } from '../types';
 
-// Seed signups so progress bars look interesting in group mode
-const MOCK_BASE_SIGNUPS: Record<string, number> = {
-  'act-1': 8, 'act-2': 12, 'act-3': 6, 'act-4': 18,
-  'act-5': 4,  'act-6': 10, 'act-7': 15, 'act-8': 7,
-  'act-9': 11, 'act-10': 9,
-};
-
 // ─── Group-mode activity card ──────────────────────────────────────────────
 function GroupActivityCard({
   activity,
@@ -34,7 +27,6 @@ function GroupActivityCard({
   const remaining = Math.max(0, activity.capacity - signups);
   const fillPct = Math.min(100, Math.round((signups / activity.capacity) * 100));
   const canFit = remaining >= groupSize;
-  const totalCost = activity.price * groupSize;
 
   return (
     <div
@@ -61,7 +53,7 @@ function GroupActivityCard({
             canFit ? 'bg-white/90 text-gray-700' : 'bg-black/60 text-white'
           }`}
         >
-          {canFit ? `${remaining} slots left / ${activity.capacity}` : 'Not enough slots'}
+          {canFit ? `${remaining} slots left out of ${activity.capacity}` : 'Not enough slots'}
         </button>
       </div>
 
@@ -99,17 +91,14 @@ function GroupActivityCard({
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-1">
           <div>
-            <p className="text-sm font-bold text-pink-500">${activity.price}<span className="text-gray-400 font-normal">/pp</span></p>
-            {groupSize > 1 && (
-              <p className="text-xs text-gray-400">~<span className="font-semibold text-gray-600">${totalCost}</span> for {groupSize}</p>
-            )}
+            <p className="text-sm font-bold text-pink-500">GH₵{activity.price}<span className="text-gray-400 font-normal">/pp</span></p>
           </div>
           {canFit ? (
             <button
               onClick={onBook}
               className="flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity shadow-sm"
             >
-              <Users className="size-3.5" /> Book for {groupSize}
+              <Users className="size-3.5" /> Book for {groupSize} or more
             </button>
           ) : (
             <span className="text-xs text-gray-400 font-semibold bg-gray-100 px-3 py-2 rounded-full">Full</span>
@@ -149,7 +138,7 @@ export default function Activities() {
       .filter(g => g.activityId === activityId && (g.status === 'confirmed' || g.status === 'forming'))
       .reduce((sum, g) => sum + g.members.length, 0);
     const fromSelections = userSelections.filter(s => s.activityId === activityId).length;
-    return (MOCK_BASE_SIGNUPS[activityId] ?? 0) + fromGroups + fromSelections;
+    return fromGroups + fromSelections;
   };
 
   const groupEligibleActivities = useMemo(() => filteredActivities.filter(a => {

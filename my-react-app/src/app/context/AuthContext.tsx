@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types';
 import { mockCurrentUser } from '../data/mockData';
 import { apiService } from '../../services/api';
@@ -56,15 +56,21 @@ function buildUserFromJwt(token: string, fallbackEmail: string, fallbackName?: s
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
+  // Restore the session before the first route renders. Restoring it in an
+  // effect briefly left `user` null, which redirected /activities to home on
+  // every browser refresh.
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('boredUser');
     const token = localStorage.getItem('boredToken');
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      try {
+        return JSON.parse(storedUser) as User;
+      } catch {
+        return buildUserFromJwt(token, '');
+      }
     }
-  }, []);
+    return null;
+  });
 
   const login = async (email: string, password: string) => {
     const token = await apiService.login(email, password);
