@@ -1,6 +1,6 @@
 import type { Activity } from '../app/types';
 
-const AUTH_PATH = 'http://localhost:5000/api';
+const AUTH_PATH = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // Shape returned by the C# backend for Activity
 interface BackendActivity {
