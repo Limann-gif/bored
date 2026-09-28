@@ -178,7 +178,7 @@ export const apiService = {
     });
     if (!response.ok) {
       const message = await response.text();
-      throw new Error(message || 'Invalid credentials');
+      throw new Error(message);
     }
     const data = await response.json();
     return data.token as string;
