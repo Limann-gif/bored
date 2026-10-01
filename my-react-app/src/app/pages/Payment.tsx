@@ -1,90 +1,77 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useParams, useNavigate, Navigate } from 'react-router';
-import { useApp } from '../context/AppContext';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation, Navigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { Header } from '../components/Header';
 import { Calendar, MapPin, Lock, CreditCard, ChevronLeft, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
-import { apiService, type PaymentOrderRecord } from '../../services/api';
+import { apiService, type UserActivityHistoryItem } from '../../services/api';
 
-const DEFAULT_PAYMENT_ORDER_ID = '3efd04c1-e3bd-46c5-ac42-6b060edbda81';
-const EMPTY_ACTIVITY_ID = '00000000-0000-0000-0000-000000000000';
+const EMPTY_BOOKING_ID = '00000000-0000-0000-0000-000000000000';
 
 export default function Payment() {
-  const { groupId: orderId } = useParams<{ groupId: string }>();
+  const { groupId: bookingId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectedBooking = (location.state as { booking?: UserActivityHistoryItem } | null)?.booking;
   const { user } = useAuth();
-  const { groups, activities } = useApp();
-
-  const group = useMemo(() => groups.find(g => g.id === orderId), [groups, orderId]);
-  const activity = useMemo(
-    () => group ? activities.find(a => a.id === group.activityId) : undefined,
-    [group, activities]
-  );
-
+  const userId = user?.id;
+  const [booking, setBooking] = useState<UserActivityHistoryItem | null>(null);
   const [processing, setProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [paymentOrder, setPaymentOrder] = useState<PaymentOrderRecord | null>(null);
   const [orderLoading, setOrderLoading] = useState(true);
   const [orderError, setOrderError] = useState('');
 
   useEffect(() => {
-    if (orderId === EMPTY_ACTIVITY_ID) {
-      navigate(`/payment/${DEFAULT_PAYMENT_ORDER_ID}`, { replace: true });
-      return;
-    }
-    if (!orderId) {
-      setOrderError('Payment order not found');
+    let active = true;
+    setBooking(null);
+    setOrderError('');
+    if (!userId || !bookingId || bookingId === EMPTY_BOOKING_ID || bookingId === 'pending') {
+      setOrderError('Please sign in and select a booking from My Groups.');
       setOrderLoading(false);
       return;
     }
-
-    apiService.getPaymentOrder(orderId)
-      .then(setPaymentOrder)
-      .catch((error: Error) => setOrderError(error.message))
-      .finally(() => setOrderLoading(false));
-  }, [orderId]);
+    if (selectedBooking?.id === bookingId) {
+      setBooking(selectedBooking);
+      setOrderLoading(false);
+      return;
+    }
+    setOrderLoading(true);
+    apiService.getUserActivityHistory(userId)
+      .then(history => {
+        const match = Object.values(history).flat().find(item => item.id === bookingId);
+        if (!match) throw new Error('Booking not found. Please select a booking from My Groups.');
+        if (active) setBooking(match);
+      })
+      .catch((error: Error) => { if (active) setOrderError(error.message); })
+      .finally(() => { if (active) setOrderLoading(false); });
+    return () => { active = false; };
+  }, [bookingId, userId, selectedBooking]);
 
   if (orderLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center text-gray-500">
-          Loading payment details…
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-50"><Header /><div className="container mx-auto px-4 py-16 text-center text-gray-500">Loading payment details…</div></div>;
   }
 
-  // A confirmed booking must never re-enter checkout, including via browser Back.
-  if (group?.status === 'confirmed') {
+  const status = (booking?.confirmationStatus || booking?.onfirmationStatus || booking?.status)?.trim().toLowerCase();
+  if (status && ['confirmed', 'completed', 'cancelled'].includes(status)) {
     return <Navigate to="/my-groups" replace />;
   }
 
-  const activityName = paymentOrder?.activityName ?? activity?.name ?? 'Activity booking';
-  const activityImage = paymentOrder?.imageUrl ?? activity?.image;
-  const activityDate = paymentOrder?.activityDate ?? group?.activityDate ?? activity?.activityDate;
-  const activityLocation = paymentOrder?.location ?? group?.meetingPoint.address ?? activity?.location ?? 'Location to be confirmed';
-  const price = paymentOrder?.amount ?? group?.totalPrice ?? activity?.price ?? 0;
-
-  const activityId = paymentOrder?.activityId ?? group?.activityId ?? activity?.id;
-  const canPay = Boolean(user?.id && activityId && orderId);
+  const activityName = booking?.name ?? 'Activity booking';
+  const activityImage = booking?.imageUrl;
+  const activityDate = booking?.activityDate;
+  const activityLocation = booking?.location ?? 'Location to be confirmed';
+  const price = booking?.price ?? 0;
+  const canPay = Boolean(userId && bookingId && booking?.id === bookingId && ['booked', 'pending', 'forming'].includes(status ?? ''));
 
   const handlePay = async () => {
     setPaymentError('');
     setProcessing(true);
     try {
-      if (!user?.id || !activityId || !orderId) {
-        throw new Error('We could not find all the booking details needed to start payment.');
-      }
-      const authorizationUrl = await apiService.initializePayment({
-        userId: user.id,
-        activityId,
-        orderId,
-      });
+      if (!canPay || !booking?.id) throw new Error('Please select a booked activity from My Groups.');
+      const authorizationUrl = await apiService.initializePayment(booking.id);
       window.location.assign(authorizationUrl);
     } catch (error) {
-      setPaymentError(error instanceof Error ? error.message : 'Payment could not be confirmed. Please try again.');
+      setPaymentError(error instanceof Error ? error.message : 'Payment could not be started. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -108,7 +95,7 @@ export default function Payment() {
 
         {orderError && (
           <p role="alert" className="mb-5 rounded-xl bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-700">
-            {orderError}. Showing the available booking details instead.
+            {orderError}
           </p>
         )}
 

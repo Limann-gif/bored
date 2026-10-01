@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router';
+import { AppProvider } from './context/AppContext';
+import { createBrowserRouter, Outlet } from 'react-router';
 import Landing from './pages/Landing';
 import Activities from './pages/Activities';
 import ActivityDetail from './pages/ActivityDetail';
@@ -19,7 +20,13 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { AdminRoute } from './components/AdminRoute';
 
-export const router = createBrowserRouter([
+function AppLayout() {
+  return <AppProvider><Outlet /></AppProvider>;
+}
+
+export const router = createBrowserRouter([{
+  element: <AppLayout />,
+  children: [
   {
     path: '/',
     element: <Landing />,
@@ -97,4 +104,5 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFound />,
   },
-]);
+  ],
+}]);

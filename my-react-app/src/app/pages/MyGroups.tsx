@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Header } from '../components/Header';
 import { Button } from '../components/ui/button';
 import {
@@ -13,13 +13,12 @@ import {
   Users,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { apiService, type ActivityBookingOrderRecord } from '../../services/api';
-import type { Activity } from '../types';
+import { apiService, type UserActivityHistoryItem } from '../../services/api';
 
-type HistoryActivity = ActivityBookingOrderRecord & {
+type HistoryActivity = UserActivityHistoryItem & {
+  groupMembers: string[];
   historyStatus: string;
   key: string;
-  details?: Activity;
 };
 
 const statusStyles: Record<string, string> = {
@@ -41,18 +40,19 @@ function MemberAvatar({ name, index }: { name: string; index: number }) {
   ];
   return (
     <div className={`flex size-9 items-center justify-center rounded-full bg-gradient-to-br ${colors[index % colors.length]} text-sm font-bold text-white shadow-sm ring-2 ring-white`}>
-      {(name.trim().charAt(0) || '?').toUpperCase()}
+      {(name.trim().split(/\s+/).map(part => part.charAt(0)).slice(0, 2).join('') || '?').toUpperCase()}
     </div>
   );
 }
 
 function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; onPay?: () => void }) {
-  const status = (activity.status || activity.historyStatus).toLowerCase();
+  const status = (activity.confirmationStatus || activity.status || activity.historyStatus).trim().toLowerCase();
+  const showMemberNames = activity.confirmationStatus?.trim().toLowerCase() === 'confirmed';
   const isBooked = status === 'forming' || status === 'booked' || status === 'pending';
-  const eventDate = activity.details?.activityDate ?? new Date(activity.activityDate);
-  const image = activity.details?.image || activity.imageUrl;
-  const description = activity.details?.description || activity.description;
-  const location = activity.details?.location || activity.location;
+  const eventDate = new Date(activity.activityDate);
+  const image = activity.imageUrl;
+  const description = activity.description;
+  const location = activity.location;
 
   return (
     <article className="overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
@@ -90,12 +90,21 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
 
           <div className="mt-5 border-t border-gray-100 pt-5">
             <div className="mb-3 flex items-center gap-2"><Users className="size-4 text-gray-500" /><p className="text-sm font-semibold text-gray-700">Your Group <span className="ml-1.5 text-xs font-normal text-gray-400">({activity.groupMembers.length} people)</span></p></div>
-            {activity.groupMembers.length > 0 ? (
+            {activity.groupMembers.length > 0 && showMemberNames ? (
+              <ul className="flex flex-wrap gap-3">
+                {activity.groupMembers.map((member, index) => (
+                  <li key={`${member}-${index}`} className="flex items-center gap-2 rounded-xl bg-purple-50 px-3 py-2">
+                    <MemberAvatar name={member} index={index} />
+                    <span className="text-sm font-semibold text-gray-700">{member}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : activity.groupMembers.length > 0 ? (
               <div className="flex -space-x-2.5">{activity.groupMembers.slice(0, 6).map((member, index) => <MemberAvatar key={`${member}-${index}`} name={member} index={index} />)}{activity.groupMembers.length > 6 && <div className="flex size-9 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500 ring-2 ring-white">+{activity.groupMembers.length - 6}</div>}</div>
             ) : <p className="text-xs text-gray-400">Group members are not available yet.</p>}
           </div>
 
-          {isBooked && activity.orderId && onPay && (
+          {isBooked && onPay && (
             <div className="mt-5 flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
               <div><p className="text-sm font-bold text-amber-700">Payment pending</p><p className="mt-0.5 text-xs text-amber-500">Complete payment to confirm your spot</p></div>
               <Button size="sm" onClick={onPay} className="shrink-0 bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:opacity-90">Make Payment</Button>
@@ -114,30 +123,49 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
 }
 
 export default function MyGroups() {
-  const { activities: availableActivities } = useApp();
+  const { user } = useAuth();
+  const userId = user?.id;
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<ActivityBookingOrderRecord[]>([]);
+  const [orders, setOrders] = useState<HistoryActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true);
+    let active = true;
+    setOrders([]);
     setError('');
-    apiService.getAllGroupsActivityHistory()
-      .then(setOrders)
-      .catch((requestError: Error) => setError(requestError.message))
-      .finally(() => setLoading(false));
-  }, []);
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
-  const activities = useMemo(() => orders.map((order, index) => ({
-    ...order,
-    historyStatus: order.status,
-    key: order.orderId || `${order.activityId}-${order.status}-${index}`,
-    details: availableActivities.find(activity => activity.id === order.activityId),
-  })), [orders, availableActivities]);
+    setLoading(true);
+    apiService.getUserActivityHistory(userId)
+      .then(history => {
+        if (active) setOrders(Object.entries(history).flatMap(([status, bookings]) =>
+          bookings.map(booking => ({
+            ...booking,
+            confirmationStatus: booking.confirmationStatus ?? booking.onfirmationStatus,
+            groupMembers: booking.groupParticipants ?? [],
+            historyStatus: status,
+            key: booking.id,
+          }))
+        ));
+      })
+      .catch((requestError: Error) => {
+        if (active) setError(requestError.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [userId]);
+
+  const activities = orders;
 
   const activitiesByStatus = useMemo(() => activities.reduce<Record<string, HistoryActivity[]>>((groups, activity) => {
-    const rawStatus = (activity.status || activity.historyStatus || 'booked').toLowerCase();
+    const rawStatus = (activity.confirmationStatus || activity.status || activity.historyStatus || 'booked').trim().toLowerCase();
     const status = rawStatus === 'forming' || rawStatus === 'pending' ? 'booked' : rawStatus;
     (groups[status] ??= []).push(activity);
     return groups;
@@ -200,7 +228,7 @@ export default function MyGroups() {
                   <h2 className="text-2xl font-bold capitalize text-gray-900">{statusLabel(status)} Activities</h2>
                   <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500">{activitiesByStatus[status].length}</span>
                 </div>
-                <div className="grid gap-6">{activitiesByStatus[status].map(activity => <ActivityHistoryCard key={activity.key} activity={activity} onPay={() => navigate(`/payment/${activity.orderId}`)} />)}</div>
+                <div className="grid gap-6">{activitiesByStatus[status].map(activity => <ActivityHistoryCard key={activity.key} activity={activity} onPay={() => navigate(`/payment/${activity.id}`, { state: { booking: activity } })} />)}</div>
               </section>
             ))}
           </>

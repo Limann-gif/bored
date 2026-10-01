@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 
 const baseNavItems = [
   // { icon: Home, label: 'Home', path: '/' },
-  { icon: Users, label: 'My Matches', path: '/my-groups' },
+  { icon: Users, label: 'My Groups', path: '/my-groups' },
   { icon: Compass, label: 'Explore Activities', path: '/activities' },
   { icon: User, label: 'Profile', path: '/profile' },
   // { icon: MessageSquare, label: 'Messages', path: '/messages' },

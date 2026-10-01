@@ -58,6 +58,9 @@ export interface AdminUserRecord {
 }
 
 export interface AdminUserDetail {
+  activitiesNumber: number;
+  groupsJoinedNumber: number;
+  completedActivityNumber: number;
   id: string;
   name: string;
   email: string;
@@ -122,13 +125,10 @@ export interface PaymentOrderRecord {
   imageUrl: string | null;
 }
 
-export interface InitializePaymentPayload {
-  userId: string;
-  activityId: string;
-  orderId: string;
-}
-
 export interface UserActivityHistoryItem {
+  confirmationStatus?: string;
+  onfirmationStatus?: string;
+  groupParticipants?: string[];
   id: string;
   name: string;
   description: string | null;
@@ -144,7 +144,7 @@ export interface UserActivityHistoryItem {
   activityDate: string;
   cancellationDate: string | null;
   cancellationReason: string | null;
-  bookingOrders: unknown[];
+  bookingOrders?: unknown[];
 }
 
 export type UserActivityHistory = Record<string, UserActivityHistoryItem[]>;
@@ -155,6 +155,88 @@ export interface ActivityBookingOrderRecord extends UserActivityHistoryItem {
   groupMembers: string[];
 }
 
+export function mapActivityHistory(root: unknown): ActivityBookingOrderRecord[] {
+  const records: ActivityBookingOrderRecord[] = [];
+
+  const textValue = (value: unknown, fallback = '') => typeof value === 'string' ? value : fallback;
+  const numberValue = (value: unknown, fallback = 0) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  const memberNames = (value: unknown): string[] => Array.isArray(value)
+    ? value.map(member => typeof member === 'string'
+      ? member
+      : member && typeof member === 'object'
+        ? textValue((member as Record<string, unknown>).name)
+        : '').filter(Boolean)
+    : [];
+
+  const addOrder = (order: Record<string, unknown>, activity: Record<string, unknown>, inheritedStatus?: string) => {
+    const orderId = textValue(order.orderId ?? order.bookingOrderId ?? order.id);
+    const activityId = textValue(order.activityId ?? activity.activityId ?? activity.id);
+    if (!orderId && !activityId) return;
+    const status = textValue(order.status ?? order.orderStatus ?? activity.activityStatus ?? activity.status, inheritedStatus ?? 'booked');
+    const members = memberNames(order.groupParticipants ?? activity.groupParticipants ?? order.members ?? order.groupMembers ?? activity.members ?? activity.groupMembers);
+    records.push({
+      id: activityId,
+      activityId,
+      orderId,
+      name: textValue(activity.name ?? activity.activityName ?? activity.nameOfActivity ?? order.activityName, 'Activity booking'),
+      description: textValue(activity.description) || null,
+      category: textValue(activity.category),
+      price: numberValue(order.amount ?? order.totalAmount ?? activity.price),
+      capacity: numberValue(activity.capacity),
+      groupSizeMin: numberValue(activity.groupSizeMin),
+      groupSizeMax: numberValue(activity.groupSizeMax),
+      location: textValue(activity.location),
+      imageUrl: textValue(activity.imageUrl) || null,
+      createdAt: textValue(order.createdAt ?? activity.createdAt),
+      status,
+      activityDate: textValue(activity.activityDate ?? activity.date ?? order.activityDate),
+      cancellationDate: textValue(order.cancellationDate ?? activity.cancellationDate) || null,
+      cancellationReason: textValue(order.cancellationReason ?? activity.cancellationReason) || null,
+      bookingOrders: [],
+      groupMembers: members,
+      confirmationStatus: textValue(order.confirmationStatus ?? order.onfirmationStatus ?? activity.confirmationStatus ?? activity.onfirmationStatus).trim().toLowerCase(),
+    });
+  };
+
+  const visit = (value: unknown, inheritedStatus?: string) => {
+    if (Array.isArray(value)) {
+      value.forEach(item => visit(item, inheritedStatus));
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    const object = value as Record<string, unknown>;
+    const orders = object.activityBookingOrders ?? object.bookingOrders;
+    if (Array.isArray(orders) && orders.length > 0) {
+      orders.forEach(order => {
+        if (order && typeof order === 'object') addOrder(order as Record<string, unknown>, object, inheritedStatus);
+      });
+      return;
+    }
+    if ('orderId' in object || 'bookingOrderId' in object) {
+      const nestedActivity = object.activity && typeof object.activity === 'object'
+        ? object.activity as Record<string, unknown>
+        : object;
+      addOrder(object, nestedActivity, inheritedStatus);
+      return;
+    }
+    if ('id' in object && 'name' in object) {
+      addOrder({}, object, inheritedStatus);
+      return;
+    }
+    if ('nameOfActivity' in object && 'activityStatus' in object) {
+      addOrder(object, object, inheritedStatus);
+      return;
+    }
+    Object.entries(object).forEach(([key, nested]) => visit(nested, key));
+  };
+
+  visit(root);
+  return records;
+}
+
 export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -162,7 +244,7 @@ export const apiService = {
     const response = await fetch(`${AUTH_PATH}/user/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username, email, password, role: 'user' }),
     });
     if (!response.ok) {
       const message = await response.text();
@@ -199,19 +281,34 @@ export const apiService = {
     }
   },
 
-  async initializePayment(payload: InitializePaymentPayload): Promise<string> {
-    const response = await fetch(`${AUTH_PATH}/payment/initialize`, {
+  async initializePayment(bookingId: string): Promise<string> {
+    const response = await fetch(`${AUTH_PATH}/payment/initialize/${encodeURIComponent(bookingId)}`, {
       method: 'POST',
-      headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(payload),
+      headers: authHeaders(),
     });
 
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(message || 'Payment could not be started. Please try again.');
+    const body = await response.text();
+    let json: Record<string, unknown>;
+    try {
+      const parsed: unknown = JSON.parse(body);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Invalid payment response');
+      }
+      json = parsed as Record<string, unknown>;
+    } catch {
+      throw new Error(response.ok
+        ? 'The payment provider did not return a valid checkout response.'
+        : 'Payment could not be started. Please try again.');
     }
 
-    const json = await response.json() as Record<string, unknown>;
+    const code = Number(json.code);
+    if (!response.ok || (Number.isFinite(code) && code >= 400) || json.data === null) {
+      const message = typeof json.message === 'string' && json.message.trim()
+        ? json.message
+        : 'Payment could not be started. Please try again.';
+      throw new Error(message);
+    }
+
     const data = typeof json.data === 'object' && json.data !== null
       ? json.data as Record<string, unknown>
       : json;
@@ -332,80 +429,7 @@ export const apiService = {
 
     const json = await response.json() as Record<string, unknown>;
     const root = json.data ?? json;
-    const records: ActivityBookingOrderRecord[] = [];
-
-    const textValue = (value: unknown, fallback = '') => typeof value === 'string' ? value : fallback;
-    const numberValue = (value: unknown, fallback = 0) => {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : fallback;
-    };
-    const memberNames = (value: unknown): string[] => Array.isArray(value)
-      ? value.map(member => typeof member === 'string'
-        ? member
-        : member && typeof member === 'object'
-          ? textValue((member as Record<string, unknown>).name)
-          : '').filter(Boolean)
-      : [];
-
-    const addOrder = (order: Record<string, unknown>, activity: Record<string, unknown>, inheritedStatus?: string) => {
-      const orderId = textValue(order.orderId ?? order.id ?? order.bookingOrderId);
-      const activityId = textValue(order.activityId ?? activity.activityId ?? activity.id);
-      if (!orderId && !activityId) return;
-      const status = textValue(order.status ?? order.orderStatus ?? activity.activityStatus ?? activity.status, inheritedStatus ?? 'booked');
-      const members = memberNames(order.members ?? order.groupMembers ?? activity.members ?? activity.groupMembers);
-      records.push({
-        id: activityId,
-        activityId,
-        orderId,
-        name: textValue(activity.name ?? activity.activityName ?? activity.nameOfActivity ?? order.activityName, 'Activity booking'),
-        description: textValue(activity.description) || null,
-        category: textValue(activity.category),
-        price: numberValue(order.amount ?? order.totalAmount ?? activity.price),
-        capacity: numberValue(activity.capacity),
-        groupSizeMin: numberValue(activity.groupSizeMin),
-        groupSizeMax: numberValue(activity.groupSizeMax),
-        location: textValue(activity.location),
-        imageUrl: textValue(activity.imageUrl) || null,
-        createdAt: textValue(order.createdAt ?? activity.createdAt),
-        status,
-        activityDate: textValue(activity.activityDate ?? activity.date ?? order.activityDate),
-        cancellationDate: textValue(order.cancellationDate ?? activity.cancellationDate) || null,
-        cancellationReason: textValue(order.cancellationReason ?? activity.cancellationReason) || null,
-        bookingOrders: [],
-        groupMembers: members,
-      });
-    };
-
-    const visit = (value: unknown, inheritedStatus?: string) => {
-      if (Array.isArray(value)) {
-        value.forEach(item => visit(item, inheritedStatus));
-        return;
-      }
-      if (!value || typeof value !== 'object') return;
-      const object = value as Record<string, unknown>;
-      const orders = object.activityBookingOrders ?? object.bookingOrders;
-      if (Array.isArray(orders)) {
-        orders.forEach(order => {
-          if (order && typeof order === 'object') addOrder(order as Record<string, unknown>, object, inheritedStatus);
-        });
-        return;
-      }
-      if ('orderId' in object || 'bookingOrderId' in object) {
-        const nestedActivity = object.activity && typeof object.activity === 'object'
-          ? object.activity as Record<string, unknown>
-          : object;
-        addOrder(object, nestedActivity, inheritedStatus);
-        return;
-      }
-      if ('nameOfActivity' in object && 'activityStatus' in object) {
-        addOrder(object, object, inheritedStatus);
-        return;
-      }
-      Object.entries(object).forEach(([key, nested]) => visit(nested, key));
-    };
-
-    visit(root);
-    return records;
+    return mapActivityHistory(root);
   },
 
   // ── Activities ───────────────────────────────────────────────────────────
@@ -450,7 +474,7 @@ export const apiService = {
   },
 
   async getUserById(id: string): Promise<AdminUserDetail> {
-    const response = await fetch(`${AUTH_PATH}/user/getUser/${id}`, {
+    const response = await fetch(`${AUTH_PATH}/user/getUser/${encodeURIComponent(id)}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('User not found');
@@ -468,7 +492,10 @@ export const apiService = {
       occupation: data.occupation ?? null,
       locationAddress: data.locationAddress ?? null,
       role: data.role ?? 'USER',
-      joinedAt: data.joinedAt ?? new Date(0).toISOString(),
+      activitiesNumber: data.activitiesNumber ?? 0,
+      groupsJoinedNumber: data.groupsJoinedNumber ?? 0,
+      completedActivityNumber: data.completedActivityNumber ?? 0,
+      joinedAt: data.joinedAt ?? '',
       bookingOrders: data.bookingOrders ?? [],
       transactions: data.transactions ?? [],
       complaints: data.complaints ?? [],

@@ -207,7 +207,7 @@ export default function AdminUserProfile() {
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Member Since</p>
                   <p className="text-sm font-semibold text-gray-800 mt-0.5">
-                    {format(new Date(user.joinedAt), 'MMMM d, yyyy')}
+                    {user.joinedAt && !Number.isNaN(new Date(user.joinedAt).getTime()) ? format(new Date(user.joinedAt), 'MMMM d, yyyy') : 'Not available'}
                   </p>
                 </div>
               </div>

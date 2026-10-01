@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Activity, Group, GroupBookingRecord, UserActivitySelection } from '../types';
 import { mockUsers } from '../data/mockData';
@@ -26,6 +27,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  const shouldLoadActivities = !['/my-groups', '/profile'].includes(pathname.replace(/\/+$/, ''));
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [activitiesError, setActivitiesError] = useState('');
@@ -35,16 +38,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [userSelections, setUserSelections] = useState<UserActivitySelection[]>([]);
   const [groupBookings, setGroupBookings] = useState<GroupBookingRecord[]>([]);
 
-  // Fetch activities once the user is authenticated
+  // My Groups and Profile do not need to fetch the activity catalog.
   useEffect(() => {
-    if (!user) return;
+    if (!user || !shouldLoadActivities) {
+      setActivitiesLoading(false);
+      return;
+    }
     setActivitiesLoading(true);
     setActivitiesError('');
     apiService.getActivities()
       .then(setActivities)
       .catch((err: Error) => setActivitiesError(err.message))
       .finally(() => setActivitiesLoading(false));
-  }, [user?.id]);
+  }, [user?.id, shouldLoadActivities]);
 
   useEffect(() => {
     localStorage.setItem('boredGroups', JSON.stringify(groups));
