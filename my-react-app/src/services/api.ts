@@ -58,6 +58,8 @@ export interface AdminUserRecord {
 }
 
 export interface AdminUserDetail {
+  bookingCount: number;
+  age: number;
   activitiesNumber: number;
   groupsJoinedNumber: number;
   completedActivityNumber: number;
@@ -76,6 +78,7 @@ export interface AdminUserDetail {
 }
 
 interface BackendUserDetail extends Partial<AdminUserDetail> {
+  // GetUserById returns public profile fields only; password is not part of this contract.
   userId?: string;
   username?: string;
 }
@@ -487,6 +490,8 @@ export const apiService = {
       id: data.id ?? data.userId ?? id,
       name: data.name ?? data.username ?? 'Unknown user',
       email: data.email ?? '',
+      bookingCount: data.bookingCount ?? data.bookingOrders?.length ?? 0,
+      age: data.age ?? 0,
       phone: data.phone ?? null,
       bio: data.bio ?? null,
       occupation: data.occupation ?? null,

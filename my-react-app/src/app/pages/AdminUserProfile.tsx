@@ -83,7 +83,7 @@ export default function AdminUserProfile() {
   ];
 
   const stats = [
-    { label: 'Bookings',     value: user.bookingOrders.length,  icon: Users,                  bg: 'bg-purple-50', color: 'text-purple-500' },
+    { label: 'Bookings',     value: user.bookingCount,          icon: Users,                  bg: 'bg-purple-50', color: 'text-purple-500' },
     { label: 'Transactions', value: user.transactions.length,   icon: Receipt,                bg: 'bg-amber-50',  color: 'text-amber-500'  },
     { label: 'Complaints',   value: user.complaints.length,     icon: MessageSquareWarning,   bg: 'bg-red-50',    color: 'text-red-400'    },
   ];
