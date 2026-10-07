@@ -13,6 +13,7 @@ import {
   Users,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import { apiService, type UserActivityHistoryItem } from '../../services/api';
 
 type HistoryActivity = UserActivityHistoryItem & {
@@ -27,16 +28,18 @@ const statusStyles: Record<string, string> = {
   confirmed: 'bg-emerald-100 text-emerald-700',
   completed: 'bg-blue-100 text-blue-700',
   cancelled: 'bg-red-100 text-red-600',
+  paid: 'bg-emerald-100 text-emerald-700',
+  requestrefund: 'bg-orange-100 text-orange-700',
 };
 
 function statusLabel(status: string) {
-  return status.toLowerCase() === 'forming' ? 'Booked' : status;
+  return status === 'requestrefund' ? 'Refund requested' : status.toLowerCase() === 'forming' ? 'Booked' : status;
 }
 
 function MemberAvatar({ name, index }: { name: string; index: number }) {
   const colors = [
-    'from-purple-400 to-pink-400', 'from-blue-400 to-cyan-400', 'from-orange-400 to-amber-400',
-    'from-green-400 to-teal-400', 'from-rose-400 to-pink-500', 'from-indigo-400 to-violet-400',
+    'from-orange-400 to-orange-400', 'from-blue-400 to-cyan-400', 'from-orange-400 to-amber-400',
+    'from-green-400 to-teal-400', 'from-rose-400 to-orange-500', 'from-orange-400 to-orange-400',
   ];
   return (
     <div className={`flex size-9 items-center justify-center rounded-full bg-gradient-to-br ${colors[index % colors.length]} text-sm font-bold text-white shadow-sm ring-2 ring-white`}>
@@ -45,10 +48,12 @@ function MemberAvatar({ name, index }: { name: string; index: number }) {
   );
 }
 
-function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; onPay?: () => void }) {
+function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activity: HistoryActivity; onPay?: () => void; onCancel: (paid: boolean) => void; cancelling: boolean }) {
   const status = (activity.confirmationStatus || activity.status || activity.historyStatus).trim().toLowerCase();
   const showMemberNames = activity.confirmationStatus?.trim().toLowerCase() === 'confirmed';
   const isBooked = status === 'forming' || status === 'booked' || status === 'pending';
+  const isPaid = [activity.paymentStatus, activity.status, activity.historyStatus, status].some(value => value?.trim().toLowerCase() === 'paid');
+  const canCancel = !['cancelled', 'canceled', 'completed', 'requestrefund', 'refunded'].includes(status) && (isBooked || isPaid);
   const eventDate = new Date(activity.activityDate);
   const image = activity.imageUrl;
   const description = activity.description;
@@ -60,7 +65,7 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
         {image ? (
           <img src={image} alt={activity.name} className="h-56 w-full object-cover md:h-full" />
         ) : (
-          <div className="min-h-56 bg-gradient-to-br from-purple-500 via-violet-500 to-pink-500" />
+          <div className="min-h-56 bg-gradient-to-br from-orange-500 via-orange-500 to-orange-500" />
         )}
 
         <div className="p-6">
@@ -73,18 +78,19 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${statusStyles[status] ?? 'bg-gray-100 text-gray-600'}`}>
                 {statusLabel(status)}
               </span>
-              <span className="text-lg font-extrabold text-pink-500">GH₵{activity.price}</span>
+              {canCancel && <Button size="sm" variant="outline" disabled={cancelling} onClick={() => onCancel(isPaid)} className="text-red-600 border-red-200 hover:bg-red-50">{cancelling ? 'Submitting…' : isPaid ? 'Cancel & request refund' : 'Cancel booking'}</Button>}
+              <span className="text-lg font-extrabold text-orange-500">GH₵{activity.price}</span>
             </div>
           </div>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="flex items-start gap-3 rounded-xl bg-purple-50 p-3">
-              <Calendar className="mt-0.5 size-5 shrink-0 text-purple-500" />
-              <div><p className="text-xs font-bold uppercase tracking-wider text-purple-400">Date</p><p className="mt-0.5 text-sm font-semibold text-gray-800">{Number.isNaN(eventDate.getTime()) ? 'To be confirmed' : format(eventDate, 'EEEE, MMM d, yyyy')}</p></div>
+            <div className="flex items-start gap-3 rounded-xl bg-orange-50 p-3">
+              <Calendar className="mt-0.5 size-5 shrink-0 text-orange-500" />
+              <div><p className="text-xs font-bold uppercase tracking-wider text-orange-400">Date</p><p className="mt-0.5 text-sm font-semibold text-gray-800">{Number.isNaN(eventDate.getTime()) ? 'To be confirmed' : format(eventDate, 'EEEE, MMM d, yyyy')}</p></div>
             </div>
-            <div className="flex items-start gap-3 rounded-xl bg-pink-50 p-3">
-              <MapPin className="mt-0.5 size-5 shrink-0 text-pink-500" />
-              <div><p className="text-xs font-bold uppercase tracking-wider text-pink-400">Meeting Point</p><p className="mt-0.5 text-sm font-semibold text-gray-800">{location || 'To be confirmed'}</p></div>
+            <div className="flex items-start gap-3 rounded-xl bg-orange-50 p-3">
+              <MapPin className="mt-0.5 size-5 shrink-0 text-orange-500" />
+              <div><p className="text-xs font-bold uppercase tracking-wider text-orange-400">Meeting Point</p><p className="mt-0.5 text-sm font-semibold text-gray-800">{location || 'To be confirmed'}</p></div>
             </div>
           </div>
 
@@ -93,7 +99,7 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
             {activity.groupMembers.length > 0 && showMemberNames ? (
               <ul className="flex flex-wrap gap-3">
                 {activity.groupMembers.map((member, index) => (
-                  <li key={`${member}-${index}`} className="flex items-center gap-2 rounded-xl bg-purple-50 px-3 py-2">
+                  <li key={`${member}-${index}`} className="flex items-center gap-2 rounded-xl bg-orange-50 px-3 py-2">
                     <MemberAvatar name={member} index={index} />
                     <span className="text-sm font-semibold text-gray-700">{member}</span>
                   </li>
@@ -104,10 +110,10 @@ function ActivityHistoryCard({ activity, onPay }: { activity: HistoryActivity; o
             ) : <p className="text-xs text-gray-400">Group members are not available yet.</p>}
           </div>
 
-          {isBooked && onPay && (
+          {isBooked && !isPaid && onPay && (
             <div className="mt-5 flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
               <div><p className="text-sm font-bold text-amber-700">Payment pending</p><p className="mt-0.5 text-xs text-amber-500">Complete payment to confirm your spot</p></div>
-              <Button size="sm" onClick={onPay} className="shrink-0 bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:opacity-90">Make Payment</Button>
+              <Button size="sm" onClick={onPay} className="shrink-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:opacity-90">Make Payment</Button>
             </div>
           )}
 
@@ -126,6 +132,7 @@ export default function MyGroups() {
   const { user } = useAuth();
   const userId = user?.id;
   const navigate = useNavigate();
+  const [cancellingIds, setCancellingIds] = useState<Set<string>>(new Set());
   const [orders, setOrders] = useState<HistoryActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -162,6 +169,22 @@ export default function MyGroups() {
     return () => { active = false; };
   }, [userId]);
 
+  const cancelBooking = async (activity: HistoryActivity, paid: boolean) => {
+    const bookingId = activity.orderId || activity.bookingOrderId || activity.id;
+    if (cancellingIds.has(bookingId)) return;
+    setCancellingIds(ids => new Set(ids).add(bookingId));
+    try {
+      const message = paid ? await apiService.requestActivityRefund(bookingId) : await apiService.cancelBookedActivity(bookingId);
+      const nextStatus = paid ? 'requestrefund' : 'cancelled';
+      setOrders(current => current.map(order => order.key === activity.key ? { ...order, confirmationStatus: nextStatus, historyStatus: nextStatus, status: nextStatus } : order));
+      toast.success(message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not cancel booking');
+    } finally {
+      setCancellingIds(ids => { const next = new Set(ids); next.delete(bookingId); return next; });
+    }
+  };
+
   const activities = orders;
 
   const activitiesByStatus = useMemo(() => activities.reduce<Record<string, HistoryActivity[]>>((groups, activity) => {
@@ -177,25 +200,25 @@ export default function MyGroups() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-gray-50">
       <Header />
 
-      <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-violet-600 to-pink-500 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-r from-orange-600 via-orange-600 to-orange-500 text-white">
         <div className="relative container mx-auto px-4 py-10">
           <div className="mb-2 flex items-center gap-3">
             <Sparkles className="size-7 text-yellow-300" />
             <h1 className="text-4xl font-extrabold tracking-tight">My Adventures</h1>
           </div>
-          <p className="max-w-md text-lg text-purple-100">Your activity history, all in one place.</p>
+          <p className="max-w-md text-lg text-orange-100">Your activity history, all in one place.</p>
           <div className="mt-6 flex items-center gap-6">
             <div className="text-center">
               <p className="text-3xl font-bold">{activitiesByStatus.booked?.length ?? 0}</p>
-              <p className="mt-0.5 text-xs uppercase tracking-wider text-purple-200">Booked</p>
+              <p className="mt-0.5 text-xs uppercase tracking-wider text-orange-200">Booked</p>
             </div>
             <div className="h-10 w-px bg-white/20" />
             <div className="text-center">
               <p className="text-3xl font-bold">{activitiesByStatus.confirmed?.length ?? 0}</p>
-              <p className="mt-0.5 text-xs uppercase tracking-wider text-purple-200">Confirmed</p>
+              <p className="mt-0.5 text-xs uppercase tracking-wider text-orange-200">Confirmed</p>
             </div>
           </div>
         </div>
@@ -208,12 +231,12 @@ export default function MyGroups() {
           <div role="alert" className="rounded-2xl bg-red-50 px-6 py-5 text-center text-sm font-medium text-red-600">{error}</div>
         ) : activities.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-pink-100">
-              <PartyPopper className="size-12 text-purple-400" />
+            <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-orange-100 to-orange-100">
+              <PartyPopper className="size-12 text-orange-400" />
             </div>
             <h2 className="mb-2 text-2xl font-bold text-gray-800">No adventures yet!</h2>
             <p className="mb-8 max-w-sm text-gray-500">Join an activity to begin making memories.</p>
-            <Button onClick={() => navigate('/activities')} className="bg-gradient-to-r from-purple-600 to-pink-500 px-8 text-white hover:from-purple-700 hover:to-pink-600">
+            <Button onClick={() => navigate('/activities')} className="bg-gradient-to-r from-orange-600 to-orange-500 px-8 text-white hover:from-orange-700 hover:to-orange-600">
               <Sparkles className="mr-2 size-4" /> Browse Activities
             </Button>
           </div>
@@ -222,13 +245,13 @@ export default function MyGroups() {
             {statusSections.map(status => (
               <section key={status}>
                 <div className="mb-5 flex items-center gap-3">
-                  <div className="rounded-xl bg-violet-100 p-2">
-                    {status === 'booked' ? <Clock className="size-5 text-violet-600" /> : <CheckCircle2 className="size-5 text-violet-600" />}
+                  <div className="rounded-xl bg-orange-100 p-2">
+                    {status === 'booked' ? <Clock className="size-5 text-orange-600" /> : <CheckCircle2 className="size-5 text-orange-600" />}
                   </div>
                   <h2 className="text-2xl font-bold capitalize text-gray-900">{statusLabel(status)} Activities</h2>
                   <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500">{activitiesByStatus[status].length}</span>
                 </div>
-                <div className="grid gap-6">{activitiesByStatus[status].map(activity => <ActivityHistoryCard key={activity.key} activity={activity} onPay={() => navigate(`/payment/${activity.id}`, { state: { booking: activity } })} />)}</div>
+                <div className="grid gap-6">{activitiesByStatus[status].map(activity => <ActivityHistoryCard key={activity.key} activity={activity} cancelling={cancellingIds.has(activity.orderId || activity.bookingOrderId || activity.id)} onCancel={paid => cancelBooking(activity, paid)} onPay={() => navigate(`/payment/${activity.id}`, { state: { booking: activity } })} />)}</div>
               </section>
             ))}
           </>

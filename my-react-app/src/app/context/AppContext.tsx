@@ -28,6 +28,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const isLandingPage = pathname === '/';
   const shouldLoadActivities = !['/my-groups', '/profile'].includes(pathname.replace(/\/+$/, ''));
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
@@ -40,7 +41,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // My Groups and Profile do not need to fetch the activity catalog.
   useEffect(() => {
-    if (!user || !shouldLoadActivities) {
+    if ((!user && !isLandingPage) || !shouldLoadActivities) {
       setActivitiesLoading(false);
       return;
     }
@@ -50,7 +51,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .then(setActivities)
       .catch((err: Error) => setActivitiesError(err.message))
       .finally(() => setActivitiesLoading(false));
-  }, [user?.id, shouldLoadActivities]);
+  }, [user?.id, shouldLoadActivities, isLandingPage]);
 
   useEffect(() => {
     localStorage.setItem('boredGroups', JSON.stringify(groups));

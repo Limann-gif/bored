@@ -7,7 +7,7 @@ import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/input';
 import {
   ArrowLeft, ArrowRight, Users, Mail, Gift, CheckCircle,
-  X, Plus, MapPin, Calendar, CreditCard, Lock, Sparkles,
+  X, Save, MapPin, Calendar, CreditCard, Lock, Sparkles,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -29,7 +29,7 @@ function Stepper({ step }: { step: number }) {
               <div
                 className={`size-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   done    ? 'bg-green-500 text-white' :
-                  active  ? 'bg-gradient-to-br from-pink-500 to-purple-600 text-white shadow-md' :
+                  active  ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md' :
                             'bg-gray-100 text-gray-400'
                 }`}
               >
@@ -155,7 +155,7 @@ export default function GroupBooking() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-500 mb-3">Activity not found.</p>
-            <button onClick={() => navigate('/activities')} className="text-pink-500 font-semibold hover:underline text-sm">
+            <button onClick={() => navigate('/activities')} className="text-orange-500 font-semibold hover:underline text-sm">
               Back to Activities
             </button>
           </div>
@@ -215,7 +215,7 @@ export default function GroupBooking() {
                     {activity.location}
                   </p>
                 </div>
-                <span className="text-sm font-bold text-pink-500 shrink-0">GH₵{activity.price}/pp</span>
+                <span className="text-sm font-bold text-orange-500 shrink-0">GH₵{activity.price}/pp</span>
               </div>
 
               {/* Current group */}
@@ -224,20 +224,20 @@ export default function GroupBooking() {
 
                 {/* You */}
                 <div className="flex items-center gap-3 py-2">
-                  <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                  <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
                     {user?.name.charAt(0)}
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                     <p className="text-xs text-gray-400">{user?.email}</p>
                   </div>
-                  <span className="text-[10px] font-extrabold bg-pink-100 text-pink-500 px-2 py-0.5 rounded-full">You</span>
+                  <span className="text-[10px] font-extrabold bg-orange-100 text-orange-500 px-2 py-0.5 rounded-full">You</span>
                 </div>
 
                 {/* Friends */}
                 {friends.map(f => (
                   <div key={f.id} className="flex items-center gap-3 py-2 border-t border-gray-50">
-                    <div className="size-9 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
                       {f.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -280,16 +280,16 @@ export default function GroupBooking() {
                 {friendError && <p className="text-xs text-red-500">{friendError}</p>}
                 <button
                   onClick={addFriend}
-                  className="flex items-center gap-2 text-sm font-bold text-purple-600 hover:text-purple-700 transition-colors"
+                  className="flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors"
                 >
-                  <Plus className="size-4" /> Add to group
+                  <Save className="size-4" /> Save changes
                 </button>
               </div>
 
               <button
                 onClick={handleAddFriendsContinue}
                 disabled={friends.length === 0 || processing}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
                 {processing ? (
                   <>
@@ -320,11 +320,11 @@ export default function GroupBooking() {
                   onClick={() => setBookingType('invite')}
                   className={`text-left p-6 rounded-2xl border-2 transition-all ${
                     bookingType === 'invite'
-                      ? 'border-purple-500 bg-purple-50'
+                      ? 'border-orange-500 bg-orange-50'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 >
-                  <div className={`size-12 rounded-2xl flex items-center justify-center mb-4 ${bookingType === 'invite' ? 'bg-purple-500' : 'bg-gray-100'}`}>
+                  <div className={`size-12 rounded-2xl flex items-center justify-center mb-4 ${bookingType === 'invite' ? 'bg-orange-500' : 'bg-gray-100'}`}>
                     <Mail className={`size-6 ${bookingType === 'invite' ? 'text-white' : 'text-gray-400'}`} />
                   </div>
                   <h3 className="text-base font-extrabold text-gray-900 mb-1">Invite Friends</h3>
@@ -332,11 +332,11 @@ export default function GroupBooking() {
                     We'll send each friend a personalized link. They confirm their spot and pay their own share.
                   </p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-extrabold text-purple-600">GH₵{pricePerPerson}</span>
+                    <span className="text-xl font-extrabold text-orange-600">GH₵{pricePerPerson}</span>
                     <span className="text-xs text-gray-400">you pay (your share only)</span>
                   </div>
                   {bookingType === 'invite' && (
-                    <div className="mt-3 flex items-center gap-1.5 text-xs text-purple-600 font-bold">
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-orange-600 font-bold">
                       <CheckCircle className="size-3.5" /> Selected
                     </div>
                   )}
@@ -347,11 +347,11 @@ export default function GroupBooking() {
                   onClick={() => setBookingType('surprise')}
                   className={`text-left p-6 rounded-2xl border-2 transition-all ${
                     bookingType === 'surprise'
-                      ? 'border-pink-500 bg-pink-50'
+                      ? 'border-orange-500 bg-orange-50'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                   }`}
                 >
-                  <div className={`size-12 rounded-2xl flex items-center justify-center mb-4 ${bookingType === 'surprise' ? 'bg-gradient-to-br from-pink-500 to-purple-600' : 'bg-gray-100'}`}>
+                  <div className={`size-12 rounded-2xl flex items-center justify-center mb-4 ${bookingType === 'surprise' ? 'bg-gradient-to-br from-orange-500 to-orange-600' : 'bg-gray-100'}`}>
                     <Gift className={`size-6 ${bookingType === 'surprise' ? 'text-white' : 'text-gray-400'}`} />
                   </div>
                   <h3 className="text-base font-extrabold text-gray-900 mb-1">Surprise Booking</h3>
@@ -359,11 +359,11 @@ export default function GroupBooking() {
                     You cover everyone's spot. Friends just show up — perfect for birthdays or special occasions.
                   </p>
                   <div className="flex items-baseline gap-1 flex-wrap">
-                    <span className="text-xl font-extrabold text-pink-500">GH₵{pricePerPerson * totalPeople}</span>
+                    <span className="text-xl font-extrabold text-orange-500">GH₵{pricePerPerson * totalPeople}</span>
                     <span className="text-xs text-gray-400">GH₵{pricePerPerson} × {totalPeople} people</span>
                   </div>
                   {bookingType === 'surprise' && (
-                    <div className="mt-3 flex items-center gap-1.5 text-xs text-pink-500 font-bold">
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-orange-500 font-bold">
                       <CheckCircle className="size-3.5" /> Selected
                     </div>
                   )}
@@ -413,7 +413,7 @@ export default function GroupBooking() {
                   navigate('/my-groups');
                 }}
                 disabled={!bookingType}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
                 Confirm Booking <ArrowRight className="size-4" />
               </button>
@@ -470,7 +470,7 @@ export default function GroupBooking() {
                   )}
                   <div className="border-t border-gray-100 pt-3 flex justify-between font-extrabold text-base">
                     <span className="text-gray-900">Total</span>
-                    <span className="text-pink-500">GH₵{totalPrice}</span>
+                    <span className="text-orange-500">GH₵{totalPrice}</span>
                   </div>
                 </div>
 
@@ -480,7 +480,7 @@ export default function GroupBooking() {
                   <div className="flex flex-wrap gap-2">
                     {[{ name: user?.name ?? 'You', isYou: true }, ...friends.map(f => ({ name: f.name, isYou: false }))].map((m, i) => (
                       <div key={i} className="flex items-center gap-1.5 bg-gray-50 rounded-full px-3 py-1.5">
-                        <div className={`size-4 rounded-full ${m.isYou ? 'bg-gradient-to-br from-orange-400 to-pink-500' : 'bg-gradient-to-br from-purple-400 to-indigo-500'}`} />
+                        <div className={`size-4 rounded-full ${m.isYou ? 'bg-gradient-to-br from-orange-400 to-orange-500' : 'bg-gradient-to-br from-orange-400 to-orange-500'}`} />
                         <span className="text-xs font-semibold text-gray-700">{m.name}{m.isYou ? ' (you)' : ''}</span>
                       </div>
                     ))}
@@ -548,7 +548,7 @@ export default function GroupBooking() {
               <button
                 onClick={handlePay}
                 disabled={processing || !card.holder || !card.number || !card.expiry || !card.cvv}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
               >
                 {processing ? (
                   <>
@@ -596,11 +596,11 @@ export default function GroupBooking() {
                     </p>
                     <div className="flex items-center gap-1.5 mt-1.5">
                       {bookingType === 'invite' ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">
+                        <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
                           <Mail className="size-2.5" /> Invites sent
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-[10px] font-bold bg-pink-100 text-pink-500 px-2 py-0.5 rounded-full">
+                        <span className="flex items-center gap-1 text-[10px] font-bold bg-orange-100 text-orange-500 px-2 py-0.5 rounded-full">
                           <Gift className="size-2.5" /> Surprise booked
                         </span>
                       )}
@@ -614,7 +614,7 @@ export default function GroupBooking() {
                 <div className="flex flex-wrap gap-2 pt-1">
                   {[{ name: user?.name ?? 'You', you: true }, ...friends.map(f => ({ name: f.name, you: false }))].map((m, i) => (
                     <div key={i} className="flex items-center gap-1.5 bg-gray-50 rounded-full px-3 py-1.5">
-                      <div className={`size-4 rounded-full shrink-0 ${m.you ? 'bg-gradient-to-br from-orange-400 to-pink-500' : 'bg-gradient-to-br from-purple-400 to-indigo-500'}`} />
+                      <div className={`size-4 rounded-full shrink-0 ${m.you ? 'bg-gradient-to-br from-orange-400 to-orange-500' : 'bg-gradient-to-br from-orange-400 to-orange-500'}`} />
                       <span className="text-xs font-semibold text-gray-700">{m.name}</span>
                     </div>
                   ))}
@@ -624,7 +624,7 @@ export default function GroupBooking() {
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/my-groups')}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm hover:opacity-90 transition-opacity shadow-sm"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm hover:opacity-90 transition-opacity shadow-sm"
                 >
                   <Users className="size-4" /> View My Groups
                 </button>

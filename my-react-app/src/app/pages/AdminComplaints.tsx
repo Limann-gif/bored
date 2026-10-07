@@ -26,7 +26,7 @@ const INITIAL_COMPLAINTS: Complaint[] = [
 
 const categoryColor: Record<string, string> = {
   Misconduct: 'bg-red-50 text-red-500',
-  Activity: 'bg-purple-50 text-purple-600',
+  Activity: 'bg-orange-50 text-orange-600',
   Logistics: 'bg-amber-50 text-amber-600',
   Billing: 'bg-blue-50 text-blue-600',
   Attendance: 'bg-orange-50 text-orange-500',

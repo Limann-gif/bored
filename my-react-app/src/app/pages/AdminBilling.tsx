@@ -96,8 +96,8 @@ export default function AdminBilling() {
               {[
                 { label: 'Total Revenue', value: `$${totalRevenue}`, sub: 'this period', icon: DollarSign, bg: 'bg-green-50', color: 'text-green-500' },
                 { label: 'Monthly Revenue', value: `$${monthlyRevenue}`, sub: 'monthly plans', icon: TrendingUp, bg: 'bg-blue-50', color: 'text-blue-500' },
-                { label: 'Annual Revenue', value: `$${annualRevenue}`, sub: 'annual plans', icon: TrendingUp, bg: 'bg-purple-50', color: 'text-purple-500' },
-                { label: 'Active Subscribers', value: activeSubscribers, sub: 'paid accounts', icon: Users, bg: 'bg-pink-50', color: 'text-pink-500' },
+                { label: 'Annual Revenue', value: `$${annualRevenue}`, sub: 'annual plans', icon: TrendingUp, bg: 'bg-orange-50', color: 'text-orange-500' },
+                { label: 'Active Subscribers', value: activeSubscribers, sub: 'paid accounts', icon: Users, bg: 'bg-orange-50', color: 'text-orange-500' },
                 { label: 'Refunds', value: refundedCount, sub: 'this period', icon: RefreshCw, bg: 'bg-amber-50', color: 'text-amber-500' },
                 { label: 'Failed Payments', value: failedCount, sub: 'need attention', icon: AlertTriangle, bg: 'bg-red-50', color: 'text-red-400' },
               ].map(({ label, value, sub, icon: Icon, bg, color }) => (
@@ -118,8 +118,8 @@ export default function AdminBilling() {
             <h2 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Subscription Breakdown</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: 'Monthly Plan', count: TRANSACTIONS.filter(t => t.plan === 'Monthly' && t.status === 'paid').length, price: '$12/mo', color: 'from-blue-500 to-indigo-600', pct: '43%' },
-                { label: 'Annual Plan', count: TRANSACTIONS.filter(t => t.plan === 'Annual' && t.status === 'paid').length, price: '$99/yr', color: 'from-purple-500 to-pink-500', pct: '57%' },
+                { label: 'Monthly Plan', count: TRANSACTIONS.filter(t => t.plan === 'Monthly' && t.status === 'paid').length, price: '$12/mo', color: 'from-blue-500 to-orange-600', pct: '43%' },
+                { label: 'Annual Plan', count: TRANSACTIONS.filter(t => t.plan === 'Annual' && t.status === 'paid').length, price: '$99/yr', color: 'from-orange-500 to-orange-500', pct: '57%' },
                 { label: 'Free / Trial', count: 2, price: '$0', color: 'from-gray-400 to-gray-500', pct: '20%' },
               ].map(({ label, count, price, color, pct }) => (
                 <div key={label} className={`rounded-2xl bg-gradient-to-br ${color} p-5 text-white`}>
@@ -208,7 +208,7 @@ export default function AdminBilling() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <button className="flex items-center gap-1 text-xs text-pink-500 hover:text-pink-600 font-semibold transition-colors">
+                          <button className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 font-semibold transition-colors">
                             <CreditCard className="size-3.5" /> View
                           </button>
                         </td>

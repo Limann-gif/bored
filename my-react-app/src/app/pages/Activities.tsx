@@ -7,7 +7,7 @@ import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/input';
 import {
   Search, Filter, Bell, Plus, ChevronRight,
-  User, Users, MapPin, Calendar, Minus, Gift, Mail,
+  User, Users, MapPin, Calendar, Gift, Mail,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Activity } from '../types';
@@ -44,7 +44,7 @@ function GroupActivityCard({
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-        <span className="absolute top-3 left-3 bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+        <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
           {activity.category}
         </span>
         <button
@@ -81,7 +81,7 @@ function GroupActivityCard({
               className={`h-full rounded-full transition-all ${
                 fillPct > 80
                   ? 'bg-gradient-to-r from-red-400 to-orange-400'
-                  : 'bg-gradient-to-r from-pink-400 to-purple-500'
+                  : 'bg-gradient-to-r from-orange-400 to-orange-500'
               }`}
               style={{ width: `${fillPct}%` }}
             />
@@ -91,12 +91,12 @@ function GroupActivityCard({
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-1">
           <div>
-            <p className="text-sm font-bold text-pink-500">GH₵{activity.price}<span className="text-gray-400 font-normal">/pp</span></p>
+            <p className="text-sm font-bold text-orange-500">GH₵{activity.price}<span className="text-gray-400 font-normal">/pp</span></p>
           </div>
           {canFit ? (
             <button
               onClick={onBook}
-              className="flex items-center gap-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity shadow-sm"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity shadow-sm"
             >
               <Users className="size-3.5" /> Book for {groupSize} or more
             </button>
@@ -116,7 +116,7 @@ export default function Activities() {
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<'individual' | 'group'>('individual');
-  const [groupSize, setGroupSize] = useState(2);
+  const groupSize = 2;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
@@ -173,7 +173,7 @@ export default function Activities() {
 
   const featuredActivity = activities[0];
   const firstName = user.name.split(' ')[0];
-  const avatarColors = ['#f97316', '#ec4899', '#a855f7', '#3b82f6'];
+  const avatarColors = ['#f97316', '#ff501b', '#ff784b', '#3b82f6'];
 
   const searchFilter = (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-4">
@@ -184,7 +184,7 @@ export default function Activities() {
           placeholder="Search activities..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="pl-10 bg-gray-50 border-gray-200 rounded-xl focus-visible:ring-pink-400"
+          className="pl-10 bg-gray-50 border-gray-200 rounded-xl focus-visible:ring-orange-400"
         />
       </div>
       <div className="flex items-center gap-2 flex-wrap">
@@ -194,7 +194,7 @@ export default function Activities() {
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-            selectedCategory === null ? 'bg-pink-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            selectedCategory === null ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
           All
@@ -204,7 +204,7 @@ export default function Activities() {
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-              selectedCategory === category ? 'bg-pink-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              selectedCategory === category ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {category}
@@ -219,7 +219,7 @@ export default function Activities() {
             onClick={() => toggleVibe(vibe)}
             className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
               selectedVibes.includes(vibe)
-                ? 'bg-pink-100 text-pink-600 ring-1 ring-pink-400'
+                ? 'bg-orange-100 text-orange-600 ring-1 ring-orange-400'
                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
@@ -246,7 +246,7 @@ export default function Activities() {
               <Bell className="size-4" />
             </button>
             {user?.role === 'ADMIN' && (
-              <button className="flex items-center gap-2 bg-pink-500 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:bg-pink-600 transition-colors shadow-sm">
+              <button className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:bg-orange-600 transition-colors shadow-sm">
                 <Plus className="size-4" />
                 New Post
               </button>
@@ -273,14 +273,14 @@ export default function Activities() {
               onClick={() => setMode('group')}
               className={`flex items-center gap-2.5 px-5 py-3.5 rounded-2xl text-sm font-bold transition-all ${
                 mode === 'group'
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                   : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
               }`}
             >
               <Users className={`size-4 ${mode === 'group' ? 'text-white' : 'text-gray-400'}`} />
               With Friends
               <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                mode === 'group' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-600'
+                mode === 'group' ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-600'
               }`}>
                 NEW
               </span>
@@ -292,7 +292,7 @@ export default function Activities() {
             <>
               {/* Hero */}
               <div
-                className="relative rounded-3xl overflow-hidden h-64 cursor-pointer group"
+                className="relative rounded-3xl overflow-hidden min-h-72 cursor-pointer group"
                 onClick={() => navigate(`/activity/${featuredActivity.id}`)}
               >
                 <img
@@ -301,9 +301,9 @@ export default function Activities() {
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
-                <div className="relative h-full flex flex-col justify-between p-8">
-                  <span className="self-start bg-pink-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest">
-                    Upcoming Group Activity
+                <div className="relative min-h-72 flex flex-col justify-between gap-6 p-8">
+                  <span className="self-start bg-orange-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest">
+                    Upcoming activity you might like
                   </span>
                   <div className="flex items-end justify-between gap-4">
                     <div>
@@ -340,7 +340,7 @@ export default function Activities() {
                   <p className="text-gray-500 text-base mb-3">No activities match your filters.</p>
                   <button
                     onClick={() => { setSearchTerm(''); setSelectedCategory(null); setSelectedVibes([]); }}
-                    className="text-pink-500 font-semibold text-sm hover:underline"
+                    className="text-orange-500 font-semibold text-sm hover:underline"
                   >
                     Clear all filters
                   </button>
@@ -363,11 +363,11 @@ export default function Activities() {
           {mode === 'group' && (
             <>
               {/* Hero banner */}
-              <div className="relative rounded-3xl overflow-hidden h-52 bg-gradient-to-br from-purple-700 via-purple-500 to-pink-500">
-                <div className="absolute inset-0 opacity-10"
-                  style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }}
-                />
-                <div className="relative h-full flex flex-col justify-center px-8">
+              <div
+                className="relative rounded-3xl overflow-hidden min-h-72 bg-gray-900 bg-cover bg-center"
+                style={{ backgroundImage: "linear-gradient(90deg, rgba(0,0,0,0.72), rgba(0,0,0,0.2)), url('/boredballoon-sharp.png')" }}
+              >
+                <div className="relative min-h-72 flex flex-col justify-center px-8 py-8">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xs font-extrabold bg-white/20 text-white px-3 py-1 rounded-full uppercase tracking-widest">
                       Bored! for Friends
@@ -377,7 +377,7 @@ export default function Activities() {
                   <p className="text-white/75 text-sm mt-2 max-w-md leading-relaxed">
                     Pick an activity, add your crew, and book for everyone — invite them to pay their share or make it a surprise on you.
                   </p>
-                  <div className="flex items-center gap-4 mt-4">
+                  <div className="flex items-center flex-wrap gap-4 mt-6">
                     <span className="flex items-center gap-1.5 text-white/80 text-xs font-semibold">
                       <Mail className="size-3.5" /> Invite friends
                     </span>
@@ -390,30 +390,6 @@ export default function Activities() {
                       <Users className="size-3.5" /> Group payment
                     </span>
                   </div>
-                </div>
-              </div>
-
-              {/* Group size selector */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 flex-wrap">
-                <div>
-                  <p className="text-sm font-extrabold text-gray-900">How many people in your group?</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Include yourself. Only activities with enough spots will show.</p>
-                </div>
-                <div className="ml-auto flex items-center gap-3">
-                  <button
-                    onClick={() => setGroupSize(s => Math.max(2, s - 1))}
-                    className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50 transition-colors"
-                  >
-                    <Minus className="size-4" />
-                  </button>
-                  <span className="text-2xl font-extrabold text-gray-900 w-10 text-center">{groupSize}</span>
-                  <button
-                    onClick={() => setGroupSize(s => Math.min(10, s + 1))}
-                    className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50 transition-colors"
-                  >
-                    <Plus className="size-4" />
-                  </button>
-                  <span className="text-sm text-gray-400 font-medium">people</span>
                 </div>
               </div>
 
@@ -431,7 +407,7 @@ export default function Activities() {
                   <p className="text-gray-500 text-base mb-3">No activities match your filters.</p>
                   <button
                     onClick={() => { setSearchTerm(''); setSelectedCategory(null); setSelectedVibes([]); }}
-                    className="text-pink-500 font-semibold text-sm hover:underline"
+                    className="text-orange-500 font-semibold text-sm hover:underline"
                   >
                     Clear all filters
                   </button>

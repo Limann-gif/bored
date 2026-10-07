@@ -125,7 +125,7 @@ export default function ActivityDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Join This Activity</span>
-                  <span className="text-2xl text-purple-600">GH₵{activity.price}</span>
+                  <span className="text-2xl text-orange-600">GH₵{activity.price}</span>
                 </CardTitle>
                 <CardDescription>
                   Select this activity and we'll match you with a group
@@ -177,10 +177,10 @@ export default function ActivityDetail() {
                 </div>
 
                 {/* How It Works */}
-                <Card className="bg-purple-50 border-purple-200">
+                <Card className="bg-orange-50 border-orange-200">
                   <CardContent className="pt-4">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="size-5 text-purple-600 mt-0.5" />
+                      <Sparkles className="size-5 text-orange-600 mt-0.5" />
                       <div className="space-y-2 text-sm">
                         <p className="font-medium">What happens next:</p>
                         <ol className="list-decimal list-inside space-y-1 text-gray-700">

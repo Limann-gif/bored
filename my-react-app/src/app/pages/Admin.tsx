@@ -162,8 +162,8 @@ export default function Admin() {
                 value={usersLoading ? '—' : totalBookings}
                 sub="across all users"
                 icon={Layers}
-                iconBg="bg-purple-50"
-                iconColor="text-purple-500"
+                iconBg="bg-orange-50"
+                iconColor="text-orange-500"
               />
               <StatCard
                 label="Registered Users"
@@ -186,8 +186,8 @@ export default function Admin() {
                 value={usersLoading ? '—' : adminUsers}
                 sub="registered administrators"
                 icon={Users}
-                iconBg="bg-pink-50"
-                iconColor="text-pink-500"
+                iconBg="bg-orange-50"
+                iconColor="text-orange-500"
               />
               <StatCard
                 label="Activities"
@@ -208,7 +208,7 @@ export default function Admin() {
                 title="Manage Groups"
                 description="View all active, forming, and completed groups. Approve or dissolve groups as needed."
                 icon={Layers}
-                gradient="bg-gradient-to-br from-purple-600 to-purple-800"
+                gradient="bg-gradient-to-br from-orange-600 to-orange-800"
                 badge={totalGroups}
                 onClick={() => navigate('/admin/groups')}
               />
@@ -224,7 +224,7 @@ export default function Admin() {
                 title="Manage Activities"
                 description="Add, edit, or remove activities. Set capacity limits and schedules."
                 icon={Activity}
-                gradient="bg-gradient-to-br from-pink-500 to-rose-600"
+                gradient="bg-gradient-to-br from-orange-500 to-rose-600"
                 badge={totalActivities}
                 onClick={() => navigate('/admin/activities')}
               />
@@ -239,7 +239,7 @@ export default function Admin() {
                 title="User Management"
                 description="View user profiles, manage subscription statuses, and suspend accounts."
                 icon={Users}
-                gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
+                gradient="bg-gradient-to-br from-blue-500 to-orange-600"
                 badge={totalUsers}
                 onClick={() => navigate('/admin/users')}
               />
@@ -259,7 +259,7 @@ export default function Admin() {
               <h2 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Recent Groups</h2>
               <button
                 onClick={() => navigate('/admin/groups')}
-                className="text-xs text-pink-500 font-semibold hover:underline flex items-center gap-1"
+                className="text-xs text-orange-500 font-semibold hover:underline flex items-center gap-1"
               >
                 View all <ChevronRight className="size-3.5" />
               </button>
@@ -295,7 +295,7 @@ export default function Admin() {
                               {group.members.slice(0, 4).map((member, i) => (
                                 <div
                                   key={i}
-                                  className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
+                                  className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-[9px] font-bold"
                                 >
                                   {member.name.charAt(0)}
                                 </div>
@@ -318,7 +318,7 @@ export default function Admin() {
                           <td className="px-6 py-4">
                             <button
                               onClick={() => navigate('/admin/groups')}
-                              className="text-pink-500 hover:text-pink-600 transition-colors"
+                              className="text-orange-500 hover:text-orange-600 transition-colors"
                             >
                               <ChevronRight className="size-4" />
                             </button>

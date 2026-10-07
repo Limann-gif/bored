@@ -7,6 +7,7 @@ import MyGroups from './pages/MyGroups';
 import Admin from './pages/Admin';
 import AdminGroups from './pages/AdminGroups';
 import AdminRequests from './pages/AdminRequests';
+import AdminRefunds from './pages/AdminRefunds';
 import AdminActivities from './pages/AdminActivities';
 import AdminUsers from './pages/AdminUsers';
 import AdminComplaints from './pages/AdminComplaints';
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([{
   {
     element: <AdminRoute />,
     children: [
+      { path: '/admin/refunds', element: <AdminRefunds /> },
       {
         path: '/admin',
         element: <Admin />,

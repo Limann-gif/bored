@@ -108,7 +108,7 @@ export default function AdminActivities() {
                   onChange={set('description')}
                   placeholder="Describe the activity..."
                   rows={3}
-                  className="mt-1 w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+                  className="mt-1 w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                 />
                 {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
               </div>
@@ -118,7 +118,7 @@ export default function AdminActivities() {
                   <select
                     value={form.category}
                     onChange={set('category')}
-                    className="mt-1 w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white"
+                    className="mt-1 w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
                   >
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
@@ -179,7 +179,7 @@ export default function AdminActivities() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
               >
                 {submitting ? 'Adding...' : 'Add Activity'}
               </button>
@@ -218,7 +218,7 @@ export default function AdminActivities() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="ml-auto flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
+            className="ml-auto flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2.5 rounded-full text-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
           >
             <Plus className="size-4" /> Add Activity
           </button>
@@ -262,7 +262,7 @@ export default function AdminActivities() {
                   <h3 className="text-sm font-extrabold text-gray-900 leading-tight mb-1">{activity.name}</h3>
                   <p className="text-xs text-gray-400 line-clamp-2 mb-3">{activity.description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-pink-500">GH₵{activity.price}</span>
+                    <span className="text-sm font-bold text-orange-500">GH₵{activity.price}</span>
                     <span className="text-xs text-gray-400">
                       {new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>

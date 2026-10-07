@@ -32,7 +32,7 @@ export function Sidebar() {
 
   const firstName = user.name.split(' ')[0];
   const navItems = user.role === 'ADMIN'
-    ? [...baseNavItems, { icon: ShieldCheck, label: 'Dashboard', path: '/admin' }]
+    ? [...baseNavItems, { icon: ShieldCheck, label: 'Dashboard', path: '/admin' }, { icon: MessageSquare, label: 'Refund Requests', path: '/admin/refunds' }]
     : baseNavItems;
 
   return (
@@ -40,8 +40,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-6 pt-7 pb-8">
         <Link to="/activities" className="flex items-center gap-2">
-          <Sparkles className="size-8 text-purple-600" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <Sparkles className="size-8 text-orange-600" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-600 bg-clip-text text-transparent">
             Bored!
           </span>
         </Link>
@@ -57,12 +57,12 @@ export function Sidebar() {
               to={path}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-pink-50 text-pink-600'
+                  ? 'bg-orange-50 text-orange-600'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
               }`}
             >
               <Icon
-                className={`size-5 shrink-0 ${isActive ? 'text-pink-500' : 'text-gray-400'}`}
+                className={`size-5 shrink-0 ${isActive ? 'text-orange-500' : 'text-gray-400'}`}
               />
               {label}
             </Link>
@@ -71,12 +71,12 @@ export function Sidebar() {
       </nav>
 
       {/* GO PRO card */}
-      {/* <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl text-white">
+      {/* <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-orange-600 to-orange-500 rounded-2xl text-white">
         <p className="text-[11px] font-extrabold uppercase tracking-wider mb-1">Go Pro</p>
         <p className="text-xs opacity-85 leading-relaxed mb-3">
           Unlock exclusive local hangouts and priority matching.
         </p>
-        <button className="w-full bg-white text-pink-600 text-xs font-bold py-2 rounded-xl hover:bg-pink-50 transition-colors">
+        <button className="w-full bg-white text-orange-600 text-xs font-bold py-2 rounded-xl hover:bg-orange-50 transition-colors">
           Upgrade Now
         </button>
       </div> */}
@@ -87,7 +87,7 @@ export function Sidebar() {
           onClick={() => setProfileOpen(o => !o)}
           className="w-full flex items-center gap-3 rounded-xl hover:bg-gray-50 transition-colors p-1"
         >
-          <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+          <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
             {firstName.charAt(0)}
           </div>
           <div className="flex-1 min-w-0 text-left">
@@ -102,7 +102,7 @@ export function Sidebar() {
         {profileOpen && (
           <div className="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-3">
             <div className="flex items-center gap-3 pb-3 mb-3 border-b border-gray-100">
-              <div className="size-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+              <div className="size-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {firstName.charAt(0)}
               </div>
               <div className="min-w-0">

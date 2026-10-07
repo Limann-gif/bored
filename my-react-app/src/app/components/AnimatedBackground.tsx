@@ -12,7 +12,7 @@ export function AnimatedBackground() {
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-orange-50 to-orange-50" />
       
       {circles.map((circle) => (
         <motion.div
@@ -24,9 +24,9 @@ export function AnimatedBackground() {
             left: `${circle.x}%`,
             top: `${circle.y}%`,
             background: circle.id % 3 === 0 
-              ? 'linear-gradient(135deg, #9333ea, #ec4899)' 
+              ? 'linear-gradient(135deg, #e74312, #ff501b)' 
               : circle.id % 3 === 1
-              ? 'linear-gradient(135deg, #ec4899, #f59e0b)'
+              ? 'linear-gradient(135deg, #ff501b, #f59e0b)'
               : 'linear-gradient(135deg, #f59e0b, #10b981)',
           }}
           animate={{

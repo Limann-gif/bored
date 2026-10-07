@@ -35,13 +35,13 @@ export default function PaymentCallback() {
   }, [reference]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-gray-50">
       <Header />
       <main className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
         {state === 'verifying' && (
           <>
-            <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-purple-100">
-              <LoaderCircle className="size-12 animate-spin text-purple-600" />
+            <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-orange-100">
+              <LoaderCircle className="size-12 animate-spin text-orange-600" />
             </div>
             <h1 className="mb-2 text-2xl font-extrabold text-gray-900">Verifying your payment</h1>
             <p className="text-gray-500">Please wait while we confirm your payment with Paystack…</p>
@@ -57,7 +57,7 @@ export default function PaymentCallback() {
             <p className="mb-8 text-gray-500">Your payment was successful and your booking has been updated.</p>
             <button
               onClick={() => navigate('/my-groups', { replace: true })}
-              className="rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-8 py-3 font-bold text-white shadow-lg transition-opacity hover:opacity-90"
+              className="rounded-full bg-gradient-to-r from-orange-600 to-orange-500 px-8 py-3 font-bold text-white shadow-lg transition-opacity hover:opacity-90"
             >
               View My Groups
             </button>
@@ -74,7 +74,7 @@ export default function PaymentCallback() {
             <div className="flex flex-wrap justify-center gap-3">
               <button
                 onClick={() => window.location.reload()}
-                className="rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-7 py-3 font-bold text-white shadow-md transition-opacity hover:opacity-90"
+                className="rounded-full bg-gradient-to-r from-orange-600 to-orange-500 px-7 py-3 font-bold text-white shadow-md transition-opacity hover:opacity-90"
               >
                 Try Again
               </button>

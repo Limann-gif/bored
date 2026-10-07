@@ -79,7 +79,7 @@ export default function Payment() {
 
   // ── Payment screen ────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-gray-50">
       <Header />
 
       <div className="container mx-auto px-4 py-8 max-w-lg">
@@ -105,7 +105,7 @@ export default function Payment() {
             {activityImage ? (
               <img src={activityImage} alt={activityName} className="size-16 rounded-xl object-cover shrink-0" />
             ) : (
-              <div className="size-16 rounded-xl shrink-0 bg-gradient-to-br from-purple-500 to-pink-500" />
+              <div className="size-16 rounded-xl shrink-0 bg-gradient-to-br from-orange-500 to-orange-500" />
             )}
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-gray-900 truncate">{activityName}</p>
@@ -127,7 +127,7 @@ export default function Payment() {
             </div>
             <div className="border-t border-gray-100 pt-3 flex justify-between font-extrabold text-base">
               <span className="text-gray-900">Total</span>
-              <span className="text-pink-500">GH₵{price}</span>
+              <span className="text-orange-500">GH₵{price}</span>
             </div>
           </div>
         </div>
@@ -141,8 +141,8 @@ export default function Payment() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-purple-100 bg-purple-50 p-4">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-purple-600 shadow-sm">
+          <div className="flex items-center gap-4 rounded-xl border border-orange-100 bg-orange-50 p-4">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-orange-600 shadow-sm">
               <CreditCard className="size-5" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export default function Payment() {
         <button
           onClick={handlePay}
           disabled={processing || !canPay}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-md"
+          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-md"
         >
           {processing ? (
             <>

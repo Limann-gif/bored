@@ -8,7 +8,7 @@ import {
 import { Input } from '../components/ui/input';
 import { format } from 'date-fns';
 import { apiService } from '../../services/api';
-import type { AdminGroupRecord } from '../../services/api';
+import type { AdminGroupMember, AdminGroupRecord } from '../../services/api';
 
 const STATUS_FILTERS = ['all', 'forming', 'confirmed', 'completed', 'cancelled'] as const;
 
@@ -30,6 +30,20 @@ function statusLabel(status?: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function preferLeadMembers(members: AdminGroupMember[]) {
+  const leadSuffix = /\s*\(lead\)\s*$/i;
+  const normaliseName = (name: string) =>
+    name.replace(leadSuffix, '').trim().replace(/\s+/g, ' ').toLowerCase();
+  const leadNames = new Set(
+    members.filter(member => leadSuffix.test(member.name))
+      .map(member => normaliseName(member.name)),
+  );
+
+  return members.filter(member =>
+    leadSuffix.test(member.name) || !leadNames.has(normaliseName(member.name)),
+  );
+}
+
 export default function AdminGroups() {
   const { activities } = useApp();
   const navigate = useNavigate();
@@ -48,7 +62,7 @@ export default function AdminGroups() {
         nameOfActivity: record.nameOfActivity || 'Activity booking',
         activityStatus: normaliseStatus(record.activityStatus),
         createdAt: record.createdAt || new Date(0).toISOString(),
-        members: Array.isArray(record.members) ? record.members : [],
+        members: preferLeadMembers(Array.isArray(record.members) ? record.members : []),
         numberOfParticipants: record.numberOfParticipants ?? record.members?.length ?? 0,
         reviews: Array.isArray(record.reviews) ? record.reviews : [],
       }))))
@@ -116,7 +130,7 @@ export default function AdminGroups() {
                 onClick={() => setFilter(s)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold capitalize transition-colors ${
                   filter === s
-                    ? 'bg-purple-600 text-white shadow-sm'
+                    ? 'bg-orange-600 text-white shadow-sm'
                     : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
@@ -160,7 +174,7 @@ export default function AdminGroups() {
                               <div
                                 key={i}
                                 title={m.name}
-                                className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
+                                className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-[9px] font-bold"
                               >
                                 {m.name.charAt(0)}
                               </div>
@@ -252,7 +266,7 @@ export default function AdminGroups() {
                   <div className="space-y-2">
                     {selectedGroup.members.map((member, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                        <div className="size-9 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                        <div className="size-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
                           {member.name.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">

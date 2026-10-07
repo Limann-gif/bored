@@ -77,7 +77,7 @@ export default function AdminRequests() {
                       )}
                       <div className="p-4 space-y-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
+                          <div className="size-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold">
                             {userName.charAt(0)}
                           </div>
                           <div>
@@ -183,8 +183,8 @@ export default function AdminRequests() {
           {/* Forming Groups */}
           <section>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="size-7 rounded-lg bg-purple-50 flex items-center justify-center">
-                <Users className="size-4 text-purple-500" />
+              <div className="size-7 rounded-lg bg-orange-50 flex items-center justify-center">
+                <Users className="size-4 text-orange-500" />
               </div>
               <div>
                 <h2 className="text-sm font-extrabold text-gray-800">Forming Groups</h2>
@@ -226,7 +226,7 @@ export default function AdminRequests() {
                               {group.members.slice(0, 4).map((m, i) => (
                                 <div
                                   key={i}
-                                  className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold"
+                                  className="size-7 rounded-full border-2 border-white bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-[9px] font-bold"
                                   title={m.name}
                                 >
                                   {m.name.charAt(0)}

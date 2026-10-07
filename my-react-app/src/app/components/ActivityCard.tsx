@@ -24,7 +24,7 @@ export function ActivityCard({ activity, signups = 0 }: ActivityCardProps) {
           alt={activity.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <span className="absolute top-3 left-3 bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+        <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
           {activity.category}
         </span>
       </div>
@@ -39,17 +39,17 @@ export function ActivityCard({ activity, signups = 0 }: ActivityCardProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-pink-500 font-bold text-sm">
+          <span className="text-orange-500 font-bold text-sm">
             {activity.price === 0 ? 'Free Entry' : `GH₵${activity.price}/pp`}
           </span>
           <button
             type="button"
             aria-label={`${remainingSlots} of ${activity.capacity} slots remaining`}
-            className="flex items-center gap-1.5 bg-pink-50 text-pink-600 text-xs font-semibold px-2.5 py-1 rounded-full"
+            className="flex items-center gap-1.5 bg-orange-50 text-orange-600 text-xs font-semibold px-2.5 py-1 rounded-full"
           >
             <Users className="size-3" />
             <span>{remainingSlots} slots left</span>
-            <span className="text-pink-400">out of {activity.capacity}</span>
+            <span className="text-orange-400">out of {activity.capacity}</span>
           </button>
         </div>
 

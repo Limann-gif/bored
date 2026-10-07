@@ -23,11 +23,11 @@ export function Header() {
   if (!user) return null;
 
   return (
-    <header className="border-b bg-white sticky top-0 z-50">
+    <header className="border-b bg-white sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/activities" className="flex items-center gap-2">
-          <Sparkles className="size-8 text-purple-600" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <Sparkles className="size-8 text-orange-600" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-600 bg-clip-text text-transparent">
             Bored!
           </span>
         </Link>

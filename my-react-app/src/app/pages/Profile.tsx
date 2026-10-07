@@ -54,8 +54,8 @@ export default function Profile() {
   const myGroups = getUserGroups();
   const displayName = profile?.name ?? user.name;
   const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-  const gradFrom = '#a855f7';
-  const gradTo = '#ec4899';
+  const gradFrom = '#ff784b';
+  const gradTo = '#ff501b';
   const unavailable = currentMembership?.error ? 'Unable to load' : 'Loading…';
 
   return (
@@ -117,8 +117,8 @@ export default function Profile() {
               <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Contact Information</h3>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-pink-50 flex items-center justify-center shrink-0">
-                  <Mail className="size-4 text-pink-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Mail className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Email</p>
@@ -127,8 +127,8 @@ export default function Profile() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                  <Phone className="size-4 text-purple-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Phone className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Phone Number</p>
@@ -192,9 +192,9 @@ export default function Profile() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label: 'Groups Joined', value: profile?.groupsJoinedNumber ?? unavailable,       icon: Users,     bg: 'bg-purple-50', color: 'text-purple-500' },
+              { label: 'Groups Joined', value: profile?.groupsJoinedNumber ?? unavailable,       icon: Users,     bg: 'bg-orange-50', color: 'text-orange-500' },
               { label: 'Completed',     value: profile?.completedActivityNumber ?? unavailable, icon: Star,      bg: 'bg-amber-50',  color: 'text-amber-500' },
-              { label: 'Activities',    value: profile?.activitiesNumber ?? unavailable,    icon: Activity,  bg: 'bg-pink-50',   color: 'text-pink-500' },
+              { label: 'Activities',    value: profile?.activitiesNumber ?? unavailable,    icon: Activity,  bg: 'bg-orange-50',   color: 'text-orange-500' },
             ].map(({ label, value, icon: Icon, bg, color }) => (
               <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center">
                 <div className={`size-10 rounded-xl ${bg} flex items-center justify-center mx-auto mb-3`}>

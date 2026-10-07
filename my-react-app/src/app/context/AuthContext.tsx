@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types';
 import { mockCurrentUser } from '../data/mockData';
 import { apiService } from '../../services/api';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -81,7 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signup = async (name: string, email: string, password: string) => {
-    await apiService.signup(name, email, password);
+    const message = await apiService.signup(name, email, password);
+    toast.success(message);
     // Auto-login after successful signup
     await login(email, password);
   };

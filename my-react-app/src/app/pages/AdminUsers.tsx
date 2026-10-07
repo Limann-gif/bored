@@ -8,8 +8,8 @@ import { Input } from '../components/ui/input';
 import { ArrowLeft, Search, Users, ExternalLink, ShieldCheck } from 'lucide-react';
 
 const avatarColors = [
-  'from-orange-400 to-pink-500',
-  'from-purple-400 to-indigo-500',
+  'from-orange-400 to-orange-500',
+  'from-orange-400 to-orange-500',
   'from-teal-400 to-cyan-500',
   'from-green-400 to-emerald-500',
 ];
@@ -106,7 +106,7 @@ export default function AdminUsers() {
                               <p className="text-sm font-semibold text-gray-800">
                                 {u.username}
                                 {isCurrentUser && (
-                                  <span className="ml-1.5 text-[10px] font-bold bg-pink-100 text-pink-500 px-1.5 py-0.5 rounded-full">You</span>
+                                  <span className="ml-1.5 text-[10px] font-bold bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full">You</span>
                                 )}
                               </p>
                               <p className="text-xs text-gray-400 font-mono">{u.id.slice(0, 12)}…</p>
@@ -120,7 +120,7 @@ export default function AdminUsers() {
                         {/* Role */}
                         <td className="px-6 py-4">
                           {isAdmin ? (
-                            <span className="flex items-center gap-1 text-xs font-bold bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full w-fit">
+                            <span className="flex items-center gap-1 text-xs font-bold bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full w-fit">
                               <ShieldCheck className="size-3" /> Admin
                             </span>
                           ) : (
@@ -142,7 +142,7 @@ export default function AdminUsers() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => navigate(`/admin/users/${u.id}`)}
-                            className="flex items-center gap-1.5 text-xs font-bold text-pink-500 hover:text-pink-600 bg-pink-50 hover:bg-pink-100 px-3 py-1.5 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 text-xs font-bold text-orange-500 hover:text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors"
                           >
                             <ExternalLink className="size-3.5" /> View Profile
                           </button>

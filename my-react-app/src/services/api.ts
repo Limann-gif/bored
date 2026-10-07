@@ -128,7 +128,24 @@ export interface PaymentOrderRecord {
   imageUrl: string | null;
 }
 
+export interface RefundRequestRecord {
+  id: string;
+  userId: string;
+  activityId: string;
+  createdAt: string;
+  paymentStatus: string;
+  confirmationStatus: string;
+  transactionId: string | null;
+  isGroupBooking: boolean;
+  amountPaid: number;
+  participantsName: string[];
+  participantsEmail: string[];
+}
+
 export interface UserActivityHistoryItem {
+  paymentStatus?: string;
+  orderId?: string;
+  bookingOrderId?: string;
   confirmationStatus?: string;
   onfirmationStatus?: string;
   groupParticipants?: string[];
@@ -243,7 +260,7 @@ export function mapActivityHistory(root: unknown): ActivityBookingOrderRecord[] 
 export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
-  async signup(username: string, email: string, password: string): Promise<void> {
+  async signup(username: string, email: string, password: string): Promise<string> {
     const response = await fetch(`${AUTH_PATH}/user/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -253,6 +270,19 @@ export const apiService = {
       const message = await response.text();
       throw new Error(message || 'Sign up failed');
     }
+    const body = await response.text();
+    let message = body;
+    try {
+      const data: unknown = JSON.parse(body);
+      message = typeof data === 'string'
+        ? data
+        : data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
+          ? data.message
+          : '';
+    } catch {
+      // Successful responses may contain a plain-text message.
+    }
+    return message.trim() || 'User created successfully.';
   },
 
   async login(email: string, password: string): Promise<string> {
@@ -409,6 +439,36 @@ export const apiService = {
     }
     const json: { data?: GroupMembersRecord[] | null } = await response.json();
     if (!Array.isArray(json.data)) throw new Error('No group members found');
+    return json.data;
+  },
+
+  async cancelBookedActivity(bookingId: string): Promise<string> {
+    return this.cancelActivityBooking(bookingId, false);
+  },
+
+  async requestActivityRefund(bookingId: string): Promise<string> {
+    return this.cancelActivityBooking(bookingId, true);
+  },
+
+  async cancelActivityBooking(bookingId: string, paid: boolean): Promise<string> {
+    const response = await fetch(`${AUTH_PATH}/activities/cancel/${paid ? 'paidActivity' : 'bookedActivity'}/${encodeURIComponent(bookingId)}`, {
+      method: paid ? 'POST' : 'DELETE',
+      headers: authHeaders(),
+    });
+    const json = await response.json().catch(() => null);
+    if (!response.ok || (typeof json?.code === 'number' && json.code >= 400)) {
+      throw new Error(json?.message || 'Could not cancel this booking. Please try again.');
+    }
+    return json?.message || (paid ? 'Refund request sent successfully.' : 'Booked activity cancelled successfully.');
+  },
+
+  async getRefundRequests(): Promise<RefundRequestRecord[]> {
+    const response = await fetch(`${AUTH_PATH}/activities/refundRequests`, { headers: authHeaders() });
+    const json = await response.json().catch(() => null);
+    if (!response.ok || (typeof json?.code === 'number' && json.code >= 400)) {
+      throw new Error(json?.message || 'Could not load refund requests.');
+    }
+    if (!Array.isArray(json?.data)) throw new Error('Invalid refund requests response.');
     return json.data;
   },
 

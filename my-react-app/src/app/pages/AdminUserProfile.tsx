@@ -20,13 +20,13 @@ import {
 import { format } from 'date-fns';
 
 const AVATAR_GRADIENTS = [
-  ['#f97316', '#ec4899'],
-  ['#a855f7', '#6366f1'],
+  ['#f97316', '#ff501b'],
+  ['#ff784b', '#e74312'],
   ['#14b8a6', '#06b6d4'],
   ['#22c55e', '#10b981'],
-  ['#3b82f6', '#8b5cf6'],
+  ['#3b82f6', '#ff784b'],
   ['#f59e0b', '#ef4444'],
-  ['#ec4899', '#f97316'],
+  ['#ff501b', '#f97316'],
   ['#06b6d4', '#22c55e'],
 ];
 
@@ -66,7 +66,7 @@ export default function AdminUserProfile() {
           <div className="text-center">
             <UserCircle2 className="size-12 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500 font-semibold">{error || 'User not found.'}</p>
-            <button onClick={() => navigate('/admin/users')} className="mt-4 text-sm text-pink-500 hover:underline">
+            <button onClick={() => navigate('/admin/users')} className="mt-4 text-sm text-orange-500 hover:underline">
               Back to Users
             </button>
           </div>
@@ -83,7 +83,7 @@ export default function AdminUserProfile() {
   ];
 
   const stats = [
-    { label: 'Bookings',     value: user.bookingCount,          icon: Users,                  bg: 'bg-purple-50', color: 'text-purple-500' },
+    { label: 'Bookings',     value: user.bookingCount,          icon: Users,                  bg: 'bg-orange-50', color: 'text-orange-500' },
     { label: 'Transactions', value: user.transactions.length,   icon: Receipt,                bg: 'bg-amber-50',  color: 'text-amber-500'  },
     { label: 'Complaints',   value: user.complaints.length,     icon: MessageSquareWarning,   bg: 'bg-red-50',    color: 'text-red-400'    },
   ];
@@ -123,11 +123,11 @@ export default function AdminUserProfile() {
                 </div>
                 <div className="flex items-center gap-2 mb-1">
                   {isCurrentUser && (
-                    <span className="text-xs font-bold bg-pink-100 text-pink-500 px-3 py-1.5 rounded-full">You</span>
+                    <span className="text-xs font-bold bg-orange-100 text-orange-500 px-3 py-1.5 rounded-full">You</span>
                   )}
                   <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${
                     isAdmin
-                      ? 'bg-purple-50 text-purple-600 border-purple-100'
+                      ? 'bg-orange-50 text-orange-600 border-orange-100'
                       : 'bg-gray-100 text-gray-500 border-gray-200'
                   }`}>
                     <ShieldCheck className="size-3.5" />
@@ -156,8 +156,8 @@ export default function AdminUserProfile() {
               <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Contact Information</h3>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-pink-50 flex items-center justify-center shrink-0">
-                  <Mail className="size-4 text-pink-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Mail className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Email</p>
@@ -166,8 +166,8 @@ export default function AdminUserProfile() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                  <Phone className="size-4 text-purple-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Phone className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Phone</p>
@@ -213,8 +213,8 @@ export default function AdminUserProfile() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="size-4 text-purple-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Role</p>
@@ -223,8 +223,8 @@ export default function AdminUserProfile() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="size-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
-                  <Users className="size-4 text-indigo-500" />
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Users className="size-4 text-orange-500" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">User ID</p>
