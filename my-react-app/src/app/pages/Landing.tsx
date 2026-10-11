@@ -33,7 +33,7 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', updateHeader);
   }, []);
   const navigate = useNavigate();
-  const { login, signup, isAuthenticated } = useAuth();
+  const { login, signup, verifyEmail, isAuthenticated } = useAuth();
   const { activities, activitiesLoading, activitiesError } = useApp();
   const [category, setCategory] = useState('All');
   const [location, setLocation] = useState('');
@@ -43,6 +43,8 @@ export default function Landing() {
   const [testimonial, setTestimonial] = useState(0);
   const [authOpen, setAuthOpen] = useState(false);
   const [signupMode, setSignupMode] = useState(true);
+  const [pendingVerification, setPendingVerification] = useState<{ email: string; name: string } | null>(null);
+  const [verificationCode, setVerificationCode] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,7 +64,22 @@ export default function Landing() {
   const openActivity = (activity: Activity) => isAuthenticated ? navigate(`/activity/${activity.id}`) : setAuthOpen(true);
   const submitAuth = async (event: React.FormEvent) => {
     event.preventDefault(); setBusy(true); setError('');
-    try { if (signupMode) await signup(name, email, password); else await login(email, password); navigate('/activities'); }
+    try {
+      if (pendingVerification) {
+        await verifyEmail(pendingVerification.email, verificationCode.trim(), pendingVerification.name);
+        setPendingVerification(null);
+        setVerificationCode('');
+        navigate('/activities');
+      } else if (signupMode) {
+        const signupEmail = email.trim();
+        await signup(name.trim(), signupEmail, password);
+        setPendingVerification({ email: signupEmail, name: name.trim() });
+        setPassword('');
+      } else {
+        await login(email.trim(), password);
+        navigate('/activities');
+      }
+    }
     catch (err) { setError(err instanceof Error ? err.message : 'Unable to sign in'); }
     finally { setBusy(false); }
   };
@@ -104,6 +121,24 @@ export default function Landing() {
       <section className="journey-section"><div className="home-container journey-inner"><img src="/boredimage5.jpg" alt="Friends making candles together" loading="lazy" /><div><h2>Best Way To Start Your<br />Next Adventure!!!</h2><p>Explore exciting experiences with great company.<br />Life is brief. Make the most of your next weekend.</p><button className="orange-button" onClick={start}>GET STARTED <ArrowRight size={21} /></button></div></div></section>
     </main>
     <footer className="home-container travel-footer"><div className="footer-columns"><div><a className="travel-brand" href="/">{brand}</a><p>Discover something new, one adventure at a time.<br />Life is short. Make a plan.</p><button className="orange-button" onClick={start}>Join Bored! <ArrowRight size={17} /></button></div><div><h3>Quick Menu</h3><a href="#">Home</a><a href="#explore">Activities</a><a href="#about">About Us</a><a href="#testimonials">Testimonials</a></div><div><h3>Your Adventure</h3><button onClick={start}>Find an activity</button><button onClick={start}>Bring your friends</button><button onClick={() => isAuthenticated ? navigate('/my-groups') : setAuthOpen(true)}>My Groups</button><a href="#faq">Booking FAQs</a></div><div><h3>Let’s Connect</h3><p>Good experiences.<br />Great company.</p><a href="#faq"><Headphones size={16} /> Ask a question</a></div></div><div className="footer-copyright">© 2026 Bored! All rights reserved.</div></footer>
-    {authOpen && <div className="home-auth-overlay" onClick={() => setAuthOpen(false)}><section className="home-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={e => e.stopPropagation()}><button className="auth-close" aria-label="Close" onClick={() => setAuthOpen(false)}><X /></button><div className="travel-brand">{brand}</div><h2 id="auth-title">{signupMode ? 'Your next adventure starts here.' : 'Welcome back.'}</h2><form onSubmit={submitAuth}>{signupMode && <label>Name<input value={name} onChange={e => setName(e.target.value)} required autoComplete="name" /></label>}<label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" /></label><label>Password<input type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} /></label>{error && <p role="alert">{error}</p>}<button className="orange-button" disabled={busy}>{busy ? 'Please wait…' : signupMode ? 'Create Account' : 'Sign In'}</button></form><button className="auth-switch" onClick={() => { setSignupMode(!signupMode); setError(''); }}>{signupMode ? 'Already have an account? Sign in' : 'New to Bored!? Create an account'}</button></section></div>}
+    {authOpen && <div className="home-auth-overlay" onClick={() => { if (!busy) setAuthOpen(false); }}>
+      <section className="home-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={e => e.stopPropagation()}>
+        <button className="auth-close" aria-label="Close" disabled={busy} onClick={() => setAuthOpen(false)}><X /></button>
+        <div className="travel-brand">{brand}</div>
+        <h2 id="auth-title">{pendingVerification ? 'Verify your email.' : signupMode ? 'Your next adventure starts here.' : 'Welcome back.'}</h2>
+        {pendingVerification && <p className="verification-instructions">Enter the code sent to <strong>{pendingVerification.email}</strong>.</p>}
+        <form onSubmit={submitAuth}>
+          {pendingVerification ? <label>Verification code<input value={verificationCode} onChange={e => setVerificationCode(e.target.value)} required autoComplete="one-time-code" inputMode="numeric" autoFocus disabled={busy} /></label> : <>
+            {signupMode && <label>Name<input value={name} onChange={e => setName(e.target.value)} required autoComplete="name" disabled={busy} /></label>}
+            <label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" disabled={busy} /></label>
+            <label>Password<input type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} disabled={busy} /></label>
+          </>}
+          {error && <p role="alert">{error}</p>}
+          <button className="orange-button" disabled={busy || (Boolean(pendingVerification) && !verificationCode.trim())}>{busy ? 'Please wait…' : pendingVerification ? 'Verify Email' : signupMode ? 'Create Account' : 'Sign In'}</button>
+        </form>
+        <button className="auth-switch" disabled={busy} onClick={() => { setPendingVerification(null); setVerificationCode(''); setPassword(''); setSignupMode(pendingVerification ? false : !signupMode); setError(''); }}>{pendingVerification ? 'Back to sign in' : signupMode ? 'Already have an account? Sign in' : 'New to Bored!? Create an account'}</button>
+      </section>
+    </div>}
+
   </div>;
 }

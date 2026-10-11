@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
+  verifyEmail: (email: string, code: string, name?: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
   isAuthenticated: boolean;
@@ -17,8 +18,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function decodeJwtPayload(token: string): Record<string, string> {
   try {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '='));
+    const bytes = Uint8Array.from(decoded, char => char.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return {};
   }
@@ -84,8 +87,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (name: string, email: string, password: string) => {
     const message = await apiService.signup(name, email, password);
     toast.success(message);
-    // Auto-login after successful signup
-    await login(email, password);
+  };
+
+  const verifyEmail = async (email: string, code: string, name?: string) => {
+    const token = await apiService.verifyEmail(email, code);
+    const newUser = buildUserFromJwt(token, email, name);
+    localStorage.setItem('boredToken', token);
+    localStorage.setItem('boredUser', JSON.stringify(newUser));
+    setUser(newUser);
+    toast.success('Email verified successfully.');
   };
 
   const logout = () => {
@@ -108,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         login,
         signup,
+        verifyEmail,
         logout,
         updateUser,
         isAuthenticated: !!user,

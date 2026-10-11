@@ -299,6 +299,23 @@ export const apiService = {
     return data.token as string;
   },
 
+  async verifyEmail(email: string, code: string): Promise<string> {
+    const response = await fetch(`${AUTH_PATH}/user/verify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ Email: email, Code: code }),
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || (typeof result?.code === 'number' && result.code >= 400)) {
+      throw new Error(result?.message || 'Email verification failed. Please try again.');
+    }
+    const token = result?.data?.token;
+    if (typeof token !== 'string' || !token.trim()) {
+      throw new Error('Verification did not return a session token. Please try again.');
+    }
+    return token;
+  },
+
   // ── Payments ────────────────────────────────────────────────────────────
 
   async sendPaymentCallback(payload: PaymentCallbackPayload): Promise<void> {

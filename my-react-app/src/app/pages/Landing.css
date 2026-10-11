@@ -13,3 +13,5 @@
 .bored-home .travel-nav{transition:background-color .2s,color .2s,border-color .2s}
 .bored-home .travel-nav.is-scrolled{background:#f8f8fa;color:#121212;border-bottom-color:#d4d4d4}
 .bored-home .travel-nav.is-scrolled .nav-signup{background:#d4d4d4}
+
+.verification-instructions{font-size:13px;line-height:1.7;color:#777;margin-bottom:20px!important;overflow-wrap:anywhere}
