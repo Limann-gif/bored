@@ -150,7 +150,7 @@ export default function GroupBooking() {
 
   if (!activity) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -165,12 +165,12 @@ export default function GroupBooking() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button
             onClick={() => {
               if (step > 1 && step < 4) {
@@ -191,7 +191,7 @@ export default function GroupBooking() {
           </div>
         </div>
 
-        <div className="px-8 py-8 max-w-2xl">
+        <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-2xl">
           <Stepper step={step} />
 
           {/* ── Step 1: Add Friends ───────────────────────────────────── */}
@@ -254,7 +254,7 @@ export default function GroupBooking() {
               {/* Add friend form */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
                 <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Add a Friend</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-gray-500 font-semibold">Name</label>
                     <Input
@@ -520,7 +520,7 @@ export default function GroupBooking() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-semibold text-gray-500">Expiry</label>
                     <Input

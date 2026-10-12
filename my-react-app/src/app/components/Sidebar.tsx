@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Home, Users, Compass, User, MessageSquare, Settings, ShieldCheck, LogOut } from 'lucide-react';
+import { Sparkles, Home, Users, Compass, User, MessageSquare, Settings, ShieldCheck, LogOut, Menu } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from './ui/sheet';
 
 const baseNavItems = [
   // { icon: Home, label: 'Home', path: '/' },
@@ -15,6 +16,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +38,20 @@ export function Sidebar() {
     : baseNavItems;
 
   return (
-    <aside className="w-64 shrink-0 min-h-screen bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen overflow-y-auto">
+    <>
+    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-4 lg:hidden">
+      <Link to="/activities" className="flex items-center gap-2 text-xl font-bold text-orange-600"><Sparkles className="size-7" />Bored!</Link>
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetTrigger asChild><button aria-label="Open navigation" className="flex size-11 items-center justify-center rounded-xl border border-gray-200 text-gray-700"><Menu className="size-5" /></button></SheetTrigger>
+        <SheetContent side="left" className="w-[min(320px,90vw)] overflow-y-auto p-5">
+          <SheetTitle className="flex items-center gap-2 text-xl text-orange-600"><Sparkles className="size-7" />Bored!</SheetTitle>
+          <SheetDescription>Explore activities and manage your account.</SheetDescription>
+          <nav className="mt-4 space-y-2" aria-label="Mobile navigation">{navItems.map(({ icon: Icon, label, path }) => <Link key={path} to={path} onClick={() => setMobileOpen(false)} className={`flex min-h-11 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${location.pathname === path ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-gray-50'}`}><Icon className="size-5" />{label}</Link>)}</nav>
+          <div className="mt-auto border-t border-gray-100 pt-5"><p className="break-words text-sm font-semibold">{user.name}</p><p className="mt-1 break-all text-xs text-gray-400">{user.email}</p><button className="mt-4 flex min-h-11 items-center gap-2 text-sm font-semibold text-red-500" onClick={() => { setMobileOpen(false); logout(); navigate('/'); }}><LogOut className="size-4" />Log out</button></div>
+        </SheetContent>
+      </Sheet>
+    </div>
+    <aside className="hidden lg:flex w-64 shrink-0 min-h-screen bg-white border-r border-gray-100 flex-col sticky top-0 h-screen overflow-y-auto">
       {/* Logo */}
       <div className="px-6 pt-7 pb-8">
         <Link to="/activities" className="flex items-center gap-2">
@@ -121,5 +136,6 @@ export function Sidebar() {
         )}
       </div>
     </aside>
+    </>
   );
 }

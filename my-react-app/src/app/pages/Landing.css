@@ -11,7 +11,11 @@
 @media(max-width:600px){.bored-home .travel-hero{padding-top:80px}}
 .bored-home section[id]{scroll-margin-top:110px}
 .bored-home .travel-nav{transition:background-color .2s,color .2s,border-color .2s}
-.bored-home .travel-nav.is-scrolled{background:#f8f8fa;color:#121212;border-bottom-color:#d4d4d4}
+.bored-home .travel-nav.is-scrolled{background:rgba(255,255,255,0.76);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#121212;border-bottom-color:rgba(255,255,255,0.4)}
 .bored-home .travel-nav.is-scrolled .nav-signup{background:#d4d4d4}
 
 .verification-instructions{font-size:13px;line-height:1.7;color:#777;margin-bottom:20px!important;overflow-wrap:anywhere}
+
+.signup-dob-field{display:grid;gap:6px}.home-auth-modal label select{padding:12px;border:1px solid #ddd;border-radius:8px;width:100%;background:white;font:inherit}
+
+.auth-password-field{display:grid;gap:6px}.auth-password-input{position:relative}.home-auth-modal .auth-password-input input{padding-right:44px}.password-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#777;padding:4px;cursor:pointer}.password-toggle:hover{color:#121212}.password-toggle:disabled{opacity:.5}

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, Calendar, CheckCircle, ChevronRight, Headphones, MapPin, Search, Sparkles, Star, Users, Wallet, X } from 'lucide-react';
+import { ArrowRight, Calendar, CheckCircle, ChevronRight, Eye, EyeOff, Headphones, MapPin, Search, Sparkles, Star, Users, Wallet, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import type { Activity } from '../types';
 import './Landing.css';
+import { DateOfBirthPicker } from '../components/DateOfBirthPicker';
 
 const photo = (id: string, width = 1000) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 const hero = '/boredballoon-sharp.png';
@@ -48,6 +49,9 @@ export default function Landing() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const categories = ['All', ...new Set(activities.map(a => a.category).filter(Boolean))];
@@ -72,9 +76,10 @@ export default function Landing() {
         navigate('/activities');
       } else if (signupMode) {
         const signupEmail = email.trim();
-        await signup(name.trim(), signupEmail, password);
+        if (!dateOfBirth || !gender) throw new Error('Please select your date of birth and gender.');
+        await signup(name.trim(), signupEmail, password, dateOfBirth, gender);
         setPendingVerification({ email: signupEmail, name: name.trim() });
-        setPassword('');
+        setPassword(''); setShowPassword(false);
       } else {
         await login(email.trim(), password);
         navigate('/activities');
@@ -131,12 +136,13 @@ export default function Landing() {
           {pendingVerification ? <label>Verification code<input value={verificationCode} onChange={e => setVerificationCode(e.target.value)} required autoComplete="one-time-code" inputMode="numeric" autoFocus disabled={busy} /></label> : <>
             {signupMode && <label>Name<input value={name} onChange={e => setName(e.target.value)} required autoComplete="name" disabled={busy} /></label>}
             <label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" disabled={busy} /></label>
-            <label>Password<input type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} disabled={busy} /></label>
+            <div className="auth-password-field"><label htmlFor="auth-password">Password</label><div className="auth-password-input"><input id="auth-password" type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} disabled={busy} /><button type="button" className="password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} disabled={busy} onClick={() => setShowPassword(visible => !visible)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>
+            {signupMode && <><div className="signup-dob-field"><label htmlFor="signup-dob">Date of birth</label><DateOfBirthPicker value={dateOfBirth} onChange={setDateOfBirth} disabled={busy} /></div><label>Gender<select value={gender} onChange={event => setGender(event.target.value)} required disabled={busy}><option value="" disabled>Select gender</option><option value="female">Female</option><option value="male">Male</option></select></label></>}
           </>}
           {error && <p role="alert">{error}</p>}
           <button className="orange-button" disabled={busy || (Boolean(pendingVerification) && !verificationCode.trim())}>{busy ? 'Please wait…' : pendingVerification ? 'Verify Email' : signupMode ? 'Create Account' : 'Sign In'}</button>
         </form>
-        <button className="auth-switch" disabled={busy} onClick={() => { setPendingVerification(null); setVerificationCode(''); setPassword(''); setSignupMode(pendingVerification ? false : !signupMode); setError(''); }}>{pendingVerification ? 'Back to sign in' : signupMode ? 'Already have an account? Sign in' : 'New to Bored!? Create an account'}</button>
+        <button className="auth-switch" disabled={busy} onClick={() => { setPendingVerification(null); setVerificationCode(''); setPassword(''); setShowPassword(false); setSignupMode(pendingVerification ? false : !signupMode); setError(''); }}>{pendingVerification ? 'Back to sign in' : signupMode ? 'Already have an account? Sign in' : 'New to Bored!? Create an account'}</button>
       </section>
     </div>}
 

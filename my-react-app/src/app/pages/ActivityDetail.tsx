@@ -91,7 +91,7 @@ export default function ActivityDetail() {
           ← Back to Activities
         </Button>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-4 sm:p-6 lg:p-8">
           {/* Image and Basic Info */}
           <div>
             <div className="aspect-video rounded-lg overflow-hidden mb-4">
@@ -121,7 +121,7 @@ export default function ActivityDetail() {
 
           {/* Booking Card */}
           <div>
-            <Card className="sticky top-24">
+            <Card className="lg:sticky lg:top-24">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Join This Activity</span>

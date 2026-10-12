@@ -61,20 +61,20 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
 
   return (
     <article className="overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-      <div className="grid md:grid-cols-[320px_1fr]">
+      <div className="grid lg:grid-cols-[280px_1fr]">
         {image ? (
-          <img src={image} alt={activity.name} className="h-56 w-full object-cover md:h-full" />
+          <img src={image} alt={activity.name} className="h-56 w-full object-cover lg:h-full" />
         ) : (
           <div className="min-h-56 bg-gradient-to-br from-orange-500 via-orange-500 to-orange-500" />
         )}
 
         <div className="p-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div>
               <h2 className="text-2xl font-extrabold text-gray-900">{activity.name}</h2>
               {description && <p className="mt-2 text-sm leading-relaxed text-gray-500">{description}</p>}
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2">
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${statusStyles[status] ?? 'bg-gray-100 text-gray-600'}`}>
                 {statusLabel(status)}
               </span>
@@ -111,7 +111,7 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
           </div>
 
           {isBooked && !isPaid && onPay && (
-            <div className="mt-5 flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
+            <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
               <div><p className="text-sm font-bold text-amber-700">Payment pending</p><p className="mt-0.5 text-xs text-amber-500">Complete payment to confirm your spot</p></div>
               <Button size="sm" onClick={onPay} className="shrink-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:opacity-90">Make Payment</Button>
             </div>
@@ -236,7 +236,7 @@ export default function MyGroups() {
             </div>
             <h2 className="mb-2 text-2xl font-bold text-gray-800">No adventures yet!</h2>
             <p className="mb-8 max-w-sm text-gray-500">Join an activity to begin making memories.</p>
-            <Button onClick={() => navigate('/activities')} className="bg-gradient-to-r from-orange-600 to-orange-500 px-8 text-white hover:from-orange-700 hover:to-orange-600">
+            <Button onClick={() => navigate('/activities')} className="bg-gradient-to-r from-orange-600 to-orange-500 px-4 sm:px-6 lg:px-8 text-white hover:from-orange-700 hover:to-orange-600">
               <Sparkles className="mr-2 size-4" /> Browse Activities
             </Button>
           </div>

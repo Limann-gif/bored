@@ -1,0 +1,22 @@
+/* Dashboard pages keep their content width independent of navigation. */
+.app-shell{width:100%;min-width:0}
+.app-shell>main{width:100%;min-width:0;overflow-wrap:anywhere}
+.app-shell input,.app-shell select,.app-shell textarea{max-width:100%;min-width:0}
+@media(max-width:1023px){
+  .app-shell>main{overflow:visible}
+  .app-shell>main>div.sticky{top:64px;flex-wrap:wrap;gap:12px}
+}
+@media(max-width:639px){
+  .app-shell>main>div.sticky{padding-top:14px;padding-bottom:14px}
+  .app-shell h1{font-size:1.125rem}
+  .app-shell h2{font-size:1.375rem}
+  .app-shell .flex.items-end.justify-between{flex-wrap:wrap;gap:12px}
+  .app-shell .flex.items-center.justify-between{flex-wrap:wrap;gap:12px}
+  .app-shell .flex.items-center.gap-2.mb-1{flex-wrap:wrap;justify-content:flex-end}
+  .app-shell .grid.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .app-shell .grid.grid-cols-3>div{padding:12px 6px}
+  .app-shell .grid.grid-cols-3 .text-2xl{font-size:1.25rem}
+  .app-shell .grid.grid-cols-3 .text-xs{font-size:.65rem}
+  .app-shell .fixed.inset-0{padding:16px}
+  .app-shell button,.app-shell a{touch-action:manipulation}
+}

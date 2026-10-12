@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, dateOfBirth: string, gender: string) => Promise<void>;
   verifyEmail: (email: string, code: string, name?: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
@@ -84,8 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
   };
 
-  const signup = async (name: string, email: string, password: string) => {
-    const message = await apiService.signup(name, email, password);
+  const signup = async (name: string, email: string, password: string, dateOfBirth: string, gender: string) => {
+    const message = await apiService.signup(name, email, password, dateOfBirth, gender);
     toast.success(message);
   };
 

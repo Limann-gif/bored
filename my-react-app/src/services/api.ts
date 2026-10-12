@@ -60,6 +60,7 @@ export interface AdminUserRecord {
 export interface AdminUserDetail {
   bookingCount: number;
   age: number;
+  gender?: string;
   activitiesNumber: number;
   groupsJoinedNumber: number;
   completedActivityNumber: number;
@@ -75,6 +76,13 @@ export interface AdminUserDetail {
   bookingOrders: unknown[];
   transactions: unknown[];
   complaints: unknown[];
+}
+
+export interface ProfileUpdate {
+  phoneNumber: string;
+  location: string;
+  ocupation: string;
+  bio: string;
 }
 
 interface BackendUserDetail extends Partial<AdminUserDetail> {
@@ -260,29 +268,33 @@ export function mapActivityHistory(root: unknown): ActivityBookingOrderRecord[] 
 export const apiService = {
   // ── Auth ─────────────────────────────────────────────────────────────────
 
-  async signup(username: string, email: string, password: string): Promise<string> {
+  async signup(username: string, email: string, password: string, dateOfBirth: string, gender: string): Promise<string> {
     const response = await fetch(`${AUTH_PATH}/user/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password, role: 'user' }),
+      body: JSON.stringify({ username, email, password, dateOfBirth, gender, role: 'user' }),
+    }).catch((error: unknown) => {
+      if (error instanceof TypeError || (error instanceof Error && error.message === 'Failed to fetch')) {
+        throw new Error('Failed to send code to email. Kindly verify your email.');
+      }
+      throw error;
     });
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(message || 'Sign up failed');
-    }
     const body = await response.text();
-    let message = body;
+    let result: unknown;
     try {
-      const data: unknown = JSON.parse(body);
-      message = typeof data === 'string'
-        ? data
-        : data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
-          ? data.message
-          : '';
+      result = JSON.parse(body);
     } catch {
-      // Successful responses may contain a plain-text message.
+      result = body;
     }
-    return message.trim() || 'User created successfully.';
+    const record = result && typeof result === 'object'
+      ? result as { message?: unknown; code?: unknown }
+      : null;
+    const message = (typeof result === 'string' ? result : typeof record?.message === 'string' ? record.message : '').trim();
+    const successMessage = 'Registration successful. Please check your email for verification code.';
+    if (!response.ok || (typeof record?.code === 'number' && record.code >= 400) || message !== successMessage) {
+      throw new Error(message || 'Sign up failed. Please try again.');
+    }
+    return message;
   },
 
   async login(email: string, password: string): Promise<string> {
@@ -291,12 +303,22 @@ export const apiService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, role: 'USER' }),
     });
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(message);
+    const body = await response.text();
+    let result;
+    try {
+      result = JSON.parse(body);
+    } catch {
+      result = body;
     }
-    const data = await response.json();
-    return data.token as string;
+    if (!response.ok || (typeof result?.code === 'number' && result.code >= 400)) {
+      const message = typeof result === 'string' ? result : result?.message;
+      throw new Error(typeof message === 'string' && message.trim() ? message : 'Login failed. Please try again.');
+    }
+    const token = result?.data?.token ?? result?.token;
+    if (typeof token !== 'string' || !token.trim()) {
+      throw new Error('Login did not return a session token. Please try again.');
+    }
+    return token;
   },
 
   async verifyEmail(email: string, code: string): Promise<string> {
@@ -553,6 +575,32 @@ export const apiService = {
     return { ...mapActivity(json.data), id };
   },
 
+  async updateProfile(id: string, updates: ProfileUpdate): Promise<{ message: string; profile: Pick<AdminUserDetail, 'id' | 'phone' | 'locationAddress' | 'occupation' | 'bio'> }> {
+    const response = await fetch(`${AUTH_PATH}/user/updateProfile/${encodeURIComponent(id)}`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updates),
+    });
+    const result = await response.json().catch(() => null);
+    const data = result?.data;
+    // This endpoint currently reports code 404 even for its documented success.
+    const documentedSuccess = result?.message === 'User details updated successfully.' && data?.id === id;
+    if (!response.ok || !data || data.id !== id || (typeof result?.code === 'number' && result.code >= 400 && !documentedSuccess)) {
+      throw new Error(typeof result?.message === 'string' ? result.message : 'Could not update your profile. Please try again.');
+    }
+    // Retain only profile fields, never authentication or verification secrets.
+    return {
+      message: typeof result.message === 'string' ? result.message : 'Profile updated successfully.',
+      profile: {
+        id: data.id,
+        phone: typeof data.phone === 'string' ? data.phone : updates.phoneNumber,
+        locationAddress: typeof data.locationAddress === 'string' ? data.locationAddress : updates.location,
+        occupation: typeof data.occupation === 'string' ? data.occupation : updates.ocupation,
+        bio: typeof data.bio === 'string' ? data.bio : updates.bio,
+      },
+    };
+  },
+
   async getUserById(id: string): Promise<AdminUserDetail> {
     const response = await fetch(`${AUTH_PATH}/user/getUser/${encodeURIComponent(id)}`, {
       headers: authHeaders(),
@@ -569,6 +617,7 @@ export const apiService = {
       email: data.email ?? '',
       bookingCount: data.bookingCount ?? data.bookingOrders?.length ?? 0,
       age: data.age ?? 0,
+      gender: data.gender ?? '',
       phone: data.phone ?? null,
       bio: data.bio ?? null,
       occupation: data.occupation ?? null,

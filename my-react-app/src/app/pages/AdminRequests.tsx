@@ -17,12 +17,12 @@ export default function AdminRequests() {
   const totalPending = userSelections.length + formingGroups.length;
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button
             onClick={() => navigate('/admin')}
             className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
@@ -40,7 +40,7 @@ export default function AdminRequests() {
           )}
         </div>
 
-        <div className="px-8 py-6 space-y-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-8">
           {/* Pending Selections */}
           <section>
             <div className="flex items-center gap-2.5 mb-4">
@@ -201,7 +201,7 @@ export default function AdminRequests() {
               </div>
             ) : (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <table className="w-full">
+                <div className="max-w-full overflow-x-auto"><table className="min-w-[640px] w-full">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50/60">
                       <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">Activity</th>
@@ -262,7 +262,7 @@ export default function AdminRequests() {
                       );
                     })}
                   </tbody>
-                </table>
+                </table></div>
               </div>
             )}
           </section>

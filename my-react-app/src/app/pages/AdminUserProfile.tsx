@@ -49,7 +49,7 @@ export default function AdminUserProfile() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-gray-400 text-sm">Loading profile…</p>
@@ -60,7 +60,7 @@ export default function AdminUserProfile() {
 
   if (error || !user) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -89,12 +89,12 @@ export default function AdminUserProfile() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button
             onClick={() => navigate('/admin/users')}
             className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
@@ -107,13 +107,13 @@ export default function AdminUserProfile() {
           </div>
         </div>
 
-        <div className="px-8 py-8 max-w-4xl space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-4xl space-y-6">
           {/* Profile hero card */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             {/* Banner */}
             <div className="h-32" style={{ background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})` }} />
 
-            <div className="px-8 pb-8">
+            <div className="px-4 sm:px-6 lg:px-8 pb-8">
               <div className="flex items-end justify-between -mt-12 mb-5">
                 <div
                   className="size-24 rounded-2xl border-4 border-white shadow-md flex items-center justify-center text-white text-3xl font-extrabold shrink-0"
@@ -199,6 +199,26 @@ export default function AdminUserProfile() {
             {/* Account info */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
               <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Account Details</h3>
+
+              <div className="flex items-start gap-3">
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <Calendar className="size-4 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Age</p>
+                  <p className="text-sm font-semibold text-gray-800 mt-0.5">{user.age} years</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="size-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                  <UserCircle2 className="size-4 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Gender</p>
+                  <p className="text-sm font-semibold text-gray-800 mt-0.5 capitalize">{user.gender || 'Not provided'}</p>
+                </div>
+              </div>
 
               <div className="flex items-start gap-3">
                 <div className="size-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">

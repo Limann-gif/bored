@@ -128,12 +128,12 @@ export default function Admin() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between sticky top-0 z-40">
           <div>
             <h1 className="text-xl font-extrabold text-gray-900">Admin Dashboard</h1>
             <p className="text-sm text-gray-400 mt-0.5">Platform overview and management tools.</p>
@@ -146,7 +146,7 @@ export default function Admin() {
           </div>
         </div>
 
-        <div className="px-8 py-6 space-y-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-8">
           {(usersError || groupsError) && (
             <div role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
               Could not load dashboard data: {usersError || groupsError}
@@ -271,7 +271,7 @@ export default function Admin() {
                   No groups formed yet.
                 </div>
               ) : (
-                <table className="w-full">
+                <div className="max-w-full overflow-x-auto"><table className="min-w-[640px] w-full">
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
                       <th className="px-6 py-3.5 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Activity</th>
@@ -327,7 +327,7 @@ export default function Admin() {
                       );
                     })}
                   </tbody>
-                </table>
+                </table></div>
               )}
             </div>
           </section>

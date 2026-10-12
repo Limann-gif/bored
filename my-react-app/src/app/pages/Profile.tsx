@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { apiService, type AdminUserDetail } from '../../services/api';
+import { apiService, type AdminUserDetail, type ProfileUpdate } from '../../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Sidebar } from '../components/Sidebar';
+import { toast } from 'sonner';
 import {
   Mail,
   Phone,
@@ -19,6 +20,10 @@ export default function Profile() {
   const { user } = useAuth();
   const { getUserGroups, activities: allActivities } = useApp();
   const userId = user?.id;
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [draft, setDraft] = useState<ProfileUpdate>({ phoneNumber: '', location: '', ocupation: '', bio: '' });
   const [membership, setMembership] = useState<{ userId: string; details: AdminUserDetail | null; error: boolean } | null>(null);
 
   useEffect(() => {
@@ -36,6 +41,26 @@ export default function Profile() {
 
   const currentMembership = membership?.userId === userId ? membership : null;
   const profile = currentMembership?.details;
+  const openEditor = () => {
+    if (!profile) return;
+    setDraft({ phoneNumber: profile.phone || '', location: profile.locationAddress || '', ocupation: profile.occupation || '', bio: profile.bio || '' });
+    setSaveError('');
+    setEditing(true);
+  };
+  const saveProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!userId || !profile || saving) return;
+    setSaving(true); setSaveError('');
+    try {
+      const updates = Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as unknown as ProfileUpdate;
+      const result = await apiService.updateProfile(userId, updates);
+      setMembership(current => current?.userId === userId && current.details ? { ...current, details: { ...current.details, ...result.profile } } : current);
+      setEditing(false);
+      toast.success(result.message);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Could not update your profile.');
+    } finally { setSaving(false); }
+  };
   const joinedDate = profile?.joinedAt ? new Date(profile.joinedAt) : null;
   const memberSince = !currentMembership ? 'Loading…'
     : currentMembership.error ? 'Unable to load'
@@ -59,18 +84,19 @@ export default function Profile() {
   const unavailable = currentMembership?.error ? 'Unable to load' : 'Loading…';
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 sticky top-0 z-40">
           <h1 className="text-xl font-extrabold text-gray-900">My Profile</h1>
           <p className="text-sm text-gray-400 mt-0.5">{displayName}</p>
         </div>
 
-        <div className="px-8 py-8 max-w-4xl space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-4xl space-y-6">
           {currentMembership?.error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-600">Unable to load your profile details. Please refresh to try again.</p>}
+          {editing && <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm" aria-labelledby="edit-profile-title"><h2 id="edit-profile-title" className="mb-5 text-lg font-bold text-gray-900">Update Profile</h2><form onSubmit={saveProfile} className="space-y-4"><div className="grid gap-4 sm:grid-cols-2">{([{ key: 'phoneNumber', label: 'Phone number', type: 'tel', autocomplete: 'tel' }, { key: 'location', label: 'Location', type: 'text', autocomplete: 'address-level2' }, { key: 'ocupation', label: 'Occupation', type: 'text', autocomplete: 'organization-title' }] as const).map(field => <label key={field.key} className="grid gap-1.5 text-sm font-semibold text-gray-700">{field.label}<input type={field.type} autoComplete={field.autocomplete} value={draft[field.key]} disabled={saving} onChange={event => setDraft(current => ({ ...current, [field.key]: event.target.value }))} className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-normal focus:border-orange-400" /></label>)}</div><label className="grid gap-1.5 text-sm font-semibold text-gray-700">Bio<textarea value={draft.bio} disabled={saving} onChange={event => setDraft(current => ({ ...current, bio: event.target.value }))} rows={4} className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-normal focus:border-orange-400" /></label>{saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}<div className="flex gap-3"><button type="submit" disabled={saving} className="rounded-xl bg-orange-500 px-5 py-2 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button><button type="button" disabled={saving} onClick={() => setEditing(false)} className="rounded-xl border border-gray-200 px-5 py-2 text-sm font-semibold text-gray-600">Cancel</button></div></form></section>}
           {/* Profile hero card */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             {/* Banner */}
@@ -79,7 +105,7 @@ export default function Profile() {
               style={{ background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})` }}
             />
 
-            <div className="px-8 pb-8">
+            <div className="px-4 sm:px-6 lg:px-8 pb-8">
               {/* Avatar overlapping banner */}
               <div className="flex items-end justify-between -mt-12 mb-5">
                 <div
@@ -99,7 +125,7 @@ export default function Profile() {
               </div>
 
               {/* Name & occupation */}
-              <h2 className="text-2xl font-extrabold text-gray-900 leading-tight">{displayName}</h2>
+              <div className="flex flex-wrap items-center gap-4"><h2 className="text-2xl font-extrabold text-gray-900 leading-tight">{displayName}</h2><button onClick={openEditor} disabled={!profile || saving || editing} className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-50">Update Profile</button></div>
               <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5">
                 <Briefcase className="size-3.5 text-gray-400" />
                 {profile ? profile.occupation || 'Not specified' : unavailable}

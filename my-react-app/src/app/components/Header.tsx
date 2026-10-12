@@ -32,29 +32,32 @@ export function Header() {
           </span>
         </Link>
         
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-1 sm:gap-4">
           <Link to="/activities">
             <Button variant="ghost">Activities</Button>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" aria-label="Account menu" className="flex items-center gap-2">
                 <User className="size-4" />
-                {user.name}
+                <span className="hidden max-w-40 truncate sm:inline">{user.name}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="max-w-[calc(100vw-32px)] break-words">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <div className="flex flex-col">
-                  <span className="text-sm">{user.email}</span>
+                  <span className="text-sm break-all">{user.email}</span>
                   <span className="text-xs text-gray-500">
                     {user.subscriptionStatus === 'active' ? 'Active Subscriber' : 'Free Tier'}
                   </span>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/my-groups')}>My Groups</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
+              {user.role === 'ADMIN' && <DropdownMenuItem onClick={() => navigate('/admin')}>Dashboard</DropdownMenuItem>}
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="size-4 mr-2" />
                 Logout

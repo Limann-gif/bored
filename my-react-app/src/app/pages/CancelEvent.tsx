@@ -32,7 +32,7 @@ export default function CancelEvent() {
 
   if (!group || !activity) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-gray-500">Event not found.</p>
@@ -51,7 +51,7 @@ export default function CancelEvent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 flex flex-col items-center py-12 px-4">

@@ -36,12 +36,12 @@ export default function AdminUsers() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button
             onClick={() => navigate('/admin')}
             className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
@@ -55,7 +55,7 @@ export default function AdminUsers() {
           <span className="ml-auto text-xs text-gray-400 font-semibold">{users.length} users</span>
         </div>
 
-        <div className="px-8 py-6 space-y-5">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-5">
           {/* Search */}
           <div className="relative max-w-sm">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
@@ -74,7 +74,7 @@ export default function AdminUsers() {
             ) : error ? (
               <div className="py-20 text-center text-red-400 text-sm">{error}</div>
             ) : (
-              <table className="w-full">
+              <div className="max-w-full overflow-x-auto"><table className="min-w-[640px] w-full">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/60">
                     <th className="px-6 py-3.5 text-left text-xs font-extrabold text-gray-400 uppercase tracking-wider">User</th>
@@ -151,7 +151,7 @@ export default function AdminUsers() {
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </div>

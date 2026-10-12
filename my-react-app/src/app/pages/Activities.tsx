@@ -162,7 +162,7 @@ export default function Activities() {
         ? `Could not load activities: ${activitiesError}`
         : 'No activities available yet.';
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center text-gray-400 text-sm">
           {message}
@@ -231,12 +231,12 @@ export default function Activities() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between sticky top-0 z-40">
           <div>
             <h1 className="text-xl font-extrabold text-gray-900">Welcome back, {firstName}!</h1>
             <p className="text-sm text-gray-400 mt-0.5">Start living your best life in the city today.</p>
@@ -254,13 +254,13 @@ export default function Activities() {
           </div>
         </div>
 
-        <div className="px-8 py-6 space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
           {/* ── Mode Toggle ─────────────────────────── */}
           <div className="flex gap-3">
             <button
               onClick={() => setMode('individual')}
-              className={`flex items-center gap-2.5 px-5 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3 sm:px-5 py-3.5 rounded-2xl text-sm font-bold transition-all ${
                 mode === 'individual'
                   ? 'bg-gray-900 text-white shadow-md'
                   : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
@@ -271,7 +271,7 @@ export default function Activities() {
             </button>
             <button
               onClick={() => setMode('group')}
-              className={`flex items-center gap-2.5 px-5 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3 sm:px-5 py-3.5 rounded-2xl text-sm font-bold transition-all ${
                 mode === 'group'
                   ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                   : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
@@ -301,11 +301,11 @@ export default function Activities() {
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
-                <div className="relative min-h-72 flex flex-col justify-between gap-6 p-8">
+                <div className="relative min-h-72 flex flex-col justify-between gap-6 p-4 sm:p-6 lg:p-8">
                   <span className="self-start bg-orange-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest">
                     Upcoming activity you might like
                   </span>
-                  <div className="flex items-end justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
                     <div>
                       <h2 className="text-2xl font-extrabold text-white mb-1 leading-tight">{featuredActivity.name}</h2>
                       <p className="text-white/70 text-sm max-w-md leading-relaxed">{featuredActivity.description.slice(0, 85)}…</p>
@@ -367,7 +367,7 @@ export default function Activities() {
                 className="relative rounded-3xl overflow-hidden min-h-72 bg-gray-900 bg-cover bg-center"
                 style={{ backgroundImage: "linear-gradient(90deg, rgba(0,0,0,0.72), rgba(0,0,0,0.2)), url('/boredballoon-sharp.png')" }}
               >
-                <div className="relative min-h-72 flex flex-col justify-center px-8 py-8">
+                <div className="relative min-h-72 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xs font-extrabold bg-white/20 text-white px-3 py-1 rounded-full uppercase tracking-widest">
                       Bored! for Friends

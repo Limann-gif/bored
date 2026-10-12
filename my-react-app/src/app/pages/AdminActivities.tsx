@@ -82,7 +82,7 @@ export default function AdminActivities() {
     setForm(prev => ({ ...prev, [key]: e.target.value }));
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="app-shell flex min-h-screen flex-col lg:flex-row bg-gray-50">
       <Sidebar />
 
       {/* Add Activity Modal */}
@@ -112,7 +112,7 @@ export default function AdminActivities() {
                 />
                 {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Category</label>
                   <select
@@ -129,7 +129,7 @@ export default function AdminActivities() {
                   {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Capacity *</label>
                   <Input type="number" value={form.capacity} onChange={set('capacity')} placeholder="20" className="mt-1" />
@@ -146,7 +146,7 @@ export default function AdminActivities() {
                 <Input value={form.location} onChange={set('location')} placeholder="e.g. Downtown Park" className="mt-1" />
                 {errors.location && <p className="text-xs text-red-500 mt-1">{errors.location}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Group Min</label>
                   <Input type="number" value={form.groupMin} onChange={set('groupMin')} className="mt-1" />
@@ -208,7 +208,7 @@ export default function AdminActivities() {
       )}
 
       <main className="flex-1 overflow-auto min-w-0">
-        <div className="bg-white border-b border-gray-100 px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
+        <div className="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8 py-5 flex items-center gap-4 sticky top-0 z-40">
           <button onClick={() => navigate('/admin')} className="size-9 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
             <ArrowLeft className="size-4" />
           </button>
@@ -224,7 +224,7 @@ export default function AdminActivities() {
           </button>
         </div>
 
-        <div className="px-8 py-6 space-y-5">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-5">
           <div className="relative max-w-sm">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
             <Input
