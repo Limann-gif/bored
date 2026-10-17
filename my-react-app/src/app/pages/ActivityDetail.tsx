@@ -6,8 +6,6 @@ import { Header } from '../components/Header';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
 import { Calendar, MapPin, Users, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -19,7 +17,6 @@ export default function ActivityDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { selectActivity } = useApp();
-  const [location, setLocation] = useState(user?.location?.address || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loadingActivity, setLoadingActivity] = useState(true);
@@ -68,13 +65,13 @@ export default function ActivityDetail() {
 
       const mockLat = 37.7749 + (Math.random() - 0.5) * 0.1;
       const mockLng = -122.4194 + (Math.random() - 0.5) * 0.1;
-      selectActivity(activity, { lat: mockLat, lng: mockLng, address: location });
+      selectActivity(activity, { lat: mockLat, lng: mockLng, address: user.location?.address || activity.location });
 
-      toast.success('You\'ve been matched with a group!', {
-        description: 'Check "My Groups" to see your new crew',
+      toast.success("You're all set for your next experience!", {
+        description: <>Head to <strong>My Adventures</strong> to see your booked activity.</>,
       });
 
-      navigate('/my-groups');
+      navigate('/my-adventures');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to book activity');
     } finally {
@@ -159,21 +156,6 @@ export default function ActivityDetail() {
                       </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Location Input */}
-                <div className="space-y-2">
-                  <Label htmlFor="location">Your Starting Location</Label>
-                  <Input
-                    id="location"
-                    type="text"
-                    placeholder="Enter your address or neighborhood"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500">
-                    We'll use this to find people nearby and suggest a central meeting point
-                  </p>
                 </div>
 
                 {/* How It Works */}

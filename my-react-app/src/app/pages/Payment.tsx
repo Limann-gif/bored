@@ -53,7 +53,7 @@ export default function Payment() {
 
   const status = (booking?.confirmationStatus || booking?.onfirmationStatus || booking?.status)?.trim().toLowerCase();
   if (status && ['confirmed', 'completed', 'cancelled'].includes(status)) {
-    return <Navigate to="/my-groups" replace />;
+    return <Navigate to="/my-adventures" replace />;
   }
 
   const activityName = booking?.name ?? 'Activity booking';
@@ -84,7 +84,7 @@ export default function Payment() {
 
       <div className="container mx-auto px-4 py-8 max-w-lg">
         <button
-          onClick={() => navigate('/my-groups')}
+          onClick={() => navigate('/my-adventures')}
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6 transition-colors"
         >
           <ChevronLeft className="size-4" /> Back to My Groups

@@ -6,7 +6,7 @@ import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from 
 
 const baseNavItems = [
   // { icon: Home, label: 'Home', path: '/' },
-  { icon: Users, label: 'My Groups', path: '/my-groups' },
+  { icon: Users, label: 'My Adventures', path: '/my-adventures' },
   { icon: Compass, label: 'Explore Activities', path: '/activities' },
   { icon: User, label: 'Profile', path: '/profile' },
   // { icon: MessageSquare, label: 'Messages', path: '/messages' },

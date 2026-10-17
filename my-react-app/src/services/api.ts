@@ -151,6 +151,8 @@ export interface RefundRequestRecord {
 }
 
 export interface UserActivityHistoryItem {
+  isGroupBooking?: boolean;
+  bookingType?: string;
   paymentStatus?: string;
   orderId?: string;
   bookingOrderId?: string;

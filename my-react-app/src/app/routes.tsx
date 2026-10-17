@@ -41,7 +41,7 @@ export const router = createBrowserRouter([{
     element: <ActivityDetail />,
   },
   {
-    path: '/my-groups',
+    path: '/my-adventures',
     element: <MyGroups />,
   },
   {

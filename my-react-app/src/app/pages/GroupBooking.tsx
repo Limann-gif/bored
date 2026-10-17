@@ -410,7 +410,7 @@ export default function GroupBooking() {
                     },
                   });
                   clearProgress();
-                  navigate('/my-groups');
+                  navigate('/my-adventures');
                 }}
                 disabled={!bookingType}
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-sm"
@@ -623,7 +623,7 @@ export default function GroupBooking() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => navigate('/my-groups')}
+                  onClick={() => navigate('/my-adventures')}
                   className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm hover:opacity-90 transition-opacity shadow-sm"
                 >
                   <Users className="size-4" /> View My Groups

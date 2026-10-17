@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import { Header } from '../components/Header';
+import { Sidebar } from '../components/Sidebar';
+import { adventureFilters, getAdventureStatus, isGroupBooking } from './adventureStatus';
+import './MyAdventures.css';
 import { Button } from '../components/ui/button';
 import {
   Calendar,
+  ArrowUpRight,
+  Search,
+  Compass,
   CheckCircle2,
-  Clock,
   MapPin,
   PartyPopper,
   Sparkles,
@@ -28,6 +32,7 @@ const statusStyles: Record<string, string> = {
   confirmed: 'bg-emerald-100 text-emerald-700',
   completed: 'bg-blue-100 text-blue-700',
   cancelled: 'bg-red-100 text-red-600',
+  refunded: 'bg-violet-100 text-violet-700',
   paid: 'bg-emerald-100 text-emerald-700',
   requestrefund: 'bg-orange-100 text-orange-700',
 };
@@ -49,10 +54,11 @@ function MemberAvatar({ name, index }: { name: string; index: number }) {
 }
 
 function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activity: HistoryActivity; onPay?: () => void; onCancel: (paid: boolean) => void; cancelling: boolean }) {
-  const status = (activity.confirmationStatus || activity.status || activity.historyStatus).trim().toLowerCase();
+  const status = getAdventureStatus(activity);
+  const refundPending = [activity.confirmationStatus, activity.status, activity.historyStatus].some(value => ['requestrefund', 'refundrequested'].includes(value?.toLowerCase().replace(/[\s_-]/g, '')));
   const showMemberNames = activity.confirmationStatus?.trim().toLowerCase() === 'confirmed';
-  const isBooked = status === 'forming' || status === 'booked' || status === 'pending';
-  const isPaid = [activity.paymentStatus, activity.status, activity.historyStatus, status].some(value => value?.trim().toLowerCase() === 'paid');
+  const isBooked = status === 'booked';
+  const isPaid = status === 'confirmed';
   const canCancel = !['cancelled', 'canceled', 'completed', 'requestrefund', 'refunded'].includes(status) && (isBooked || isPaid);
   const eventDate = new Date(activity.activityDate);
   const image = activity.imageUrl;
@@ -60,12 +66,12 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
   const location = activity.location;
 
   return (
-    <article className="overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-      <div className="grid lg:grid-cols-[280px_1fr]">
+    <article className="adventure-card overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
+      <div className="adventure-card-layout">
         {image ? (
-          <img src={image} alt={activity.name} className="h-56 w-full object-cover lg:h-full" />
+          <img src={image} alt={activity.name} className="adventure-card-image" />
         ) : (
-          <div className="min-h-56 bg-gradient-to-br from-orange-500 via-orange-500 to-orange-500" />
+          <div className="adventure-card-image flex items-center justify-center bg-orange-100 text-orange-400"><Compass size={42} /></div>
         )}
 
         <div className="p-6">
@@ -76,7 +82,7 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
             </div>
             <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2">
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${statusStyles[status] ?? 'bg-gray-100 text-gray-600'}`}>
-                {statusLabel(status)}
+                {refundPending ? 'Refund requested' : statusLabel(status)}
               </span>
               {canCancel && <Button size="sm" variant="outline" disabled={cancelling} onClick={() => onCancel(isPaid)} className="text-red-600 border-red-200 hover:bg-red-50">{cancelling ? 'Submitting…' : isPaid ? 'Cancel & request refund' : 'Cancel booking'}</Button>}
               <span className="text-lg font-extrabold text-orange-500">GH₵{activity.price}</span>
@@ -112,7 +118,7 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
 
           {isBooked && !isPaid && onPay && (
             <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3">
-              <div><p className="text-sm font-bold text-amber-700">Payment pending</p><p className="mt-0.5 text-xs text-amber-500">Complete payment to confirm your spot</p></div>
+              <div><p className="text-sm font-bold text-amber-700">Payment pending</p><p className="mt-0.5 text-xs text-amber-500">Please complete your payment to confirm your booking.</p></div>
               <Button size="sm" onClick={onPay} className="shrink-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:opacity-90">Make Payment</Button>
             </div>
           )}
@@ -136,6 +142,8 @@ export default function MyGroups() {
   const [orders, setOrders] = useState<HistoryActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeFilter, setActiveFilter] = useState('booked');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -155,9 +163,9 @@ export default function MyGroups() {
             confirmationStatus: booking.confirmationStatus ?? booking.onfirmationStatus,
             groupMembers: booking.groupParticipants ?? [],
             historyStatus: status,
-            key: booking.id,
+            key: booking.orderId || booking.bookingOrderId || booking.id,
           }))
-        ));
+        ).filter(activity => getAdventureStatus(activity) !== 'cancelled'));
       })
       .catch((requestError: Error) => {
         if (active) setError(requestError.message);
@@ -175,8 +183,7 @@ export default function MyGroups() {
     setCancellingIds(ids => new Set(ids).add(bookingId));
     try {
       const message = paid ? await apiService.requestActivityRefund(bookingId) : await apiService.cancelBookedActivity(bookingId);
-      const nextStatus = paid ? 'requestrefund' : 'cancelled';
-      setOrders(current => current.map(order => order.key === activity.key ? { ...order, confirmationStatus: nextStatus, historyStatus: nextStatus, status: nextStatus } : order));
+      setOrders(current => current.filter(order => order.key !== activity.key));
       toast.success(message);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not cancel booking');
@@ -185,78 +192,40 @@ export default function MyGroups() {
     }
   };
 
-  const activities = orders;
-
-  const activitiesByStatus = useMemo(() => activities.reduce<Record<string, HistoryActivity[]>>((groups, activity) => {
-    const rawStatus = (activity.confirmationStatus || activity.status || activity.historyStatus || 'booked').trim().toLowerCase();
-    const status = rawStatus === 'forming' || rawStatus === 'pending' ? 'booked' : rawStatus;
-    (groups[status] ??= []).push(activity);
+  const activitiesByStatus = useMemo(() => orders.reduce<Record<string, HistoryActivity[]>>((groups, activity) => {
+    groups[getAdventureStatus(activity)].push(activity);
+    if (isGroupBooking(activity)) groups['group-booking'].push(activity);
     return groups;
-  }, {}), [activities]);
-  const orderedStatuses = ['booked', 'confirmed', 'completed', 'cancelled'];
-  const statusSections = [
-    ...orderedStatuses.filter(status => activitiesByStatus[status]?.length),
-    ...Object.keys(activitiesByStatus).filter(status => !orderedStatuses.includes(status)),
-  ];
+  }, { completed: [], confirmed: [], booked: [], refunded: [], 'group-booking': [] }), [orders]);
+  const selectedFilter = adventureFilters.find(filter => filter.id === activeFilter)!;
+  const visibleActivities = activitiesByStatus[activeFilter].filter(activity =>
+    `${activity.name} ${activity.location}`.toLowerCase().includes(search.trim().toLowerCase()));
+  const upcoming = orders.filter(activity => ['booked', 'confirmed'].includes(getAdventureStatus(activity)))
+    .filter(activity => !Number.isNaN(new Date(activity.activityDate).getTime()))
+    .sort((a, b) => new Date(a.activityDate).getTime() - new Date(b.activityDate).getTime())[0];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-gray-50">
-      <Header />
-
-      <div className="relative overflow-hidden bg-gradient-to-r from-orange-600 via-orange-600 to-orange-500 text-white">
-        <div className="relative container mx-auto px-4 py-10">
-          <div className="mb-2 flex items-center gap-3">
-            <Sparkles className="size-7 text-yellow-300" />
-            <h1 className="text-4xl font-extrabold tracking-tight">My Adventures</h1>
+    <div className="adventures-shell">
+      <Sidebar />
+      <div className="adventures-workspace">
+        <main className="adventures-main">
+          <div className="adventures-title-row"><div><h1>My Adventures</h1><p>Good times, all in one place.</p></div><label className="adventures-search"><Search size={17} /><input aria-label="Search your adventures" placeholder="Search adventures…" value={search} onChange={event => setSearch(event.target.value)} /></label></div>
+          <div className="adventures-filters" role="group" aria-label="Filter adventures">
+            {adventureFilters.map(filter => <button key={filter.id} aria-pressed={activeFilter === filter.id} className={activeFilter === filter.id ? 'active' : ''} onClick={() => setActiveFilter(filter.id)}>{filter.label}<span>{loading ? '–' : activitiesByStatus[filter.id].length}</span></button>)}
           </div>
-          <p className="max-w-md text-lg text-orange-100">Your activity history, all in one place.</p>
-          <div className="mt-6 flex items-center gap-6">
-            <div className="text-center">
-              <p className="text-3xl font-bold">{activitiesByStatus.booked?.length ?? 0}</p>
-              <p className="mt-0.5 text-xs uppercase tracking-wider text-orange-200">Booked</p>
-            </div>
-            <div className="h-10 w-px bg-white/20" />
-            <div className="text-center">
-              <p className="text-3xl font-bold">{activitiesByStatus.confirmed?.length ?? 0}</p>
-              <p className="mt-0.5 text-xs uppercase tracking-wider text-orange-200">Confirmed</p>
-            </div>
-          </div>
-        </div>
+          <p className="adventures-filter-description">{selectedFilter.description}</p>
+          {loading ? <div className="adventures-empty" role="status">Loading your adventures…</div>
+            : error ? <div role="alert" className="adventures-empty text-red-600">{error}</div>
+            : visibleActivities.length === 0 ? <div className="adventures-empty"><span className="adventures-empty-icon"><PartyPopper size={32} /></span><h3>{search ? 'No matching adventures' : activeFilter === 'group-booking' ? 'No group bookings yet' : `No ${selectedFilter.label.toLowerCase()} adventures yet`}</h3><p>{search ? 'Try a different activity or location.' : 'Find something you love and make a plan worth looking forward to.'}</p><Button onClick={() => navigate('/activities')} className="bg-orange-500 text-white hover:bg-orange-600">Explore activities <ArrowUpRight size={16} /></Button></div>
+            : <div className="adventures-grid">{visibleActivities.map(activity => <ActivityHistoryCard key={activity.key} activity={activity} cancelling={cancellingIds.has(activity.orderId || activity.bookingOrderId || activity.id)} onCancel={paid => cancelBooking(activity, paid)} onPay={() => navigate(`/payment/${activity.id}`, { state: { booking: activity } })} />)}</div>}
+        </main>
+        <aside className="adventures-rail" aria-label="Adventure overview">
+          <div className="adventures-profile"><span>{user?.name?.charAt(0) || 'A'}</span><div><strong>{user?.name || 'Adventurer'}</strong><p>Make room for adventure</p></div></div>
+          <section className="adventures-summary"><p className="adventures-eyebrow">YOUR STORY SO FAR</p><h2>A little adventure.<br />A lot of memories.</h2><div className="adventures-total">{loading ? '–' : orders.length}<span>total adventures</span></div><div className="adventures-summary-counts"><div><CheckCircle2 size={18} /><strong>{loading ? '–' : activitiesByStatus.completed.length}</strong><span>Completed</span></div><div><Users size={18} /><strong>{loading ? '–' : activitiesByStatus.confirmed.length}</strong><span>Confirmed</span></div></div></section>
+          <section className="adventures-next"><div className="adventures-rail-title"><h2>Next on your calendar</h2><Calendar size={18} /></div>{!loading && !error && upcoming ? <><p className="adventures-next-date">{format(new Date(upcoming.activityDate), 'MMM d, yyyy')}</p><h3>{upcoming.name}</h3><p><MapPin size={14} />{upcoming.location || 'Location to be confirmed'}</p><span className="adventures-next-status">{statusLabel(getAdventureStatus(upcoming))}</span></> : <p>{loading ? 'Loading your calendar…' : error ? 'Your calendar is currently unavailable.' : 'Your calendar is open for something wonderful.'}</p>}</section>
+          <section className="adventures-discover"><Sparkles size={26} /><h2>Try something new.</h2><p>A new place. A new experience. A story to tell.</p><button onClick={() => navigate('/activities')}>Find your next adventure <ArrowUpRight size={16} /></button></section>
+        </aside>
       </div>
-
-      <main className="container mx-auto space-y-10 px-4 py-10">
-        {loading ? (
-          <div className="py-24 text-center text-sm text-gray-400">Loading your activities…</div>
-        ) : error ? (
-          <div role="alert" className="rounded-2xl bg-red-50 px-6 py-5 text-center text-sm font-medium text-red-600">{error}</div>
-        ) : activities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-6 flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-orange-100 to-orange-100">
-              <PartyPopper className="size-12 text-orange-400" />
-            </div>
-            <h2 className="mb-2 text-2xl font-bold text-gray-800">No adventures yet!</h2>
-            <p className="mb-8 max-w-sm text-gray-500">Join an activity to begin making memories.</p>
-            <Button onClick={() => navigate('/activities')} className="bg-gradient-to-r from-orange-600 to-orange-500 px-4 sm:px-6 lg:px-8 text-white hover:from-orange-700 hover:to-orange-600">
-              <Sparkles className="mr-2 size-4" /> Browse Activities
-            </Button>
-          </div>
-        ) : (
-          <>
-            {statusSections.map(status => (
-              <section key={status}>
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="rounded-xl bg-orange-100 p-2">
-                    {status === 'booked' ? <Clock className="size-5 text-orange-600" /> : <CheckCircle2 className="size-5 text-orange-600" />}
-                  </div>
-                  <h2 className="text-2xl font-bold capitalize text-gray-900">{statusLabel(status)} Activities</h2>
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500">{activitiesByStatus[status].length}</span>
-                </div>
-                <div className="grid gap-6">{activitiesByStatus[status].map(activity => <ActivityHistoryCard key={activity.key} activity={activity} cancelling={cancellingIds.has(activity.orderId || activity.bookingOrderId || activity.id)} onCancel={paid => cancelBooking(activity, paid)} onPay={() => navigate(`/payment/${activity.id}`, { state: { booking: activity } })} />)}</div>
-              </section>
-            ))}
-          </>
-        )}
-      </main>
     </div>
   );
 }

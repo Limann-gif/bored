@@ -55,7 +55,7 @@ export function Header() {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/my-groups')}>My Groups</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/my-adventures')}>My Adventures</DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
               {user.role === 'ADMIN' && <DropdownMenuItem onClick={() => navigate('/admin')}>Dashboard</DropdownMenuItem>}
               <DropdownMenuItem onClick={handleLogout}>

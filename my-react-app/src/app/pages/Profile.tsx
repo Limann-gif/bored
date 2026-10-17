@@ -218,7 +218,7 @@ export default function Profile() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label: 'Groups Joined', value: profile?.groupsJoinedNumber ?? unavailable,       icon: Users,     bg: 'bg-orange-50', color: 'text-orange-500' },
+              { label: 'Group Activities', value: profile?.groupsJoinedNumber ?? unavailable,       icon: Users,     bg: 'bg-orange-50', color: 'text-orange-500' },
               { label: 'Completed',     value: profile?.completedActivityNumber ?? unavailable, icon: Star,      bg: 'bg-amber-50',  color: 'text-amber-500' },
               { label: 'Activities',    value: profile?.activitiesNumber ?? unavailable,    icon: Activity,  bg: 'bg-orange-50',   color: 'text-orange-500' },
             ].map(({ label, value, icon: Icon, bg, color }) => (

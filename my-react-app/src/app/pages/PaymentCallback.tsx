@@ -56,7 +56,7 @@ export default function PaymentCallback() {
             <h1 className="mb-2 text-3xl font-extrabold text-gray-900">Payment confirmed!</h1>
             <p className="mb-8 text-gray-500">Your payment was successful and your booking has been updated.</p>
             <button
-              onClick={() => navigate('/my-groups', { replace: true })}
+              onClick={() => navigate('/my-adventures', { replace: true })}
               className="rounded-full bg-gradient-to-r from-orange-600 to-orange-500 px-4 sm:px-6 lg:px-8 py-3 font-bold text-white shadow-lg transition-opacity hover:opacity-90"
             >
               View My Groups
@@ -79,7 +79,7 @@ export default function PaymentCallback() {
                 Try Again
               </button>
               <button
-                onClick={() => navigate('/my-groups', { replace: true })}
+                onClick={() => navigate('/my-adventures', { replace: true })}
                 className="rounded-full border border-gray-200 bg-white px-7 py-3 font-bold text-gray-700 hover:bg-gray-50"
               >
                 View My Groups

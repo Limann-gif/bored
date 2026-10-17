@@ -47,7 +47,7 @@ export default function CancelEvent() {
 
   const handleCancel = () => {
     removeGroup(group.id);
-    navigate('/my-groups');
+    navigate('/my-adventures');
   };
 
   return (
@@ -58,7 +58,7 @@ export default function CancelEvent() {
         <div className="w-full max-w-lg">
           {/* Back */}
           <button
-            onClick={() => navigate('/my-groups')}
+            onClick={() => navigate('/my-adventures')}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-8 transition-colors"
           >
             <ChevronLeft className="size-4" />
@@ -138,7 +138,7 @@ export default function CancelEvent() {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => navigate('/my-groups')}
+                onClick={() => navigate('/my-adventures')}
               >
                 Keep Event
               </Button>

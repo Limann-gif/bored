@@ -29,7 +29,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const isLandingPage = pathname === '/';
-  const shouldLoadActivities = !['/my-groups', '/profile'].includes(pathname.replace(/\/+$/, ''));
+  const shouldLoadActivities = !['/my-adventures', '/profile'].includes(pathname.replace(/\/+$/, ''));
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [activitiesError, setActivitiesError] = useState('');
