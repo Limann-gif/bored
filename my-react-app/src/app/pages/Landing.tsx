@@ -95,7 +95,7 @@ export default function Landing() {
       <nav className={`travel-nav home-container${scrolled ? ' is-scrolled' : ''}`} aria-label="Main navigation">
         <a className="travel-brand" href="/">{brand}</a>
         <div className="nav-links"><a href="#explore">Activities</a><a href="#about">About Us</a><a href="#testimonials">Testimonials</a><a href="#faq">FAQs</a></div>
-        <button className="nav-signup" onClick={() => { if (isAuthenticated) { navigate('/activities'); return; } setSignupMode(false); setPendingVerification(null); setVerificationCode(''); setPassword(''); setShowPassword(false); setError(''); setAuthOpen(true); }}>{isAuthenticated ? 'Explore' : 'SignIn'}</button>
+        <button className="nav-signup" onClick={() => { if (isAuthenticated) { navigate('/activities'); return; } setSignupMode(false); setPendingVerification(null); setVerificationCode(''); setPassword(''); setShowPassword(false); setError(''); setAuthOpen(true); }}>{isAuthenticated ? 'Explore' : 'Sign In'}</button>
       </nav>
       <div className="home-container hero-content"><h1>Unlock Your<br />Next Adventure<br />With Us!!!</h1><p>Discover something new, one adventure at a time.<br />Life is short. Make a plan.</p><button className="orange-button" onClick={start}>GET STARTED <ArrowRight size={20} /></button></div>
       <div className="home-container popular-section"><div className="popular-title"><h2>Popular Activities</h2><span /></div><div className="popular-strip">
