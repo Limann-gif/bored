@@ -1,6 +1,20 @@
+import { sessionRequest } from './sessionRequest';
 import type { Activity } from '../app/types';
 
 const AUTH_PATH = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+async function passwordRecoveryRequest(path: string, payload: Record<string, string>): Promise<string> {
+  const response = await fetch(`${AUTH_PATH}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || result?.code !== 200) {
+    throw new Error(result?.message || 'Unable to reset your password. Please try again.');
+  }
+  return result.message;
+}
 
 // Shape returned by the C# backend for Activity
 interface BackendActivity {
@@ -268,6 +282,13 @@ export function mapActivityHistory(root: unknown): ActivityBookingOrderRecord[] 
 }
 
 export const apiService = {
+  async forgotPassword(email: string): Promise<string> {
+    return passwordRecoveryRequest('/user/forgotPassword', { email });
+  },
+
+  async resetPassword(email: string, password: string, code: string): Promise<string> {
+    return passwordRecoveryRequest(`/user/resetPassword/${encodeURIComponent(code)}`, { email, password, code });
+  },
   // ── Auth ─────────────────────────────────────────────────────────────────
 
   async signup(username: string, email: string, password: string, dateOfBirth: string, gender: string): Promise<string> {
@@ -343,7 +364,7 @@ export const apiService = {
   // ── Payments ────────────────────────────────────────────────────────────
 
   async sendPaymentCallback(payload: PaymentCallbackPayload): Promise<void> {
-    const response = await fetch(`${AUTH_PATH}/payment/callback`, {
+    const response = await sessionRequest(`${AUTH_PATH}/payment/callback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -356,7 +377,7 @@ export const apiService = {
   },
 
   async initializePayment(bookingId: string): Promise<string> {
-    const response = await fetch(`${AUTH_PATH}/payment/initialize/${encodeURIComponent(bookingId)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/payment/initialize/${encodeURIComponent(bookingId)}`, {
       method: 'POST',
       headers: authHeaders(),
     });
@@ -396,7 +417,7 @@ export const apiService = {
   },
 
   async verifyPayment(reference: string): Promise<void> {
-    const response = await fetch(`${AUTH_PATH}/payment/verify/${encodeURIComponent(reference)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/payment/verify/${encodeURIComponent(reference)}`, {
       method: 'GET',
       headers: authHeaders(),
     });
@@ -428,7 +449,7 @@ export const apiService = {
   },
 
   async getPaymentHistory(): Promise<PaymentHistoryRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/payment/paymentHistory`, {
+    const response = await sessionRequest(`${AUTH_PATH}/payment/paymentHistory`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch payment history');
@@ -437,7 +458,7 @@ export const apiService = {
   },
 
   async getPaymentOrder(orderId: string): Promise<PaymentOrderRecord> {
-    const response = await fetch(`${AUTH_PATH}/payment/order/${encodeURIComponent(orderId)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/payment/order/${encodeURIComponent(orderId)}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch payment order');
@@ -471,7 +492,7 @@ export const apiService = {
   },
 
   async getGroupMembers(groupId: string): Promise<GroupMembersRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/groups/getGroupMembers/${encodeURIComponent(groupId)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/groups/getGroupMembers/${encodeURIComponent(groupId)}`, {
       headers: authHeaders(),
     });
     if (!response.ok) {
@@ -492,7 +513,7 @@ export const apiService = {
   },
 
   async cancelActivityBooking(bookingId: string, paid: boolean): Promise<string> {
-    const response = await fetch(`${AUTH_PATH}/activities/cancel/${paid ? 'paidActivity' : 'bookedActivity'}/${encodeURIComponent(bookingId)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/cancel/${paid ? 'paidActivity' : 'bookedActivity'}/${encodeURIComponent(bookingId)}`, {
       method: paid ? 'POST' : 'DELETE',
       headers: authHeaders(),
     });
@@ -504,7 +525,7 @@ export const apiService = {
   },
 
   async getRefundRequests(): Promise<RefundRequestRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/activities/refundRequests`, { headers: authHeaders() });
+    const response = await sessionRequest(`${AUTH_PATH}/activities/refundRequests`, { headers: authHeaders() });
     const json = await response.json().catch(() => null);
     if (!response.ok || (typeof json?.code === 'number' && json.code >= 400)) {
       throw new Error(json?.message || 'Could not load refund requests.');
@@ -514,7 +535,7 @@ export const apiService = {
   },
 
   async getUserActivityHistory(userId: string): Promise<UserActivityHistory> {
-    const response = await fetch(`${AUTH_PATH}/activities/getUserActivityHistory/${encodeURIComponent(userId)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/getUserActivityHistory/${encodeURIComponent(userId)}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch activity history');
@@ -523,7 +544,7 @@ export const apiService = {
   },
 
   async getAllGroupsActivityHistory(): Promise<ActivityBookingOrderRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/groups/getAllGroupsActivityHistory`, {
+    const response = await sessionRequest(`${AUTH_PATH}/groups/getAllGroupsActivityHistory`, {
       headers: authHeaders(),
     });
     if (!response.ok) {
@@ -539,7 +560,7 @@ export const apiService = {
   // ── Activities ───────────────────────────────────────────────────────────
 
   async getActivities(): Promise<Activity[]> {
-    const response = await fetch(`${AUTH_PATH}/activities/activityList`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/activityList`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch activities');
@@ -551,7 +572,7 @@ export const apiService = {
     activityId: string,
     group?: { participantsName: string[]; participantsEmail: string[] },
   ): Promise<void> {
-    const response = await fetch(`${AUTH_PATH}/activities/bookActivity`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/bookActivity`, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
@@ -568,7 +589,7 @@ export const apiService = {
   },
 
   async getActivity(id: string): Promise<Activity> {
-    const response = await fetch(`${AUTH_PATH}/activities/activity/${id}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/activity/${id}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Activity not found');
@@ -578,7 +599,7 @@ export const apiService = {
   },
 
   async updateProfile(id: string, updates: ProfileUpdate): Promise<{ message: string; profile: Pick<AdminUserDetail, 'id' | 'phone' | 'locationAddress' | 'occupation' | 'bio'> }> {
-    const response = await fetch(`${AUTH_PATH}/user/updateProfile/${encodeURIComponent(id)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/user/updateProfile/${encodeURIComponent(id)}`, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(updates),
@@ -604,7 +625,7 @@ export const apiService = {
   },
 
   async getUserById(id: string): Promise<AdminUserDetail> {
-    const response = await fetch(`${AUTH_PATH}/user/getUser/${encodeURIComponent(id)}`, {
+    const response = await sessionRequest(`${AUTH_PATH}/user/getUser/${encodeURIComponent(id)}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('User not found');
@@ -636,7 +657,7 @@ export const apiService = {
   },
 
   async getUsers(): Promise<AdminUserRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/user/getUsers`, {
+    const response = await sessionRequest(`${AUTH_PATH}/user/getUsers`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch users');
@@ -645,7 +666,7 @@ export const apiService = {
   },
 
   async getAdminGroups(): Promise<AdminGroupRecord[]> {
-    const response = await fetch(`${AUTH_PATH}/groups/getAllGroupsActivityHistory`, {
+    const response = await sessionRequest(`${AUTH_PATH}/groups/getAllGroupsActivityHistory`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch group history');
@@ -682,7 +703,7 @@ export const apiService = {
   },
 
   async addActivity(activity: Activity): Promise<Activity> {
-    const response = await fetch(`${AUTH_PATH}/activities/addActivity`, {
+    const response = await sessionRequest(`${AUTH_PATH}/activities/addActivity`, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({

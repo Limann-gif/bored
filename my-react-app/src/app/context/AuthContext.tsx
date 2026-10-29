@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { mockCurrentUser } from '../data/mockData';
 import { apiService } from '../../services/api';
 import { toast } from 'sonner';
+import { SESSION_TIMEOUT_EVENT } from '../../services/sessionRequest';
+import { clearGroupBookingDrafts } from '../utils/groupBookingDraft';
 
 interface AuthContextType {
   user: User | null;
@@ -76,9 +78,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
+  useEffect(() => {
+    const handleTimeout = () => {
+      setUser(null);
+      toast.error('Session timed out. Please sign in again.', { id: 'session-timeout' });
+    };
+    window.addEventListener(SESSION_TIMEOUT_EVENT, handleTimeout);
+    return () => window.removeEventListener(SESSION_TIMEOUT_EVENT, handleTimeout);
+  }, []);
+
   const login = async (email: string, password: string) => {
     const token = await apiService.login(email, password);
     const newUser = buildUserFromJwt(token, email);
+    clearGroupBookingDrafts();
     localStorage.setItem('boredToken', token);
     localStorage.setItem('boredUser', JSON.stringify(newUser));
     setUser(newUser);
@@ -92,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyEmail = async (email: string, code: string, name?: string) => {
     const token = await apiService.verifyEmail(email, code);
     const newUser = buildUserFromJwt(token, email, name);
+    clearGroupBookingDrafts();
     localStorage.setItem('boredToken', token);
     localStorage.setItem('boredUser', JSON.stringify(newUser));
     setUser(newUser);
@@ -99,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    clearGroupBookingDrafts();
     setUser(null);
     localStorage.removeItem('boredUser');
     localStorage.removeItem('boredToken');

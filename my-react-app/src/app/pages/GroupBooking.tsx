@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { getGroupBookingDraftKey } from '../utils/groupBookingDraft';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
@@ -51,6 +52,12 @@ function Stepper({ step }: { step: number }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function GroupBooking() {
+  const { activityId } = useParams();
+  const { user } = useAuth();
+  return <GroupBookingPage key={`${user?.id}-${activityId}`} />;
+}
+
+function GroupBookingPage() {
   const { activityId } = useParams<{ activityId: string }>();
   const { state } = useLocation() as { state?: { groupSize?: number } };
   const navigate = useNavigate();
@@ -59,7 +66,7 @@ export default function GroupBooking() {
 
   const activity = activities.find(a => a.id === activityId);
 
-  const progressKey = activityId ? `boredGroupBookingProgress-${activityId}` : null;
+  const progressKey = getGroupBookingDraftKey(user?.id, activityId);
 
   const savedProgress = progressKey ? (() => {
     try { return JSON.parse(localStorage.getItem(progressKey) ?? 'null'); } catch { return null; }
@@ -96,12 +103,18 @@ export default function GroupBooking() {
     if (!friendEmail.trim() || !/\S+@\S+\.\S+/.test(friendEmail)) { setFriendError('Valid email required.'); return; }
     if (friends.some(f => f.email.toLowerCase() === friendEmail.toLowerCase())) { setFriendError('This email is already added.'); return; }
     if (user?.email.toLowerCase() === friendEmail.toLowerCase()) { setFriendError("That's your own email!"); return; }
-    setFriends(prev => [...prev, { id: `f-${Date.now()}`, name: friendName.trim(), email: friendEmail.trim() }]);
+    const nextFriends = [...friends, { id: `f-${Date.now()}`, name: friendName.trim(), email: friendEmail.trim() }];
+    setFriends(nextFriends);
+    saveProgress({ friends: nextFriends, step, bookingType });
     setFriendName('');
     setFriendEmail('');
   };
 
-  const removeFriend = (id: string) => setFriends(prev => prev.filter(f => f.id !== id));
+  const removeFriend = (id: string) => {
+    const nextFriends = friends.filter(friend => friend.id !== id);
+    setFriends(nextFriends);
+    saveProgress({ friends: nextFriends, step, bookingType });
+  };
 
   const formatCardNumber = (v: string) =>
     v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})(?=.)/g, '$1 ');
@@ -317,7 +330,7 @@ export default function GroupBooking() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Invite */}
                 <button
-                  onClick={() => setBookingType('invite')}
+                  onClick={() => { setBookingType('invite'); saveProgress({ bookingType: 'invite' }); }}
                   className={`text-left p-6 rounded-2xl border-2 transition-all ${
                     bookingType === 'invite'
                       ? 'border-orange-500 bg-orange-50'
@@ -344,7 +357,7 @@ export default function GroupBooking() {
 
                 {/* Surprise */}
                 <button
-                  onClick={() => setBookingType('surprise')}
+                  onClick={() => { setBookingType('surprise'); saveProgress({ bookingType: 'surprise' }); }}
                   className={`text-left p-6 rounded-2xl border-2 transition-all ${
                     bookingType === 'surprise'
                       ? 'border-orange-500 bg-orange-50'

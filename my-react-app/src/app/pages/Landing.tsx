@@ -7,6 +7,7 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import type { Activity } from '../types';
 import './Landing.css';
 import { DateOfBirthPicker } from '../components/DateOfBirthPicker';
+import PasswordRecovery from '../components/PasswordRecovery';
 
 const photo = (id: string, width = 1000) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 const hero = '/boredballoon-sharp.png';
@@ -44,6 +45,8 @@ export default function Landing() {
   const [testimonial, setTestimonial] = useState(0);
   const [authOpen, setAuthOpen] = useState(false);
   const [signupMode, setSignupMode] = useState(false);
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [authMessage, setAuthMessage] = useState('');
   const [pendingVerification, setPendingVerification] = useState<{ email: string; name: string } | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [name, setName] = useState('');
@@ -130,7 +133,9 @@ export default function Landing() {
       <section className="home-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={e => e.stopPropagation()}>
         <button className="auth-close" aria-label="Close" disabled={busy} onClick={() => setAuthOpen(false)}><X /></button>
         <div className="travel-brand">{brand}</div>
+        {recoveryOpen ? <PasswordRecovery initialEmail={email} onBusyChange={setBusy} onBack={() => setRecoveryOpen(false)} onSuccess={(resetEmail, message) => { setEmail(resetEmail); setPassword(''); setShowPassword(false); setSignupMode(false); setRecoveryOpen(false); setError(''); setAuthMessage(`${message} Sign in with your new password.`); }} /> : <>
         <h2 id="auth-title">{pendingVerification ? 'Verify your email.' : signupMode ? 'Your next adventure starts here.' : 'Welcome back.'}</h2>
+        {authMessage && <p className="recovery-success" role="status">{authMessage}</p>}
         {pendingVerification && <p className="verification-instructions">Enter the code sent to <strong>{pendingVerification.email}</strong>.</p>}
         <form onSubmit={submitAuth}>
           {pendingVerification ? <label>Verification code<input value={verificationCode} onChange={e => setVerificationCode(e.target.value)} required autoComplete="one-time-code" inputMode="numeric" autoFocus disabled={busy} /></label> : <>
@@ -139,10 +144,12 @@ export default function Landing() {
             <div className="auth-password-field"><label htmlFor="auth-password">Password</label><div className="auth-password-input"><input id="auth-password" type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} disabled={busy} /><button type="button" className="password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} disabled={busy} onClick={() => setShowPassword(visible => !visible)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>
             {signupMode && <><div className="signup-dob-field"><label htmlFor="signup-dob">Date of birth</label><DateOfBirthPicker value={dateOfBirth} onChange={setDateOfBirth} disabled={busy} /></div><label>Gender<select value={gender} onChange={event => setGender(event.target.value)} required disabled={busy}><option value="" disabled>Select gender</option><option value="female">Female</option><option value="male">Male</option></select></label></>}
           </>}
+          {!signupMode && !pendingVerification && <button type="button" className="forgot-password-link" disabled={busy} onClick={() => { setRecoveryOpen(true); setPassword(''); setShowPassword(false); setError(''); setAuthMessage(''); }}>Forgot password?</button>}
           {error && <p role="alert">{error}</p>}
           <button className="orange-button" disabled={busy || (Boolean(pendingVerification) && !verificationCode.trim())}>{busy ? 'Please wait…' : pendingVerification ? 'Verify Email' : signupMode ? 'Create Account' : 'Sign In'}</button>
         </form>
         <button className="auth-switch" disabled={busy} onClick={() => { setPendingVerification(null); setVerificationCode(''); setPassword(''); setShowPassword(false); setSignupMode(pendingVerification ? false : !signupMode); setError(''); }}>{pendingVerification ? 'Back to sign in' : signupMode ? 'Already have an account? Sign in' : 'New to Bored!? Create an account'}</button>
+        </>}
       </section>
     </div>}
 

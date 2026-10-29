@@ -1,5 +1,7 @@
 import { AppProvider } from './context/AppContext';
-import { createBrowserRouter, Outlet } from 'react-router';
+import { useEffect } from 'react';
+import { SESSION_TIMEOUT_EVENT } from '../services/sessionRequest';
+import { createBrowserRouter, Outlet, useNavigate } from 'react-router';
 import Landing from './pages/Landing';
 import Activities from './pages/Activities';
 import ActivityDetail from './pages/ActivityDetail';
@@ -22,6 +24,12 @@ import NotFound from './pages/NotFound';
 import { AdminRoute } from './components/AdminRoute';
 
 function AppLayout() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handleTimeout = () => navigate('/', { replace: true });
+    window.addEventListener(SESSION_TIMEOUT_EVENT, handleTimeout);
+    return () => window.removeEventListener(SESSION_TIMEOUT_EVENT, handleTimeout);
+  }, [navigate]);
   return <AppProvider><Outlet /></AppProvider>;
 }
 

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Activity } from '../types';
+import { isUpcomingActivity } from './activityAvailability';
 
 // ─── Group-mode activity card ──────────────────────────────────────────────
 function GroupActivityCard({
@@ -112,8 +113,9 @@ function GroupActivityCard({
 // ─── Main page ─────────────────────────────────────────────────────────────
 export default function Activities() {
   const { user } = useAuth();
-  const { activities, activitiesLoading, activitiesError, groups, userSelections } = useApp();
+  const { activities: allActivities, activitiesLoading, activitiesError, groups, userSelections } = useApp();
   const navigate = useNavigate();
+  const activities = allActivities.filter(activity => isUpcomingActivity(activity));
 
   const [mode, setMode] = useState<'individual' | 'group'>('individual');
   const groupSize = 2;
@@ -300,7 +302,7 @@ export default function Activities() {
                   alt={featuredActivity.name}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/25 to-black/5" />
                 <div className="relative min-h-72 flex flex-col justify-between gap-6 p-4 sm:p-6 lg:p-8">
                   <span className="self-start bg-orange-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest">
                     Upcoming activity you might like
@@ -365,7 +367,7 @@ export default function Activities() {
               {/* Hero banner */}
               <div
                 className="relative rounded-3xl overflow-hidden min-h-72 bg-gray-900 bg-cover bg-center"
-                style={{ backgroundImage: "linear-gradient(90deg, rgba(0,0,0,0.72), rgba(0,0,0,0.2)), url('/boredballoon-sharp.png')" }}
+                style={{ backgroundImage: "linear-gradient(90deg, rgba(0,0,0,0.48), rgba(0,0,0,0.1)), url('/boredballoon-sharp.png')" }}
               >
                 <div className="relative min-h-72 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8">
                   <div className="flex items-center gap-2 mb-3">

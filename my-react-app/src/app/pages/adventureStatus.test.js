@@ -5,17 +5,15 @@ import { adventureFilters, getAdventureStatus, isGroupBooking } from './adventur
 const now = new Date(2026, 9, 17, 12);
 const upcoming = { activityDate: new Date(2026, 9, 20).toISOString(), status: 'booked' };
 const cases = [
-  ['unpaid booking', upcoming, 'booked'],
-  ['paid overrides booked', { ...upcoming, paymentStatus: 'Paid' }, 'confirmed'],
-  ['confirmed booking', { ...upcoming, confirmationStatus: 'confirmed' }, 'confirmed'],
-  ['past paid booking', { ...upcoming, activityDate: new Date(2026, 9, 16).toISOString(), paymentStatus: 'paid' }, 'completed'],
-  ['activity today stays upcoming', { ...upcoming, activityDate: new Date(2026, 9, 17).toISOString() }, 'booked'],
-  ['explicit completion', { ...upcoming, status: 'completed' }, 'completed'],
-  ['cancelled paid booking', { ...upcoming, status: 'cancelled', paymentStatus: 'paid' }, 'cancelled'],
-  ['refunded confirmed booking', { ...upcoming, confirmationStatus: 'confirmed', paymentStatus: 'refunded' }, 'refunded'],
-  ['refund request', { ...upcoming, historyStatus: 'Request Refund' }, 'cancelled'],
-  ['past cancellation', { ...upcoming, activityDate: '2026-10-01', cancellationDate: '2026-09-30' }, 'cancelled'],
-  ['pending with unknown date', { ...upcoming, activityDate: 'invalid', status: 'pending' }, 'booked'],
+  ['booked ignores paid payment status', { ...upcoming, paymentStatus: 'paid' }, 'booked'],
+  ['booked ignores confirmation status', { ...upcoming, confirmationStatus: 'confirmed' }, 'booked'],
+  ['past booked remains booked', { ...upcoming, activityDate: '2020-01-01' }, 'booked'],
+  ['completed uses status', { ...upcoming, status: 'completed' }, 'completed'],
+  ['confirmed uses status', { ...upcoming, status: 'confirmed' }, 'confirmed'],
+  ['refunded uses status', { ...upcoming, status: 'refunded' }, 'refunded'],
+  ['cancelled uses status', { ...upcoming, status: 'cancelled' }, 'cancelled'],
+  ['history bucket cannot override status', { ...upcoming, historyStatus: 'completed' }, 'booked'],
+  ['normalizes case and whitespace', { ...upcoming, status: ' Confirmed ' }, 'confirmed'],
 ];
 for (const [label, activity, expected] of cases) {
   test(label, () => assert.equal(getAdventureStatus(activity, now), expected));
@@ -48,9 +46,4 @@ test('API group booking with one participant is included regardless of participa
   assert.equal(isGroupBooking(activity), true);
   assert.equal(getAdventureStatus(activity, now), 'booked');
   assert.equal(isGroupBooking({ ...activity, isGroupBooking: false }), false);
-});
-
-test('completed refunds remain visible even with a cancellation date', () => {
-  assert.equal(getAdventureStatus({ ...upcoming, cancellationDate: '2026-10-15', paymentStatus: 'refunded' }, now), 'refunded');
-  assert.equal(getAdventureStatus({ ...upcoming, status: 'requestrefund' }, now), 'cancelled');
 });

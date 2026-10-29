@@ -55,8 +55,7 @@ function MemberAvatar({ name, index }: { name: string; index: number }) {
 
 function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activity: HistoryActivity; onPay?: () => void; onCancel: (paid: boolean) => void; cancelling: boolean }) {
   const status = getAdventureStatus(activity);
-  const refundPending = [activity.confirmationStatus, activity.status, activity.historyStatus].some(value => ['requestrefund', 'refundrequested'].includes(value?.toLowerCase().replace(/[\s_-]/g, '')));
-  const showMemberNames = activity.confirmationStatus?.trim().toLowerCase() === 'confirmed';
+  const showMemberNames = status === 'confirmed';
   const isBooked = status === 'booked';
   const isPaid = status === 'confirmed';
   const canCancel = !['cancelled', 'canceled', 'completed', 'requestrefund', 'refunded'].includes(status) && (isBooked || isPaid);
@@ -82,7 +81,7 @@ function ActivityHistoryCard({ activity, onPay, onCancel, cancelling }: { activi
             </div>
             <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2">
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${statusStyles[status] ?? 'bg-gray-100 text-gray-600'}`}>
-                {refundPending ? 'Refund requested' : statusLabel(status)}
+                {statusLabel(status)}
               </span>
               {canCancel && <Button size="sm" variant="outline" disabled={cancelling} onClick={() => onCancel(isPaid)} className="text-red-600 border-red-200 hover:bg-red-50">{cancelling ? 'Submitting…' : isPaid ? 'Cancel & request refund' : 'Cancel booking'}</Button>}
               <span className="text-lg font-extrabold text-orange-500">GH₵{activity.price}</span>
@@ -193,7 +192,7 @@ export default function MyGroups() {
   };
 
   const activitiesByStatus = useMemo(() => orders.reduce<Record<string, HistoryActivity[]>>((groups, activity) => {
-    groups[getAdventureStatus(activity)].push(activity);
+    groups[getAdventureStatus(activity)]?.push(activity);
     if (isGroupBooking(activity)) groups['group-booking'].push(activity);
     return groups;
   }, { completed: [], confirmed: [], booked: [], refunded: [], 'group-booking': [] }), [orders]);
