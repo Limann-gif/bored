@@ -8,6 +8,7 @@ import type { Activity } from '../types';
 import './Landing.css';
 import { DateOfBirthPicker } from '../components/DateOfBirthPicker';
 import PasswordRecovery from '../components/PasswordRecovery';
+import { toast } from 'sonner';
 
 const photo = (id: string, width = 1000) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 const hero = '/boredballoon-sharp.png';
@@ -46,7 +47,6 @@ export default function Landing() {
   const [authOpen, setAuthOpen] = useState(false);
   const [signupMode, setSignupMode] = useState(false);
   const [recoveryOpen, setRecoveryOpen] = useState(false);
-  const [authMessage, setAuthMessage] = useState('');
   const [pendingVerification, setPendingVerification] = useState<{ email: string; name: string } | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [name, setName] = useState('');
@@ -67,8 +67,18 @@ export default function Landing() {
       ? Array.from({ length: Math.max(8, filtered.length) }, (_, i) => filtered[i % filtered.length]).slice(0, 8)
       : [];
   const popular = activities.length ? Array.from({ length: 4 }, (_, i) => activities[i % activities.length]) : [];
-  const start = () => isAuthenticated ? navigate('/activities') : setAuthOpen(true);
-  const openActivity = (activity: Activity) => isAuthenticated ? navigate(`/activity/${activity.id}`) : setAuthOpen(true);
+  const openSignIn = () => {
+    setRecoveryOpen(false);
+    setSignupMode(false);
+    setPendingVerification(null);
+    setVerificationCode('');
+    setPassword('');
+    setShowPassword(false);
+    setError('');
+    setAuthOpen(true);
+  };
+  const start = () => isAuthenticated ? navigate('/activities') : openSignIn();
+  const openActivity = (activity: Activity) => isAuthenticated ? navigate(`/activity/${activity.id}`) : openSignIn();
   const submitAuth = async (event: React.FormEvent) => {
     event.preventDefault(); setBusy(true); setError('');
     try {
@@ -98,7 +108,7 @@ export default function Landing() {
       <nav className={`travel-nav home-container${scrolled ? ' is-scrolled' : ''}`} aria-label="Main navigation">
         <a className="travel-brand" href="/">{brand}</a>
         <div className="nav-links"><a href="#explore">Activities</a><a href="#about">About Us</a><a href="#testimonials">Testimonials</a><a href="#faq">FAQs</a></div>
-        <button className="nav-signup" onClick={() => { if (isAuthenticated) { navigate('/activities'); return; } setSignupMode(false); setPendingVerification(null); setVerificationCode(''); setPassword(''); setShowPassword(false); setError(''); setAuthOpen(true); }}>{isAuthenticated ? 'Explore' : 'Sign In'}</button>
+        <button className="nav-signup" onClick={() => { if (isAuthenticated) { navigate('/activities'); return; } openSignIn(); }}>{isAuthenticated ? 'Explore' : 'Sign In'}</button>
       </nav>
       <div className="home-container hero-content"><h1>Unlock Your<br />Next Adventure<br />With Us!!!</h1><p>Discover something new, one adventure at a time.<br />Life is short. Make a plan.</p><button className="orange-button" onClick={start}>GET STARTED <ArrowRight size={20} /></button></div>
       <div className="home-container popular-section"><div className="popular-title"><h2>Popular Activities</h2><span /></div><div className="popular-strip">
@@ -128,14 +138,13 @@ export default function Landing() {
 
       <section className="journey-section"><div className="home-container journey-inner"><img src="/boredimage5.jpg" alt="Friends making candles together" loading="lazy" /><div><h2>Best Way To Start Your<br />Next Adventure!!!</h2><p>Explore exciting experiences with great company.<br />Life is brief. Make the most of your next weekend.</p><button className="orange-button" onClick={start}>GET STARTED <ArrowRight size={21} /></button></div></div></section>
     </main>
-    <footer className="home-container travel-footer"><div className="footer-columns"><div><a className="travel-brand" href="/">{brand}</a><p>Discover something new, one adventure at a time.<br />Life is short. Make a plan.</p><button className="orange-button" onClick={start}>Join Bored! <ArrowRight size={17} /></button></div><div><h3>Quick Menu</h3><a href="#">Home</a><a href="#explore">Activities</a><a href="#about">About Us</a><a href="#testimonials">Testimonials</a></div><div><h3>Your Adventure</h3><button onClick={start}>Find an activity</button><button onClick={start}>Bring your friends</button><button onClick={() => isAuthenticated ? navigate('/my-adventures') : setAuthOpen(true)}>My Adventures</button><a href="#faq">Booking FAQs</a></div><div><h3>Let’s Connect</h3><p>Good experiences.<br />Great company.</p><a href="#faq"><Headphones size={16} /> Ask a question</a></div></div><div className="footer-copyright">© 2026 Bored! All rights reserved.</div></footer>
+    <footer className="home-container travel-footer"><div className="footer-columns"><div><a className="travel-brand" href="/">{brand}</a><p>Discover something new, one adventure at a time.<br />Life is short. Make a plan.</p><button className="orange-button" onClick={start}>Join Bored! <ArrowRight size={17} /></button></div><div><h3>Quick Menu</h3><a href="#">Home</a><a href="#explore">Activities</a><a href="#about">About Us</a><a href="#testimonials">Testimonials</a></div><div><h3>Your Adventure</h3><button onClick={start}>Find an activity</button><button onClick={start}>Bring your friends</button><button onClick={() => isAuthenticated ? navigate('/my-adventures') : openSignIn()}>My Adventures</button><a href="#faq">Booking FAQs</a></div><div><h3>Let’s Connect</h3><p>Good experiences.<br />Great company.</p><a href="#faq"><Headphones size={16} /> Ask a question</a></div></div><div className="footer-copyright">© 2026 Bored! All rights reserved.</div></footer>
     {authOpen && <div className="home-auth-overlay" onClick={() => { if (!busy) setAuthOpen(false); }}>
       <section className="home-auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={e => e.stopPropagation()}>
         <button className="auth-close" aria-label="Close" disabled={busy} onClick={() => setAuthOpen(false)}><X /></button>
         <div className="travel-brand">{brand}</div>
-        {recoveryOpen ? <PasswordRecovery initialEmail={email} onBusyChange={setBusy} onBack={() => setRecoveryOpen(false)} onSuccess={(resetEmail, message) => { setEmail(resetEmail); setPassword(''); setShowPassword(false); setSignupMode(false); setRecoveryOpen(false); setError(''); setAuthMessage(`${message} Sign in with your new password.`); }} /> : <>
+        {recoveryOpen ? <PasswordRecovery initialEmail={email} onBusyChange={setBusy} onBack={() => setRecoveryOpen(false)} onSuccess={(resetEmail, message) => { setEmail(resetEmail); setPassword(''); setShowPassword(false); setSignupMode(false); setRecoveryOpen(false); setError(''); setPendingVerification(null); setVerificationCode(''); toast.success(message, { duration: 3000, style: { background: '#edf8f0', color: '#23734a', borderColor: '#b8dfc5' } }); }} /> : <>
         <h2 id="auth-title">{pendingVerification ? 'Verify your email.' : signupMode ? 'Your next adventure starts here.' : 'Welcome back.'}</h2>
-        {authMessage && <p className="recovery-success" role="status">{authMessage}</p>}
         {pendingVerification && <p className="verification-instructions">Enter the code sent to <strong>{pendingVerification.email}</strong>.</p>}
         <form onSubmit={submitAuth}>
           {pendingVerification ? <label>Verification code<input value={verificationCode} onChange={e => setVerificationCode(e.target.value)} required autoComplete="one-time-code" inputMode="numeric" autoFocus disabled={busy} /></label> : <>
@@ -144,7 +153,7 @@ export default function Landing() {
             <div className="auth-password-field"><label htmlFor="auth-password">Password</label><div className="auth-password-input"><input id="auth-password" type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required autoComplete={signupMode ? 'new-password' : 'current-password'} disabled={busy} /><button type="button" className="password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} disabled={busy} onClick={() => setShowPassword(visible => !visible)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>
             {signupMode && <><div className="signup-dob-field"><label htmlFor="signup-dob">Date of birth</label><DateOfBirthPicker value={dateOfBirth} onChange={setDateOfBirth} disabled={busy} /></div><label>Gender<select value={gender} onChange={event => setGender(event.target.value)} required disabled={busy}><option value="" disabled>Select gender</option><option value="female">Female</option><option value="male">Male</option></select></label></>}
           </>}
-          {!signupMode && !pendingVerification && <button type="button" className="forgot-password-link" disabled={busy} onClick={() => { setRecoveryOpen(true); setPassword(''); setShowPassword(false); setError(''); setAuthMessage(''); }}>Forgot password?</button>}
+          {!signupMode && !pendingVerification && <button type="button" className="forgot-password-link" disabled={busy} onClick={() => { setRecoveryOpen(true); setPassword(''); setShowPassword(false); setError(''); }}>Forgot password?</button>}
           {error && <p role="alert">{error}</p>}
           <button className="orange-button" disabled={busy || (Boolean(pendingVerification) && !verificationCode.trim())}>{busy ? 'Please wait…' : pendingVerification ? 'Verify Email' : signupMode ? 'Create Account' : 'Sign In'}</button>
         </form>
